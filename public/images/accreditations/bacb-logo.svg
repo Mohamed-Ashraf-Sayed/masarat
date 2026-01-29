@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <circle cx="50" cy="50" r="45" fill="#1e40af"/>
+  <text x="50" y="40" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-weight="bold" font-size="16">BACB</text>
+  <text x="50" y="58" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="7">Behavior Analyst</text>
+  <text x="50" y="68" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="7">Certification Board</text>
+  <path d="M30 75 L50 85 L70 75" stroke="white" stroke-width="2" fill="none"/>
+</svg>

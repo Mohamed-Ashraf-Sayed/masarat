@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(yarn install)",
+      "Bash(export HOME=/Users/mohamed)",
+      "Bash(/usr/local/bin/npm install)",
+      "Bash(/opt/homebrew/bin/npm install)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsx:*)",
+      "Bash(lsof:*)",
+      "Bash(node -e:*)",
+      "Bash(unzip:*)"
+    ]
+  }
+}

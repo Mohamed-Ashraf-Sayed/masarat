@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-rgb: 255, 255, 255;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Custom Classes */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 text-white px-6 py-3 rounded-xl font-semibold
+           hover:bg-primary-700 transition-all duration-300
+           shadow-lg hover:shadow-xl hover:shadow-primary-500/25
+           active:scale-95 transform;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary-600 px-6 py-3 rounded-xl font-semibold
+           border-2 border-primary-600 hover:bg-primary-50
+           transition-all duration-300 active:scale-95 transform;
+  }
+
+  .btn-ghost {
+    @apply text-primary-600 px-6 py-3 rounded-xl font-semibold
+           hover:bg-primary-50 transition-all duration-300;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl
+           transition-all duration-300 overflow-hidden;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-2 hover:shadow-2xl;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200
+           focus:border-primary-500 focus:ring-4 focus:ring-primary-100
+           outline-none transition-all duration-300;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-gray-900;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-gray-600 mt-4;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 to-primary-400
+           bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-lg;
+  }
+
+  .nav-link {
+    @apply text-gray-600 hover:text-primary-600 font-medium
+           transition-colors duration-300 relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600
+           transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+}
+
+/* Animations */
+@layer utilities {
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animate-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* Video Player Styles */
+.video-container {
+  @apply relative w-full aspect-video bg-gray-900 rounded-xl overflow-hidden;
+}
+
+.video-container video {
+  @apply w-full h-full object-cover;
+}
+
+/* Progress Bar */
+.progress-bar {
+  @apply h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-gradient-to-r from-primary-600 to-primary-400
+         transition-all duration-500 ease-out;
+}
+
+/* Badge Styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-primary {
+  @apply bg-primary-100 text-primary-700;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-700;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Toast Notifications */
+.toast {
+  @apply fixed bottom-4 right-4 bg-white shadow-2xl rounded-xl p-4
+         flex items-center gap-3 transform transition-all duration-300;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50
+         flex items-center justify-center;
+}
+
+.modal-content {
+  @apply bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4
+         transform transition-all duration-300;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  @apply absolute top-full right-0 mt-2 w-48 bg-white rounded-xl
+         shadow-xl border border-gray-100 py-2 z-50;
+}
+
+.dropdown-item {
+  @apply px-4 py-2 hover:bg-gray-50 transition-colors cursor-pointer
+         flex items-center gap-2;
+}
+
+/* Stats Card */
+.stat-card {
+  @apply bg-gradient-to-br from-primary-500 to-primary-700
+         text-white rounded-2xl p-6;
+}
+
+/* Feature Card */
+.feature-card {
+  @apply p-6 rounded-2xl border-2 border-gray-100
+         hover:border-primary-200 hover:bg-primary-50/50
+         transition-all duration-300;
+}
