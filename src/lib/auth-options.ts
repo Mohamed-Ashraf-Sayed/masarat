@@ -8,6 +8,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'fallback-secret-key-change-in-production',
   adapter: PrismaAdapter(prisma) as NextAuthOptions['adapter'],
   providers: [
     GoogleProvider({

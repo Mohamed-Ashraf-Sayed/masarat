@@ -8,9 +8,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // لتصدير الموقع كملفات ثابتة (Static Export)
-  // فعّل هذا السطر للاستضافة المشتركة
-  // output: 'export',
+  // للاستضافة - تم إزالة standalone بسبب استخدام custom server
   // إعدادات الصور
   images: {
     remotePatterns: [
