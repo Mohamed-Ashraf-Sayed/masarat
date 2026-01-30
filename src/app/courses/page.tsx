@@ -43,11 +43,12 @@ export default function CoursesPage() {
   const { language, t } = useLanguage();
   const searchParams = useSearchParams();
   const instructorIdFromUrl = searchParams.get('instructor');
+  const searchFromUrl = searchParams.get('search');
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchFromUrl || '');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedInstructor, setSelectedInstructor] = useState<string | null>(instructorIdFromUrl);
@@ -70,10 +71,16 @@ export default function CoursesPage() {
     { id: 'price-high', name: { ar: 'السعر: من الأعلى', en: 'Price: High to Low' } },
   ];
 
-  // Update instructor filter when URL changes
+  // Update filters when URL changes
   useEffect(() => {
     setSelectedInstructor(instructorIdFromUrl);
   }, [instructorIdFromUrl]);
+
+  useEffect(() => {
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchFromUrl]);
 
   // Fetch courses and categories from API
   useEffect(() => {

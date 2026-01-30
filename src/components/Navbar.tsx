@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -16,7 +17,18 @@ import {
   Globe,
   Search,
   Bell,
+  CheckCheck,
+  Loader2,
 } from 'lucide-react';
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
 
 interface NavbarProps {
   variant?: 'default' | 'solid';
@@ -25,6 +37,7 @@ interface NavbarProps {
 export default function Navbar({ variant = 'default' }: NavbarProps) {
   const { language, setLanguage, t, direction } = useLanguage();
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
 
   // If variant is solid, always show solid background
@@ -32,6 +45,14 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Notifications state
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +61,97 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Fetch notifications when user is logged in
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const res = await fetch('/api/notifications?limit=10');
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(data.data.notifications);
+        setUnreadCount(data.data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId }),
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markAllAsRead: true }),
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return language === 'ar' ? 'الآن' : 'Just now';
+    if (diffInSeconds < 3600) {
+      const mins = Math.floor(diffInSeconds / 60);
+      return language === 'ar' ? `منذ ${mins} دقيقة` : `${mins}m ago`;
+    }
+    if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return language === 'ar' ? `منذ ${hours} ساعة` : `${hours}h ago`;
+    }
+    const days = Math.floor(diffInSeconds / 86400);
+    return language === 'ar' ? `منذ ${days} يوم` : `${days}d ago`;
+  };
 
   const navLinks = [
     { href: '/', label: t('home') },
@@ -119,14 +231,97 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
             {user ? (
               <div className="relative flex items-center">
                 {/* Notifications */}
-                <button className={`p-2 rounded-xl transition-all relative ${
-                  showSolidBg
-                    ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-100'
-                    : 'text-white/90 hover:text-white hover:bg-white/10'
-                }`}>
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+                <div className="relative" ref={notificationsRef}>
+                  <button
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    className={`p-2 rounded-xl transition-all relative ${
+                      showSolidBg
+                        ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-100'
+                        : 'text-white/90 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <Bell className="w-5 h-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notifications Dropdown */}
+                  {isNotificationsOpen && (
+                    <div className="absolute end-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-slide-down">
+                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                        <h3 className="font-semibold text-gray-900">
+                          {language === 'ar' ? 'الإشعارات' : 'Notifications'}
+                        </h3>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={markAllAsRead}
+                            className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                          >
+                            <CheckCheck className="w-4 h-4" />
+                            {language === 'ar' ? 'قراءة الكل' : 'Mark all read'}
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-80 overflow-y-auto">
+                        {loadingNotifications ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
+                          </div>
+                        ) : notifications.length === 0 ? (
+                          <div className="py-8 text-center text-gray-500">
+                            <Bell className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+                            <p>{language === 'ar' ? 'لا توجد إشعارات' : 'No notifications'}</p>
+                          </div>
+                        ) : (
+                          notifications.map((notification) => (
+                            <button
+                              key={notification.id}
+                              onClick={() => {
+                                if (!notification.isRead) {
+                                  markAsRead(notification.id);
+                                }
+                              }}
+                              className={`w-full px-4 py-3 text-start hover:bg-gray-50 transition-colors border-b border-gray-50 ${
+                                !notification.isRead ? 'bg-primary-50/50' : ''
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div
+                                  className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${
+                                    notification.isRead ? 'bg-transparent' : 'bg-primary-600'
+                                  }`}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-gray-900 text-sm truncate">
+                                    {notification.title}
+                                  </p>
+                                  <p className="text-gray-500 text-sm line-clamp-2">
+                                    {notification.message}
+                                  </p>
+                                  <p className="text-gray-400 text-xs mt-1">
+                                    {formatTimeAgo(notification.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+
+                      <Link
+                        href="/dashboard/notifications"
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="block px-4 py-3 text-center text-sm text-primary-600 hover:bg-gray-50 border-t border-gray-100"
+                      >
+                        {language === 'ar' ? 'عرض كل الإشعارات' : 'View all notifications'}
+                      </Link>
+                    </div>
+                  )}
+                </div>
 
                 {/* Profile Menu */}
                 <button
@@ -257,15 +452,23 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
         {/* Search Bar */}
         {isSearchOpen && (
           <div className="py-4 border-t border-gray-100 animate-slide-down">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('searchPlaceholder')}
-                className="input-field ps-12"
+                className="input-field ps-12 pe-24"
                 autoFocus
               />
-            </div>
+              <button
+                type="submit"
+                className="absolute end-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+              >
+                {language === 'ar' ? 'بحث' : 'Search'}
+              </button>
+            </form>
           </div>
         )}
 
