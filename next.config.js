@@ -8,7 +8,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // للاستضافة - تم إزالة standalone بسبب استخدام custom server
+  // Standalone output for better production performance
+  output: 'standalone',
   // إعدادات الصور
   images: {
     remotePatterns: [
