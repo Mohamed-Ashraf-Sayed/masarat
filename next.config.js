@@ -8,8 +8,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Standalone output for better production performance
-  output: 'standalone',
+  // Note: Using default output (not standalone) for compatibility
   // إعدادات الصور
   images: {
     remotePatterns: [
