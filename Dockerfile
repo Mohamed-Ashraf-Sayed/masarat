@@ -1,8 +1,9 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat openssl openssl-dev
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl openssl-dev
 WORKDIR /app
 
 # Copy package files
@@ -24,6 +25,8 @@ COPY . .
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# Dummy DATABASE_URL for build time only
+ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
 
 RUN npm run build
 
