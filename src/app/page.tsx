@@ -2,6 +2,7 @@
 
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import ImageSlider from '@/components/ImageSlider';
 import AboutVideoSection from '@/components/AboutVideoSection';
 import StatsSection from '@/components/StatsSection';
 import PopularProgramsSection from '@/components/PopularProgramsSection';
@@ -20,6 +21,7 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar variant="solid" />
       <HeroSection />
+      <ImageSlider />
       <AboutVideoSection />
       <StatsSection />
       <PopularProgramsSection />
