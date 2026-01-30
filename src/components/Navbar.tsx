@@ -32,6 +32,16 @@ interface Notification {
   createdAt: string;
 }
 
+interface SearchCourse {
+  id: string;
+  title: { ar: string; en: string };
+  thumbnail: string;
+  price: number;
+  instructor: {
+    name: string;
+  };
+}
+
 interface NavbarProps {
   variant?: 'default' | 'solid';
 }
@@ -48,6 +58,9 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchCourse[]>([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Notifications state
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -77,10 +90,41 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setIsNotificationsOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchResults([]);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Live search with debounce
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const debounceTimer = setTimeout(async () => {
+      try {
+        setLoadingSearch(true);
+        const res = await fetch('/api/courses');
+        const data = await res.json();
+        if (data.success) {
+          const filtered = data.data.filter((course: SearchCourse) =>
+            course.title[language].toLowerCase().includes(searchQuery.toLowerCase())
+          ).slice(0, 5);
+          setSearchResults(filtered);
+        }
+      } catch (error) {
+        console.error('Error searching courses:', error);
+      } finally {
+        setLoadingSearch(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, language]);
 
   const fetchNotifications = async () => {
     try {
@@ -453,7 +497,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
 
         {/* Search Bar */}
         {isSearchOpen && (
-          <div className="py-4 border-t border-gray-100 animate-slide-down">
+          <div className="py-4 border-t border-gray-100 animate-slide-down" ref={searchRef}>
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -471,6 +515,67 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                 {language === 'ar' ? 'بحث' : 'Search'}
               </button>
             </form>
+
+            {/* Search Results Dropdown */}
+            {searchQuery.trim() && (
+              <div className="mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                {loadingSearch ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <>
+                    {searchResults.map((course) => (
+                      <Link
+                        key={course.id}
+                        href={`/courses/${course.id}`}
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          setSearchQuery('');
+                          setSearchResults([]);
+                        }}
+                        className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0"
+                      >
+                        <img
+                          src={course.thumbnail || '/images/course-placeholder.jpg'}
+                          alt={course.title[language]}
+                          className="w-16 h-12 object-cover rounded-lg"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 text-sm truncate">
+                            {course.title[language]}
+                          </p>
+                          <p className="text-gray-500 text-xs">
+                            {course.instructor.name}
+                          </p>
+                        </div>
+                        <div className="text-primary-600 font-semibold text-sm">
+                          {course.price === 0
+                            ? (language === 'ar' ? 'مجاني' : 'Free')
+                            : `$${course.price}`}
+                        </div>
+                      </Link>
+                    ))}
+                    <Link
+                      href={`/courses?search=${encodeURIComponent(searchQuery)}`}
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery('');
+                        setSearchResults([]);
+                      }}
+                      className="block px-4 py-3 text-center text-sm text-primary-600 hover:bg-gray-50 border-t border-gray-100"
+                    >
+                      {language === 'ar' ? 'عرض كل النتائج' : 'View all results'}
+                    </Link>
+                  </>
+                ) : (
+                  <div className="py-6 text-center text-gray-500">
+                    <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p>{language === 'ar' ? 'لا توجد نتائج' : 'No results found'}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
