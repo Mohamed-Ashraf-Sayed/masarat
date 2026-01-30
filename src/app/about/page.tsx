@@ -210,7 +210,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img
-                src="/images/about.PNG"
+                src="/images/home.png"
                 alt="Our Story"
                 className="rounded-3xl shadow-2xl"
               />
