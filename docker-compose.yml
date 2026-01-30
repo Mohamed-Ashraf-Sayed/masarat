@@ -11,8 +11,8 @@ services:
       - DATABASE_URL=mysql://masarat:Mohamed6231@db:3306/masarat
       - NEXTAUTH_SECRET=edu-platform-nextauth-secret-2024-secure
       - JWT_SECRET=edu-platform-secret-jwt-key-2024-production-ready
-      - NEXTAUTH_URL=https://masarat.phi-rose.com
-      - NEXT_PUBLIC_APP_URL=https://masarat.phi-rose.com
+      - NEXTAUTH_URL=https://masaratedu.com
+      - NEXT_PUBLIC_APP_URL=https://masaratedu.com
       - NODE_ENV=production
     depends_on:
       db:
