@@ -25,7 +25,17 @@ import {
   Upload,
   Link as LinkIcon,
   FileVideo,
+  FileText,
+  Download,
+  File,
 } from 'lucide-react';
+
+interface Resource {
+  id: string;
+  title: string;
+  url: string;
+  type: string;
+}
 
 interface Lesson {
   id: string;
@@ -36,6 +46,7 @@ interface Lesson {
   order: number;
   isFree: boolean;
   requireQuizPass: boolean;
+  resources?: Resource[];
 }
 
 interface Course {
@@ -72,6 +83,12 @@ export default function LessonsPage() {
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // PDF Resources state
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfTitle, setPdfTitle] = useState('');
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
   useEffect(() => {
     if (!user || user.role !== 'ADMIN') {
       router.push('/login');
@@ -107,7 +124,7 @@ export default function LessonsPage() {
     }
   };
 
-  const handleOpenModal = (lesson?: Lesson) => {
+  const handleOpenModal = async (lesson?: Lesson) => {
     if (lesson) {
       setEditingLesson(lesson);
       setFormData({
@@ -120,6 +137,20 @@ export default function LessonsPage() {
         requireQuizPass: lesson.requireQuizPass || false,
       });
       setVideoMode(lesson.videoUrl ? 'url' : 'url');
+      // Fetch resources for this lesson
+      if (token) {
+        try {
+          const res = await fetch(`/api/admin/courses/${courseId}/lessons/${lesson.id}/resources`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const result = await res.json();
+          if (result.success) {
+            setResources(result.data);
+          }
+        } catch (error) {
+          console.error('Error fetching resources:', error);
+        }
+      }
     } else {
       setEditingLesson(null);
       setFormData({
@@ -132,8 +163,11 @@ export default function LessonsPage() {
         requireQuizPass: false,
       });
       setVideoMode('url');
+      setResources([]);
     }
     setVideoFile(null);
+    setPdfFile(null);
+    setPdfTitle('');
     setUploadProgress(0);
     setShowModal(true);
   };
@@ -196,6 +230,95 @@ export default function LessonsPage() {
       return null;
     } finally {
       setUploadingVideo(false);
+    }
+  };
+
+  const handlePdfFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert(language === 'ar' ? 'يُسمح فقط بملفات PDF' : 'Only PDF files are allowed');
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        alert(language === 'ar' ? 'حجم الملف كبير جداً. الحد الأقصى 50 ميجابايت' : 'File too large. Max 50MB allowed');
+        return;
+      }
+      setPdfFile(file);
+      if (!pdfTitle) {
+        setPdfTitle(file.name.replace('.pdf', ''));
+      }
+    }
+  };
+
+  const uploadPdf = async () => {
+    if (!pdfFile || !pdfTitle || !token || !editingLesson) return;
+
+    setUploadingPdf(true);
+
+    try {
+      // Upload the PDF file
+      const formData = new FormData();
+      formData.append('file', pdfFile);
+
+      const uploadRes = await fetch('/api/upload/pdf', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const uploadResult = await uploadRes.json();
+
+      if (!uploadResult.success) {
+        alert(uploadResult.error || (language === 'ar' ? 'فشل رفع الملف' : 'Failed to upload file'));
+        return;
+      }
+
+      // Create the resource record
+      const resourceRes = await fetch(`/api/admin/courses/${courseId}/lessons/${editingLesson.id}/resources`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: pdfTitle,
+          url: uploadResult.data.url,
+          type: 'PDF',
+        }),
+      });
+
+      const resourceResult = await resourceRes.json();
+
+      if (resourceResult.success) {
+        setResources([...resources, resourceResult.data]);
+        setPdfFile(null);
+        setPdfTitle('');
+      }
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      alert(language === 'ar' ? 'حدث خطأ أثناء رفع الملف' : 'An error occurred while uploading');
+    } finally {
+      setUploadingPdf(false);
+    }
+  };
+
+  const deleteResource = async (resourceId: string) => {
+    if (!token || !editingLesson) return;
+
+    try {
+      const res = await fetch(`/api/admin/courses/${courseId}/lessons/${editingLesson.id}/resources?resourceId=${resourceId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        setResources(resources.filter(r => r.id !== resourceId));
+      }
+    } catch (error) {
+      console.error('Error deleting resource:', error);
     }
   };
 
@@ -645,6 +768,116 @@ export default function LessonsPage() {
                   min="0"
                 />
               </div>
+
+              {/* PDF Resources Section */}
+              {editingLesson && (
+                <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    {language === 'ar' ? 'ملفات PDF المرفقة' : 'Attached PDF Files'}
+                  </h4>
+
+                  {/* Existing Resources */}
+                  {resources.length > 0 && (
+                    <div className="space-y-2">
+                      {resources.map((resource) => (
+                        <div key={resource.id} className="flex items-center gap-3 bg-white p-3 rounded-lg">
+                          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <File className="w-5 h-5 text-red-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{resource.title}</p>
+                            <a
+                              href={resource.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <Download className="w-3 h-3" />
+                              {language === 'ar' ? 'تحميل' : 'Download'}
+                            </a>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => deleteResource(resource.id)}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Add New PDF */}
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600">
+                      {language === 'ar' ? 'إضافة ملف PDF جديد:' : 'Add new PDF file:'}
+                    </p>
+                    <div className="grid gap-3">
+                      <input
+                        type="text"
+                        value={pdfTitle}
+                        onChange={(e) => setPdfTitle(e.target.value)}
+                        placeholder={language === 'ar' ? 'عنوان الملف' : 'File title'}
+                        className="input-field text-sm"
+                      />
+                      {!pdfFile ? (
+                        <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                          <Upload className="w-5 h-5 text-blue-500" />
+                          <span className="text-sm text-blue-600">
+                            {language === 'ar' ? 'اختر ملف PDF' : 'Choose PDF file'}
+                          </span>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="application/pdf"
+                            onChange={handlePdfFileChange}
+                          />
+                        </label>
+                      ) : (
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-blue-200">
+                          <File className="w-5 h-5 text-red-600" />
+                          <span className="flex-1 text-sm text-gray-700 truncate">{pdfFile.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPdfFile(null)}
+                            className="p-1 text-gray-400 hover:text-red-500"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      {pdfFile && pdfTitle && (
+                        <button
+                          type="button"
+                          onClick={uploadPdf}
+                          disabled={uploadingPdf}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        >
+                          {uploadingPdf ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Upload className="w-4 h-4" />
+                          )}
+                          {language === 'ar' ? 'رفع الملف' : 'Upload File'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!editingLesson && (
+                <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                  <p className="text-sm text-yellow-700 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    {language === 'ar'
+                      ? 'يمكنك إضافة ملفات PDF بعد حفظ الدرس'
+                      : 'You can add PDF files after saving the lesson'}
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-3 p-4 bg-gray-50 rounded-xl">
                 <h4 className="font-medium text-gray-900">

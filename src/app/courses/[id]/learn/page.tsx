@@ -20,6 +20,8 @@ import {
   Loader2,
   PlayCircle,
   FileQuestion,
+  FileText,
+  Download,
 } from 'lucide-react';
 
 interface Lesson {
@@ -43,6 +45,13 @@ interface LessonQuiz {
   hasPassed: boolean;
   bestScore: number | null;
   canAttempt: boolean;
+}
+
+interface Resource {
+  id: string;
+  title: string;
+  url: string;
+  type: string;
 }
 
 interface CourseData {
@@ -74,6 +83,8 @@ export default function LearnPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [lessonQuizzes, setLessonQuizzes] = useState<Record<string, LessonQuiz>>({});
+  const [lessonResources, setLessonResources] = useState<Resource[]>([]);
+  const [loadingResources, setLoadingResources] = useState(false);
 
   useEffect(() => {
     // انتظر حتى يتم تحميل بيانات المستخدم
@@ -150,6 +161,33 @@ export default function LearnPage() {
 
     fetchCourseData();
   }, [id, user, token, router, authLoading]);
+
+  // Fetch resources when lesson changes
+  useEffect(() => {
+    if (!currentLesson || !token) {
+      setLessonResources([]);
+      return;
+    }
+
+    const fetchResources = async () => {
+      setLoadingResources(true);
+      try {
+        const res = await fetch(`/api/courses/${id}/lessons/${currentLesson.id}/resources`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await res.json();
+        if (result.success) {
+          setLessonResources(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching resources:', error);
+      } finally {
+        setLoadingResources(false);
+      }
+    };
+
+    fetchResources();
+  }, [currentLesson, id, token]);
 
   const handleLessonComplete = async (lessonId: string) => {
     if (!token) return;
@@ -574,6 +612,34 @@ export default function LearnPage() {
                         </span>
                       )}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Lesson Resources */}
+              {lessonResources.length > 0 && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-blue-600/20 to-blue-500/20 border border-blue-500/30 rounded-xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <FileText className="w-6 h-6 text-blue-400" />
+                    <h3 className="font-bold text-blue-400">
+                      {language === 'ar' ? 'المرفقات' : 'Attachments'}
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {lessonResources.map((resource) => (
+                      <a
+                        key={resource.id}
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="flex items-center gap-3 p-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors group"
+                      >
+                        <FileText className="w-5 h-5 text-blue-400" />
+                        <span className="flex-1 text-white text-sm">{resource.title}</span>
+                        <Download className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                      </a>
+                    ))}
                   </div>
                 </div>
               )}
