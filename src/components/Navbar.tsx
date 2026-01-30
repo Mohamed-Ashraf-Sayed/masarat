@@ -23,8 +23,10 @@ import {
 
 interface Notification {
   id: string;
-  title: string;
-  message: string;
+  titleAr: string;
+  titleEn: string;
+  messageAr: string;
+  messageEn: string;
   type: string;
   isRead: boolean;
   createdAt: string;
@@ -297,10 +299,10 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                                 />
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium text-gray-900 text-sm truncate">
-                                    {notification.title}
+                                    {language === 'ar' ? notification.titleAr : notification.titleEn}
                                   </p>
                                   <p className="text-gray-500 text-sm line-clamp-2">
-                                    {notification.message}
+                                    {language === 'ar' ? notification.messageAr : notification.messageEn}
                                   </p>
                                   <p className="text-gray-400 text-xs mt-1">
                                     {formatTimeAgo(notification.createdAt)}
