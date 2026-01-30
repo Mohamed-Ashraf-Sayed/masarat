@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -8,34 +6,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=mysql://masarat:Mohamed6231@db:3306/masarat
+      - DATABASE_URL=mysql://u300082146_masrat:Mohamed6231@193.203.168.53:3306/u300082146_masrat
       - NEXTAUTH_SECRET=edu-platform-nextauth-secret-2024-secure
       - JWT_SECRET=edu-platform-secret-jwt-key-2024-production-ready
       - NEXTAUTH_URL=https://masaratedu.com
       - NEXT_PUBLIC_APP_URL=https://masaratedu.com
       - NODE_ENV=production
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
-
-  db:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword123
-      - MYSQL_DATABASE=masarat
-      - MYSQL_USER=masarat
-      - MYSQL_PASSWORD=Mohamed6231
-    volumes:
-      - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-volumes:
-  mysql_data:
