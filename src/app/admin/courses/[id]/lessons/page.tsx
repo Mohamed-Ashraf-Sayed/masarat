@@ -627,14 +627,21 @@ export default function LessonsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === 'ar' ? 'الوصف' : 'Description'}
+                  {language === 'ar' ? 'محتوى/شرح الدرس' : 'Lesson Content/Description'}
+                  <span className="text-xs text-gray-500 block mt-1">
+                    {language === 'ar'
+                      ? 'يظهر هذا المحتوى للطالب إذا لم يكن هناك فيديو'
+                      : 'This content will be shown to students if there is no video'}
+                  </span>
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  className="input-field resize-none"
-                  placeholder={language === 'ar' ? 'وصف مختصر للدرس...' : 'Brief lesson description...'}
+                  rows={8}
+                  className="input-field resize-y min-h-[150px]"
+                  placeholder={language === 'ar'
+                    ? 'اكتب شرح الدرس هنا... يمكنك كتابة محتوى تعليمي مفصل يظهر بدلاً من الفيديو'
+                    : 'Write lesson content here... You can write detailed educational content that appears instead of video'}
                 />
               </div>
 

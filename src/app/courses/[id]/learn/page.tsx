@@ -27,6 +27,7 @@ import {
 interface Lesson {
   id: string;
   title: { ar: string; en: string };
+  description: string | null;
   duration: number | null;
   videoUrl: string | null;
   isFree: boolean;
@@ -85,6 +86,8 @@ export default function LearnPage() {
   const [lessonQuizzes, setLessonQuizzes] = useState<Record<string, LessonQuiz>>({});
   const [lessonResources, setLessonResources] = useState<Resource[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
+  const [contentPage, setContentPage] = useState(1);
+  const LINES_PER_PAGE = 15; // عدد الأسطر في كل صفحة
 
   useEffect(() => {
     // انتظر حتى يتم تحميل بيانات المستخدم
@@ -161,6 +164,11 @@ export default function LearnPage() {
 
     fetchCourseData();
   }, [id, user, token, router, authLoading]);
+
+  // Reset content page when lesson changes
+  useEffect(() => {
+    setContentPage(1);
+  }, [currentLesson]);
 
   // Fetch resources when lesson changes
   useEffect(() => {
@@ -493,6 +501,145 @@ export default function LearnPage() {
                   onEnded={() => handleLessonComplete(currentLesson.id)}
                 />
               )
+            ) : currentLesson.description ? (
+              // Show lesson description/content when no video
+              (() => {
+                const allLines = currentLesson.description.split('\n');
+                const totalPages = Math.ceil(allLines.length / LINES_PER_PAGE);
+                const startIndex = (contentPage - 1) * LINES_PER_PAGE;
+                const currentLines = allLines.slice(startIndex, startIndex + LINES_PER_PAGE);
+                const isLastPage = contentPage >= totalPages;
+
+                return (
+                  <div className="w-full h-full overflow-y-auto bg-[#0f172a]">
+                    {/* Decorative Background */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
+                      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+                    </div>
+
+                    <div className="relative max-w-6xl mx-auto p-4 md:p-8">
+                      {/* Header with Page Info */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 border border-primary-500/20 rounded-full">
+                          <BookOpen className="w-4 h-4 text-primary-400" />
+                          <span className="text-primary-300 text-sm font-medium">
+                            {language === 'ar' ? `الدرس ${currentIndex + 1}` : `Lesson ${currentIndex + 1}`}
+                          </span>
+                        </div>
+
+                        {totalPages > 1 && (
+                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full">
+                            <span className="text-gray-300 text-sm">
+                              {language === 'ar'
+                                ? `صفحة ${contentPage} من ${totalPages}`
+                                : `Page ${contentPage} of ${totalPages}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <h1 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">
+                        {currentLesson.title[language]}
+                      </h1>
+
+                      {/* Content Card */}
+                      <div className="relative">
+                        {/* Glow Effect */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 via-blue-500/20 to-primary-500/20 rounded-3xl blur-xl opacity-50" />
+
+                        {/* Main Card */}
+                        <div className="relative bg-[#1e293b] rounded-2xl border border-white/10 overflow-hidden">
+                          {/* Top Accent Line */}
+                          <div className="h-1 bg-gradient-to-r from-primary-500 via-blue-500 to-primary-500" />
+
+                          {/* Content */}
+                          <div className="p-6 md:p-10 lg:p-14 min-h-[400px]">
+                            <div className="prose prose-lg prose-invert max-w-none">
+                              {currentLines.map((paragraph, index) => (
+                                <p
+                                  key={index}
+                                  className="text-gray-200 text-xl md:text-2xl leading-relaxed mb-6"
+                                  style={{ lineHeight: '2.1' }}
+                                >
+                                  {paragraph || '\u00A0'}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Pagination Controls */}
+                          {totalPages > 1 && (
+                            <div className="px-6 py-4 bg-black/20 border-t border-white/5">
+                              <div className="flex items-center justify-between">
+                                <button
+                                  onClick={() => setContentPage(p => Math.max(1, p - 1))}
+                                  disabled={contentPage === 1}
+                                  className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-white transition-all"
+                                >
+                                  {direction === 'rtl' ? (
+                                    <ChevronRight className="w-5 h-5" />
+                                  ) : (
+                                    <ChevronLeft className="w-5 h-5" />
+                                  )}
+                                  <span>{language === 'ar' ? 'السابق' : 'Previous'}</span>
+                                </button>
+
+                                {/* Page Numbers */}
+                                <div className="flex items-center gap-2">
+                                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                      key={page}
+                                      onClick={() => setContentPage(page)}
+                                      className={`w-10 h-10 rounded-lg font-medium transition-all ${
+                                        page === contentPage
+                                          ? 'bg-primary-500 text-white'
+                                          : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                      }`}
+                                    >
+                                      {page}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                <button
+                                  onClick={() => setContentPage(p => Math.min(totalPages, p + 1))}
+                                  disabled={isLastPage}
+                                  className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-white transition-all"
+                                >
+                                  <span>{language === 'ar' ? 'التالي' : 'Next'}</span>
+                                  {direction === 'rtl' ? (
+                                    <ChevronLeft className="w-5 h-5" />
+                                  ) : (
+                                    <ChevronRight className="w-5 h-5" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Button - Only show on last page */}
+                      {isLastPage && (
+                        <div className="mt-8 flex justify-center">
+                          <button
+                            onClick={() => handleLessonComplete(currentLesson.id)}
+                            className="group relative inline-flex items-center gap-3 px-10 py-4 overflow-hidden rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg shadow-2xl shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300 hover:scale-105"
+                          >
+                            <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <CheckCircle className="relative w-6 h-6" />
+                            <span className="relative">
+                              {language === 'ar' ? 'تحديد كمكتمل' : 'Mark as Complete'}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
             ) : (
               <div className="text-center text-white p-8">
                 <PlayCircle className="w-24 h-24 text-gray-600 mx-auto mb-4" />
