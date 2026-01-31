@@ -19,6 +19,8 @@ import {
   Globe,
   Upload,
   X,
+  Video,
+  Play,
 } from 'lucide-react';
 
 interface Category {
@@ -47,6 +49,7 @@ export default function NewCoursePage() {
     descriptionAr: '',
     descriptionEn: '',
     thumbnail: '',
+    previewVideo: '',
     price: '',
     originalPrice: '',
     level: 'BEGINNER',
@@ -59,7 +62,9 @@ export default function NewCoursePage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingPreviewVideo, setUploadingPreviewVideo] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const previewVideoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user || user.role !== 'ADMIN') {
@@ -129,6 +134,39 @@ export default function NewCoursePage() {
       setErrors({ ...errors, thumbnail: language === 'ar' ? 'حدث خطأ في رفع الصورة' : 'Error uploading image' });
     } finally {
       setUploadingThumbnail(false);
+    }
+  };
+
+  const handlePreviewVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    setUploadingPreviewVideo(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      formDataUpload.append('type', 'video');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFormData({ ...formData, previewVideo: result.data.url });
+      } else {
+        setErrors({ ...errors, previewVideo: result.error || (language === 'ar' ? 'فشل رفع الفيديو' : 'Failed to upload video') });
+      }
+    } catch (error) {
+      setErrors({ ...errors, previewVideo: language === 'ar' ? 'حدث خطأ في رفع الفيديو' : 'Error uploading video' });
+    } finally {
+      setUploadingPreviewVideo(false);
     }
   };
 
@@ -359,6 +397,76 @@ export default function NewCoursePage() {
                 </div>
               )}
               {errors.thumbnail && <p className="text-red-500 text-sm mt-2">{errors.thumbnail}</p>}
+            </div>
+
+            {/* Preview Video */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Video className="w-4 h-4 inline-block me-1" />
+                {language === 'ar' ? 'الفيديو التعريفي' : 'Preview Video'}
+              </label>
+              <input
+                type="file"
+                ref={previewVideoInputRef}
+                onChange={handlePreviewVideoUpload}
+                accept="video/mp4,video/webm,video/ogg"
+                className="hidden"
+              />
+
+              {formData.previewVideo ? (
+                <div className="relative inline-block">
+                  <video
+                    src={formData.previewVideo}
+                    className="w-80 h-48 object-cover rounded-xl border border-gray-200"
+                    controls
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, previewVideo: '' })}
+                    className="absolute -top-2 -end-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => previewVideoInputRef.current?.click()}
+                    disabled={uploadingPreviewVideo}
+                    className="absolute bottom-2 end-2 px-3 py-1.5 bg-white/90 text-gray-700 rounded-lg text-sm font-medium hover:bg-white transition-colors flex items-center gap-1"
+                  >
+                    {uploadingPreviewVideo ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    {language === 'ar' ? 'تغيير' : 'Change'}
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => !uploadingPreviewVideo && previewVideoInputRef.current?.click()}
+                  className="w-80 h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all"
+                >
+                  {uploadingPreviewVideo ? (
+                    <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                  ) : (
+                    <>
+                      <Play className="w-10 h-10 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-500">
+                        {language === 'ar' ? 'اضغط لرفع فيديو تعريفي' : 'Click to upload preview video'}
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        MP4, WebM, OGG (max 100MB)
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              {errors.previewVideo && <p className="text-red-500 text-sm mt-2">{errors.previewVideo}</p>}
+              <p className="text-xs text-gray-500 mt-2">
+                {language === 'ar'
+                  ? 'هذا الفيديو سيظهر كمعاينة مجانية للزوار قبل شراء الدورة'
+                  : 'This video will be shown as a free preview for visitors before purchasing the course'}
+              </p>
             </div>
 
             {/* Price */}

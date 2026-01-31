@@ -97,6 +97,7 @@ export async function GET(
         en: course.descriptionEn,
       },
       thumbnail: course.thumbnail,
+      previewVideo: course.previewVideo,
       price: course.price,
       originalPrice: course.originalPrice,
       level: course.level,

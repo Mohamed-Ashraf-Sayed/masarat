@@ -41,26 +41,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.' },
-        { status: 400 }
-      );
+    // Validate file type based on upload type
+    const imageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+
+    if (type === 'video') {
+      if (!videoTypes.includes(file.type)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid file type. Only MP4, WebM, and OGG videos are allowed.' },
+          { status: 400 }
+        );
+      }
+    } else {
+      if (!imageTypes.includes(file.type)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.' },
+          { status: 400 }
+        );
+      }
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (5MB for images, 100MB for videos)
+    const maxSize = type === 'video' ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: 'File too large. Maximum size is 5MB.' },
+        { success: false, error: type === 'video' ? 'File too large. Maximum size is 100MB.' : 'File too large. Maximum size is 5MB.' },
         { status: 400 }
       );
     }
 
     // Determine upload directory
-    const uploadDir = type === 'avatar' ? 'avatars' : 'courses';
+    const uploadDir = type === 'avatar' ? 'avatars' : type === 'video' ? 'videos' : 'courses';
     const uploadPath = path.join(process.cwd(), 'public', 'uploads', uploadDir);
 
     // Ensure directory exists

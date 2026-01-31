@@ -25,6 +25,7 @@ import {
   FileText,
   Loader2,
   FileQuestion,
+  X,
 } from 'lucide-react';
 
 interface CourseData {
@@ -32,6 +33,7 @@ interface CourseData {
   title: { ar: string; en: string };
   description: { ar: string; en: string };
   thumbnail: string;
+  previewVideo: string | null;
   price: number;
   originalPrice: number | null;
   level: string;
@@ -88,6 +90,7 @@ export default function CourseDetailPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedSections, setExpandedSections] = useState<string[]>(['section-1']);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
@@ -385,13 +388,23 @@ export default function CourseDetailPage() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <button className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors group">
+                    <button
+                      onClick={() => course.previewVideo && setShowVideoModal(true)}
+                      className={`w-16 h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors group ${!course.previewVideo ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={!course.previewVideo}
+                    >
                       <Play className="w-8 h-8 text-primary-600 ms-1 group-hover:scale-110 transition-transform" />
                     </button>
                   </div>
-                  <span className="absolute bottom-4 end-4 bg-black/70 text-white text-sm px-3 py-1 rounded-lg">
-                    {language === 'ar' ? 'معاينة مجانية' : 'Free Preview'}
-                  </span>
+                  {course.previewVideo ? (
+                    <span className="absolute bottom-4 end-4 bg-black/70 text-white text-sm px-3 py-1 rounded-lg">
+                      {language === 'ar' ? 'معاينة مجانية' : 'Free Preview'}
+                    </span>
+                  ) : (
+                    <span className="absolute bottom-4 end-4 bg-gray-600/70 text-white text-sm px-3 py-1 rounded-lg">
+                      {language === 'ar' ? 'لا يوجد فيديو تعريفي' : 'No Preview Available'}
+                    </span>
+                  )}
                 </div>
 
                 {/* Price & CTA */}
@@ -827,6 +840,50 @@ export default function CourseDetailPage() {
       </section>
 
       <Footer />
+
+      {/* Video Modal */}
+      {showVideoModal && course?.previewVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/80"
+            onClick={() => setShowVideoModal(false)}
+          ></div>
+
+          {/* Modal Content */}
+          <div className="relative z-10 w-full max-w-4xl mx-4">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="absolute -top-12 end-0 p-2 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Video Player */}
+            <div className="bg-black rounded-2xl overflow-hidden shadow-2xl">
+              <video
+                src={course.previewVideo}
+                className="w-full aspect-video"
+                controls
+                autoPlay
+              >
+                {language === 'ar' ? 'المتصفح لا يدعم تشغيل الفيديو' : 'Your browser does not support video playback'}
+              </video>
+            </div>
+
+            {/* Title */}
+            <div className="mt-4 text-center">
+              <h3 className="text-white text-lg font-semibold">
+                {course.title[language]}
+              </h3>
+              <p className="text-gray-400 text-sm mt-1">
+                {language === 'ar' ? 'فيديو تعريفي' : 'Preview Video'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
