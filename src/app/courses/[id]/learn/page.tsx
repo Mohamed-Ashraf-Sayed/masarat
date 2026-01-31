@@ -87,7 +87,7 @@ export default function LearnPage() {
   const [lessonResources, setLessonResources] = useState<Resource[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
   const [contentPage, setContentPage] = useState(1);
-  const LINES_PER_PAGE = 15; // عدد الأسطر في كل صفحة
+  const WORDS_PER_PAGE = 150; // عدد الكلمات في كل صفحة
 
   useEffect(() => {
     // انتظر حتى يتم تحميل بيانات المستخدم
@@ -504,10 +504,12 @@ export default function LearnPage() {
             ) : currentLesson.description ? (
               // Show lesson description/content when no video
               (() => {
-                const allLines = currentLesson.description.split('\n');
-                const totalPages = Math.ceil(allLines.length / LINES_PER_PAGE);
-                const startIndex = (contentPage - 1) * LINES_PER_PAGE;
-                const currentLines = allLines.slice(startIndex, startIndex + LINES_PER_PAGE);
+                // Split content by words for pagination
+                const allWords = currentLesson.description.split(/\s+/).filter(w => w.length > 0);
+                const totalPages = Math.ceil(allWords.length / WORDS_PER_PAGE);
+                const startIndex = (contentPage - 1) * WORDS_PER_PAGE;
+                const currentWords = allWords.slice(startIndex, startIndex + WORDS_PER_PAGE);
+                const currentContent = currentWords.join(' ');
                 const isLastPage = contentPage >= totalPages;
 
                 return (
@@ -557,15 +559,12 @@ export default function LearnPage() {
                           {/* Content */}
                           <div className="p-6 md:p-10 lg:p-14 min-h-[400px]">
                             <div className="prose prose-lg prose-invert max-w-none">
-                              {currentLines.map((paragraph, index) => (
-                                <p
-                                  key={index}
-                                  className="text-gray-200 text-xl md:text-2xl leading-relaxed mb-6"
-                                  style={{ lineHeight: '2.1' }}
-                                >
-                                  {paragraph || '\u00A0'}
-                                </p>
-                              ))}
+                              <p
+                                className="text-gray-200 text-xl md:text-2xl leading-relaxed"
+                                style={{ lineHeight: '2.1' }}
+                              >
+                                {currentContent}
+                              </p>
                             </div>
                           </div>
 
@@ -588,19 +587,32 @@ export default function LearnPage() {
 
                                 {/* Page Numbers */}
                                 <div className="flex items-center gap-2">
-                                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                    <button
-                                      key={page}
-                                      onClick={() => setContentPage(page)}
-                                      className={`w-10 h-10 rounded-lg font-medium transition-all ${
-                                        page === contentPage
-                                          ? 'bg-primary-500 text-white'
-                                          : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                                      }`}
-                                    >
-                                      {page}
-                                    </button>
-                                  ))}
+                                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                                    // Show pages around current page
+                                    let pageNum;
+                                    if (totalPages <= 5) {
+                                      pageNum = i + 1;
+                                    } else if (contentPage <= 3) {
+                                      pageNum = i + 1;
+                                    } else if (contentPage >= totalPages - 2) {
+                                      pageNum = totalPages - 4 + i;
+                                    } else {
+                                      pageNum = contentPage - 2 + i;
+                                    }
+                                    return (
+                                      <button
+                                        key={pageNum}
+                                        onClick={() => setContentPage(pageNum)}
+                                        className={`w-10 h-10 rounded-lg font-medium transition-all ${
+                                          pageNum === contentPage
+                                            ? 'bg-primary-500 text-white'
+                                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                        }`}
+                                      >
+                                        {pageNum}
+                                      </button>
+                                    );
+                                  })}
                                 </div>
 
                                 <button
