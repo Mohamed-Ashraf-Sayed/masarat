@@ -7,11 +7,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Notification {
   id: string;
-  title: string;
-  message: string;
+  titleAr: string;
+  titleEn: string;
+  messageAr: string;
+  messageEn: string;
   type: string;
   isRead: boolean;
-  link: string | null;
+  link?: string | null;
   createdAt: string;
 }
 
@@ -255,14 +257,14 @@ export default function NotificationDropdown() {
                         <p className={`text-sm font-medium ${
                           notification.isRead ? 'text-gray-600' : 'text-gray-900'
                         }`}>
-                          {notification.title}
+                          {language === 'ar' ? notification.titleAr : notification.titleEn}
                         </p>
                         <span className="text-xs text-gray-400 flex-shrink-0">
                           {formatDate(notification.createdAt)}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                        {notification.message}
+                        {language === 'ar' ? notification.messageAr : notification.messageEn}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         {notification.link && (
