@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // السماح للأدمن بالوصول بدون تسجيل
+    const isAdmin = tokenData.role === 'ADMIN';
+
     const enrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -52,6 +55,22 @@ export async function GET(request: NextRequest) {
         enrolledAt: true,
       },
     });
+
+    // إذا كان أدمن، يُعتبر مسجل تلقائياً
+    if (isAdmin && !enrollment) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          isEnrolled: true,
+          enrollment: {
+            id: 'admin-preview',
+            status: 'ACTIVE',
+            progress: 0,
+            enrolledAt: new Date().toISOString(),
+          },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

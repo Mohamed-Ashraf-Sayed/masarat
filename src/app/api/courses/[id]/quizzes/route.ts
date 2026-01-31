@@ -31,21 +31,26 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is enrolled
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId: tokenData.userId,
-          courseId,
-        },
-      },
-    });
+    // السماح للأدمن بالوصول بدون تسجيل
+    const isAdmin = tokenData.role === 'ADMIN';
 
-    if (!enrollment) {
-      return NextResponse.json(
-        { success: false, error: 'You are not enrolled in this course' },
-        { status: 403 }
-      );
+    if (!isAdmin) {
+      // Check if user is enrolled
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId: tokenData.userId,
+            courseId,
+          },
+        },
+      });
+
+      if (!enrollment) {
+        return NextResponse.json(
+          { success: false, error: 'You are not enrolled in this course' },
+          { status: 403 }
+        );
+      }
     }
 
     // Get all published quizzes for the course
