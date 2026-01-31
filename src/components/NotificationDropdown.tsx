@@ -15,6 +15,11 @@ interface Notification {
   isRead: boolean;
   link?: string | null;
   createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export default function NotificationDropdown() {
@@ -146,15 +151,24 @@ export default function NotificationDropdown() {
 
   // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    // تأخير صغير لتجنب التعارض مع حدث الفتح
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 10);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
 
   // تنسيق التاريخ
   const formatDate = (dateString: string) => {
@@ -191,10 +205,15 @@ export default function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       {/* زر الإشعارات */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative"
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative cursor-pointer"
+        style={{ pointerEvents: 'auto' }}
       >
-        <Bell className="w-5 h-5 text-gray-600" />
+        <Bell className="w-5 h-5 text-gray-600 pointer-events-none" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -end-1 min-w-[20px] h-5 flex items-center justify-center px-1 text-xs font-bold text-white bg-red-500 rounded-full">
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -263,6 +282,11 @@ export default function NotificationDropdown() {
                           {formatDate(notification.createdAt)}
                         </span>
                       </div>
+                      {notification.user && (
+                        <p className="text-xs text-primary-600 mt-0.5">
+                          {notification.user.name}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                         {language === 'ar' ? notification.messageAr : notification.messageEn}
                       </p>

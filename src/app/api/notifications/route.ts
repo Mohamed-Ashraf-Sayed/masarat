@@ -39,9 +39,17 @@ export async function GET(request: NextRequest) {
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
     const skip = (page - 1) * limit;
 
+    // الأدمن يشوف كل الإشعارات، المستخدم العادي يشوف إشعاراته فقط
+    const isAdmin = tokenData.role === 'ADMIN';
+
     const where = {
-      userId: tokenData.userId,
+      ...(isAdmin ? {} : { userId: tokenData.userId }),
       ...(unreadOnly ? { isRead: false } : {}),
+    };
+
+    const unreadWhere = {
+      ...(isAdmin ? {} : { userId: tokenData.userId }),
+      isRead: false,
     };
 
     const [notifications, total, unreadCount] = await Promise.all([
@@ -50,11 +58,18 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
       }),
       prisma.notification.count({ where }),
-      prisma.notification.count({
-        where: { userId: tokenData.userId, isRead: false },
-      }),
+      prisma.notification.count({ where: unreadWhere }),
     ]);
 
     return NextResponse.json({
@@ -92,11 +107,13 @@ export async function PUT(request: NextRequest) {
 
     const { notificationId, markAllAsRead } = await request.json();
 
+    const isAdmin = tokenData.role === 'ADMIN';
+
     if (markAllAsRead) {
       // تحديد جميع الإشعارات كمقروءة
       await prisma.notification.updateMany({
         where: {
-          userId: tokenData.userId,
+          ...(isAdmin ? {} : { userId: tokenData.userId }),
           isRead: false,
         },
         data: { isRead: true },
@@ -115,11 +132,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // التحقق من ملكية الإشعار
+    // التحقق من ملكية الإشعار (الأدمن يقدر يعدل أي إشعار)
     const notification = await prisma.notification.findFirst({
       where: {
         id: notificationId,
-        userId: tokenData.userId,
+        ...(isAdmin ? {} : { userId: tokenData.userId }),
       },
     });
 
@@ -169,10 +186,12 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    const isAdmin = tokenData.role === 'ADMIN';
+
     await prisma.notification.deleteMany({
       where: {
         id: notificationId,
-        userId: tokenData.userId,
+        ...(isAdmin ? {} : { userId: tokenData.userId }),
       },
     });
 

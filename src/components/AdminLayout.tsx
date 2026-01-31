@@ -24,6 +24,7 @@ import {
   FileQuestion,
   CreditCard,
   Shield,
+  Bell,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 
@@ -50,6 +51,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/users', icon: Users, label: { ar: 'المستخدمين', en: 'Users' } },
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
+    { href: '/admin/notifications', icon: Bell, label: { ar: 'الإشعارات', en: 'Notifications' } },
     { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
@@ -142,8 +144,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Content */}
       <div className="lg:ms-72">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 lg:px-8 h-16">
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-100 overflow-visible">
+          <div className="flex items-center justify-between px-4 lg:px-8 h-16 overflow-visible">
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-xl"
@@ -162,8 +164,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-visible">
               <button
+                type="button"
                 onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
                 className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
               >

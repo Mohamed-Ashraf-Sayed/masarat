@@ -32,6 +32,7 @@ import {
   FolderTree,
   ShoppingCart,
 } from 'lucide-react';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 interface Stats {
   overview: {
@@ -241,8 +242,8 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="lg:ms-72">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 lg:px-8 h-16">
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-100 overflow-visible">
+          <div className="flex items-center justify-between px-4 lg:px-8 h-16 overflow-visible">
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-xl"
@@ -261,17 +262,15 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-visible">
               <button
+                type="button"
                 onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
                 className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
               >
                 <Globe className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
                 <img
                   src={user?.avatar || 'https://via.placeholder.com/40'}
