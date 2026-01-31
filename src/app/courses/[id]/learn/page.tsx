@@ -351,10 +351,10 @@ export default function LearnPage() {
                 const isInstructor = course.instructor.id === user?.id;
                 const isNotEnrolled = !lesson.isFree && !course.enrollment && !isAdmin && !isInstructor;
 
-                // Check if previous lesson quiz must be passed (admins and instructors bypass this)
+                // Check if previous lesson quiz must be passed (applies to everyone including admins)
                 let isQuizLocked = false;
                 let previousLessonName = '';
-                if (index > 0 && lesson.requireQuizPass && course.enrollment && !isAdmin && !isInstructor) {
+                if (index > 0 && lesson.requireQuizPass && (course.enrollment || isAdmin)) {
                   const previousLesson = course.lessons[index - 1];
                   const previousQuiz = lessonQuizzes[previousLesson.id];
                   if (previousQuiz && !previousQuiz.hasPassed) {
