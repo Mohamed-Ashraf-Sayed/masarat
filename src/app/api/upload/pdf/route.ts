@@ -4,8 +4,6 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import { sanitizeFilename, getJWTSecret } from '@/lib/security';
 
-const JWT_SECRET = getJWTSecret();
-
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -14,7 +12,9 @@ function getUserFromToken(request: NextRequest) {
 
   const token = authHeader.substring(7);
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string };
+    // Get JWT secret lazily at runtime, not at module import time
+    const jwtSecret = getJWTSecret();
+    const decoded = jwt.verify(token, jwtSecret) as { userId: string; email: string; role: string };
     return decoded;
   } catch {
     return null;
