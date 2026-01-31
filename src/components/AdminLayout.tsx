@@ -14,7 +14,6 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
   Search,
   Globe,
   BarChart3,
@@ -26,6 +25,7 @@ import {
   CreditCard,
   Shield,
 } from 'lucide-react';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -169,10 +169,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Globe className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
                 <img
                   src={user?.avatar || 'https://via.placeholder.com/40'}
