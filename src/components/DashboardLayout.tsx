@@ -26,6 +26,9 @@ import {
   Check,
   MessageSquare,
   Info,
+  Plus,
+  BarChart3,
+  DollarSign,
 } from 'lucide-react';
 
 interface Notification {
@@ -133,7 +136,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const menuItems = [
+  // Check if we're in instructor section
+  const isInstructorSection = pathname?.startsWith('/instructor');
+
+  // Student menu items
+  const studentMenuItems = [
     {
       href: '/dashboard',
       icon: LayoutDashboard,
@@ -181,7 +188,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  // Instructor menu items
+  const instructorMenuItems = [
+    {
+      href: '/instructor',
+      icon: LayoutDashboard,
+      label: { ar: 'لوحة التحكم', en: 'Dashboard' },
+    },
+    {
+      href: '/instructor/courses',
+      icon: BookOpen,
+      label: { ar: 'دوراتي', en: 'My Courses' },
+    },
+    {
+      href: '/instructor/courses/new',
+      icon: Plus,
+      label: { ar: 'إضافة دورة', en: 'Add Course' },
+    },
+    {
+      href: '/dashboard/messages',
+      icon: MessageSquare,
+      label: { ar: 'الرسائل', en: 'Messages' },
+    },
+    {
+      href: '/dashboard/settings',
+      icon: Settings,
+      label: { ar: 'الإعدادات', en: 'Settings' },
+    },
+  ];
+
+  // Select menu based on context
+  const menuItems = isInstructorSection ? instructorMenuItems : studentMenuItems;
+
+  const isActive = (href: string) => {
+    if (href === '/instructor' || href === '/dashboard') {
+      return pathname === href;
+    }
+    return pathname === href || pathname?.startsWith(href + '/');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -263,17 +307,47 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
           ))}
 
-          {user?.role === 'ADMIN' && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-primary-600 hover:bg-primary-50 transition-all mt-4 border-t border-gray-100 pt-4"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              <span className="font-medium">
-                {language === 'ar' ? 'لوحة الإدارة' : 'Admin Panel'}
-              </span>
-            </Link>
-          )}
+          {/* Role-based navigation links */}
+          <div className="mt-4 pt-4 border-t border-gray-100 space-y-1">
+            {/* Show instructor link when in student dashboard */}
+            {(user?.role === 'INSTRUCTOR' || user?.role === 'ADMIN') && !isInstructorSection && (
+              <Link
+                href="/instructor"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-primary-600 hover:bg-primary-50 transition-all"
+              >
+                <GraduationCap className="w-5 h-5" />
+                <span className="font-medium">
+                  {language === 'ar' ? 'لوحة المدرب' : 'Instructor Panel'}
+                </span>
+              </Link>
+            )}
+
+            {/* Show student dashboard link when in instructor section */}
+            {isInstructorSection && (
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
+              >
+                <User className="w-5 h-5" />
+                <span className="font-medium">
+                  {language === 'ar' ? 'لوحة الطالب' : 'Student Dashboard'}
+                </span>
+              </Link>
+            )}
+
+            {/* Admin panel link */}
+            {user?.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-primary-600 hover:bg-primary-50 transition-all"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="font-medium">
+                  {language === 'ar' ? 'لوحة الإدارة' : 'Admin Panel'}
+                </span>
+              </Link>
+            )}
+          </div>
         </nav>
 
         {/* Bottom Section */}

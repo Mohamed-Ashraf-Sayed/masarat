@@ -162,6 +162,7 @@ model Lesson {
   duration        Int              @default(0)
   order           Int              @default(0)
   isFree          Boolean          @default(false)
+  isPublished     Boolean          @default(true)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   courseId        String
