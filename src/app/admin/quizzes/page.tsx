@@ -83,7 +83,7 @@ export default function QuizzesPage() {
     maxAttempts: '',
   });
 
-  const [courseLessons, setCourseLessons] = useState<Array<{ id: string; titleAr: string; titleEn: string }>>([]);
+  const [courseLessons, setCourseLessons] = useState<Array<{ id: string; titleAr?: string; titleEn?: string; title?: { ar: string; en: string } }>>([]);
 
   useEffect(() => {
     if (!authLoading && token) {
@@ -565,7 +565,9 @@ export default function QuizzesPage() {
                       </option>
                       {courseLessons.map((lesson) => (
                         <option key={lesson.id} value={lesson.id}>
-                          {language === 'ar' ? lesson.titleAr : lesson.titleEn}
+                          {language === 'ar'
+                            ? (lesson.title?.ar || lesson.titleAr)
+                            : (lesson.title?.en || lesson.titleEn)}
                         </option>
                       ))}
                     </select>
