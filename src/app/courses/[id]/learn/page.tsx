@@ -85,7 +85,6 @@ export default function LearnPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [lessonQuizzes, setLessonQuizzes] = useState<Record<string, LessonQuiz>>({});
-  const [generalQuizzes, setGeneralQuizzes] = useState<LessonQuiz[]>([]);
   const [lessonResources, setLessonResources] = useState<Resource[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
   const [contentPage, setContentPage] = useState(1);
@@ -139,28 +138,22 @@ export default function LearnPage() {
           const quizzesResult = await quizzesRes.json();
           if (quizzesResult.success) {
             const quizMap: Record<string, LessonQuiz> = {};
-            const generalQuizList: LessonQuiz[] = [];
             quizzesResult.data.forEach((quiz: { lesson?: { id: string }; id: string; titleAr: string; titleEn: string; questionsCount: number; passingScore: number; timeLimit: number | null; hasPassed: boolean; bestScore: number | null; canAttempt: boolean }) => {
-              const quizData: LessonQuiz = {
-                id: quiz.id,
-                titleAr: quiz.titleAr,
-                titleEn: quiz.titleEn,
-                questionsCount: quiz.questionsCount,
-                passingScore: quiz.passingScore,
-                timeLimit: quiz.timeLimit,
-                hasPassed: quiz.hasPassed,
-                bestScore: quiz.bestScore,
-                canAttempt: quiz.canAttempt,
-              };
               if (quiz.lesson) {
-                quizMap[quiz.lesson.id] = quizData;
-              } else {
-                // اختبارات عامة للدورة (غير مرتبطة بدرس معين)
-                generalQuizList.push(quizData);
+                quizMap[quiz.lesson.id] = {
+                  id: quiz.id,
+                  titleAr: quiz.titleAr,
+                  titleEn: quiz.titleEn,
+                  questionsCount: quiz.questionsCount,
+                  passingScore: quiz.passingScore,
+                  timeLimit: quiz.timeLimit,
+                  hasPassed: quiz.hasPassed,
+                  bestScore: quiz.bestScore,
+                  canAttempt: quiz.canAttempt,
+                };
               }
             });
             setLessonQuizzes(quizMap);
-            setGeneralQuizzes(generalQuizList);
           }
         }
       } catch (error) {
@@ -812,68 +805,6 @@ export default function LearnPage() {
                         <span className="flex-1 text-white text-sm">{resource.title}</span>
                         <Download className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
                       </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* General Course Quizzes */}
-              {generalQuizzes.length > 0 && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-purple-600/20 to-purple-500/20 border border-purple-500/30 rounded-xl">
-                  <div className="flex items-center gap-3 mb-4">
-                    <FileQuestion className="w-6 h-6 text-purple-400" />
-                    <h3 className="font-bold text-purple-400">
-                      {language === 'ar' ? 'اختبارات الدورة' : 'Course Quizzes'}
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    {generalQuizzes.map((quiz) => (
-                      <div
-                        key={quiz.id}
-                        className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg"
-                      >
-                        <div>
-                          <h4 className="font-medium text-white">
-                            {language === 'ar' ? quiz.titleAr : quiz.titleEn}
-                          </h4>
-                          <p className="text-sm text-gray-400">
-                            {quiz.questionsCount} {language === 'ar' ? 'سؤال' : 'questions'}
-                            {' • '}
-                            {quiz.passingScore}% {language === 'ar' ? 'للنجاح' : 'to pass'}
-                            {quiz.timeLimit && (
-                              <>
-                                {' • '}
-                                {quiz.timeLimit} {language === 'ar' ? 'دقيقة' : 'min'}
-                              </>
-                            )}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {quiz.hasPassed && (
-                            <span className="text-green-400 text-sm font-medium">
-                              {language === 'ar' ? 'ناجح' : 'Passed'} ({quiz.bestScore}%)
-                            </span>
-                          )}
-                          {quiz.canAttempt ? (
-                            <Link
-                              href={`/courses/${id}/quizzes/${quiz.id}`}
-                              className="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors text-sm"
-                            >
-                              {quiz.bestScore !== null
-                                ? language === 'ar'
-                                  ? 'إعادة'
-                                  : 'Retake'
-                                : language === 'ar'
-                                ? 'ابدأ'
-                                : 'Start'}
-                            </Link>
-                          ) : (
-                            <span className="text-gray-400 text-sm">
-                              {language === 'ar' ? 'انتهت المحاولات' : 'No attempts left'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
                     ))}
                   </div>
                 </div>
