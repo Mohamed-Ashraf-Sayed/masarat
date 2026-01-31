@@ -87,7 +87,7 @@ export default function LearnPage() {
   const [lessonResources, setLessonResources] = useState<Resource[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
   const [contentPage, setContentPage] = useState(1);
-  const WORDS_PER_PAGE = 150; // عدد الكلمات في كل صفحة
+  const WORDS_PER_PAGE = 200; // عدد الكلمات في كل صفحة
 
   useEffect(() => {
     // انتظر حتى يتم تحميل بيانات المستخدم
