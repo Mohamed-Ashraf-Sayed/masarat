@@ -24,6 +24,7 @@ import {
   ShoppingCart,
   FileQuestion,
   CreditCard,
+  Shield,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -49,6 +50,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/users', icon: Users, label: { ar: 'المستخدمين', en: 'Users' } },
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
+    { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];

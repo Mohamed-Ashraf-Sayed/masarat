@@ -23,6 +23,7 @@ import {
   FileText,
   Download,
 } from 'lucide-react';
+import ProtectedVideoPlayer from '@/components/ProtectedVideoPlayer';
 
 interface Lesson {
   id: string;
@@ -346,12 +347,14 @@ export default function LearnPage() {
               {course.lessons.map((lesson, index) => {
                 const isCompleted = completedLessons.includes(lesson.id);
                 const isCurrent = currentLesson?.id === lesson.id;
-                const isNotEnrolled = !lesson.isFree && !course.enrollment;
+                const isAdmin = user?.role === 'ADMIN';
+                const isInstructor = course.instructor.id === user?.id;
+                const isNotEnrolled = !lesson.isFree && !course.enrollment && !isAdmin && !isInstructor;
 
-                // Check if previous lesson quiz must be passed
+                // Check if previous lesson quiz must be passed (admins and instructors bypass this)
                 let isQuizLocked = false;
                 let previousLessonName = '';
-                if (index > 0 && lesson.requireQuizPass && course.enrollment) {
+                if (index > 0 && lesson.requireQuizPass && course.enrollment && !isAdmin && !isInstructor) {
                   const previousLesson = course.lessons[index - 1];
                   const previousQuiz = lessonQuizzes[previousLesson.id];
                   if (previousQuiz && !previousQuiz.hasPassed) {
@@ -492,14 +495,18 @@ export default function LearnPage() {
                   allowFullScreen
                 />
               ) : (
-                // Direct video file
-                <video
-                  key={currentLesson.id}
-                  src={currentLesson.videoUrl}
-                  controls
-                  className="w-full h-full max-h-[70vh] object-contain"
-                  onEnded={() => handleLessonComplete(currentLesson.id)}
-                />
+                // Direct video file with full protection
+                token ? (
+                  <ProtectedVideoPlayer
+                    key={currentLesson.id}
+                    lessonId={currentLesson.id}
+                    token={token}
+                    onEnded={() => handleLessonComplete(currentLesson.id)}
+                    className="w-full h-full max-h-[70vh]"
+                  />
+                ) : (
+                  <div className="text-white">Loading...</div>
+                )
               )
             ) : currentLesson.description ? (
               // Show lesson description/content when no video

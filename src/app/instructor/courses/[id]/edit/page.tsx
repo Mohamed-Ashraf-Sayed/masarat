@@ -15,6 +15,7 @@ import {
   Eye,
   BookOpen,
   Trash2,
+  Shield,
 } from 'lucide-react';
 
 interface Category {
@@ -47,6 +48,7 @@ export default function EditCoursePage() {
     thumbnail: '',
     isPublished: false,
     isFeatured: false,
+    enableWatermark: true,
   });
 
   useEffect(() => {
@@ -99,6 +101,7 @@ export default function EditCoursePage() {
           thumbnail: course.thumbnail || '',
           isPublished: course.isPublished || false,
           isFeatured: course.isFeatured || false,
+          enableWatermark: course.enableWatermark !== false,
         });
         if (course.thumbnail) {
           setThumbnailPreview(course.thumbnail);
@@ -422,6 +425,32 @@ export default function EditCoursePage() {
               <span className="text-sm text-gray-700">
                 {language === 'ar' ? 'نشر الدورة (تظهر للطلاب)' : 'Publish course (visible to students)'}
               </span>
+            </label>
+          </div>
+
+          {/* Video Protection */}
+          <div className="p-4 bg-blue-50 rounded-xl space-y-3">
+            <h4 className="font-medium text-gray-900 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-blue-600" />
+              {language === 'ar' ? 'حماية الفيديو' : 'Video Protection'}
+            </h4>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.enableWatermark}
+                onChange={(e) => setFormData({ ...formData, enableWatermark: e.target.checked })}
+                className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 mt-1"
+              />
+              <div>
+                <span className="text-sm text-gray-700 block">
+                  {language === 'ar' ? 'تفعيل العلامة المائية' : 'Enable Watermark'}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {language === 'ar'
+                    ? 'يظهر اسم المستخدم ومعرفه على الفيديو لمنع التسريب'
+                    : 'Shows user name and ID on video to prevent leaking'}
+                </span>
+              </div>
             </label>
           </div>
 

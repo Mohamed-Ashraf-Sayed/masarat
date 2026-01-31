@@ -6,19 +6,76 @@ import crypto from 'crypto';
 import { authenticator } from 'otplib';
 import { loginSchema, validateRequest, formatZodErrors } from '@/lib/validations';
 import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { getClientIP } from '@/lib/security';
+import {
+  analyzeRequest,
+  detectBot,
+  checkBruteForce,
+  resetBruteForce,
+  logSecurityEvent,
+  generateFingerprint,
+} from '@/lib/advanced-security';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const MAX_SESSIONS = 10;
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIP(request);
+  const fingerprint = generateFingerprint(request);
+
   try {
     // Rate limiting
     const rateLimit = await checkRateLimit(request, 'auth/login');
     if (!rateLimit.allowed) {
+      logSecurityEvent({
+        eventType: 'rate_limit_exceeded',
+        severity: 'warning',
+        ip,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: { resetAt: rateLimit.resetAt },
+        fingerprint: fingerprint.hash,
+      });
       return rateLimitResponse(rateLimit.resetAt);
     }
 
+    // Bot detection
+    const botResult = detectBot(request);
+    if (botResult.isBot && botResult.confidence > 80) {
+      logSecurityEvent({
+        eventType: 'bot_detected',
+        severity: 'warning',
+        ip,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: { reasons: botResult.reasons, confidence: botResult.confidence },
+        fingerprint: fingerprint.hash,
+      });
+      return NextResponse.json(
+        { success: false, error: 'Access denied' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
+
+    // WAF Analysis
+    const wafResult = analyzeRequest(JSON.stringify(body));
+    if (wafResult.blocked) {
+      logSecurityEvent({
+        eventType: 'waf_block',
+        severity: 'critical',
+        ip,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: { matchedRules: wafResult.matchedRules, threatScore: wafResult.threatScore },
+        fingerprint: fingerprint.hash,
+      });
+      return NextResponse.json(
+        { success: false, error: 'Request blocked' },
+        { status: 403 }
+      );
+    }
     const { twoFactorCode } = body;
 
     // التحقق من البيانات باستخدام Zod
@@ -31,6 +88,33 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = validation.data;
+
+    // Brute force protection
+    const bruteForceIdentifier = `${ip}:${email}`;
+    const bruteForceResult = checkBruteForce(bruteForceIdentifier);
+    if (!bruteForceResult.allowed) {
+      logSecurityEvent({
+        eventType: 'account_locked',
+        severity: 'critical',
+        ip,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: {
+          email,
+          lockUntil: bruteForceResult.lockUntil,
+          reason: 'Too many failed login attempts',
+        },
+        fingerprint: fingerprint.hash,
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Account temporarily locked due to too many failed attempts. Please try again later.',
+          lockUntil: bruteForceResult.lockUntil,
+        },
+        { status: 429 }
+      );
+    }
 
     // البحث عن المستخدم مع إعدادات 2FA
     const user = await prisma.user.findUnique({
@@ -54,6 +138,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      // Record failed attempt
+      checkBruteForce(bruteForceIdentifier);
+      logSecurityEvent({
+        eventType: 'authentication_failure',
+        severity: 'warning',
+        ip,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: { email, reason: 'User not found' },
+        fingerprint: fingerprint.hash,
+      });
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -80,6 +175,18 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      // Record failed attempt
+      checkBruteForce(bruteForceIdentifier);
+      logSecurityEvent({
+        eventType: 'authentication_failure',
+        severity: 'warning',
+        ip,
+        userId: user.id,
+        endpoint: '/api/auth/login',
+        method: 'POST',
+        details: { email, reason: 'Invalid password' },
+        fingerprint: fingerprint.hash,
+      });
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -117,6 +224,18 @@ export async function POST(request: NextRequest) {
         }
 
         if (usedBackupCodeIndex === -1) {
+          // Record failed 2FA attempt
+          checkBruteForce(bruteForceIdentifier);
+          logSecurityEvent({
+            eventType: 'authentication_failure',
+            severity: 'warning',
+            ip,
+            userId: user.id,
+            endpoint: '/api/auth/login',
+            method: 'POST',
+            details: { email, reason: 'Invalid 2FA code' },
+            fingerprint: fingerprint.hash,
+          });
           return NextResponse.json(
             { success: false, error: 'Invalid two-factor authentication code' },
             { status: 401 }
@@ -131,6 +250,10 @@ export async function POST(request: NextRequest) {
         });
       }
     }
+
+    // Reset brute force counter on successful login
+    resetBruteForce(bruteForceIdentifier);
+    resetBruteForce(ip);
 
     // إنشاء التوكن
     const token = jwt.sign(

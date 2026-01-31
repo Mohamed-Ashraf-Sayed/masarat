@@ -18,6 +18,7 @@ import {
   Globe,
   Upload,
   X,
+  Shield,
 } from 'lucide-react';
 
 interface Category {
@@ -56,6 +57,7 @@ export default function EditCoursePage() {
     instructorId: '',
     isPublished: false,
     isFeatured: false,
+    enableWatermark: true,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -97,6 +99,7 @@ export default function EditCoursePage() {
           instructorId: course.instructorId || '',
           isPublished: course.isPublished || false,
           isFeatured: course.isFeatured || false,
+          enableWatermark: course.enableWatermark !== false,
         });
       }
 
@@ -203,6 +206,7 @@ export default function EditCoursePage() {
           instructorId: formData.instructorId,
           isPublished: formData.isPublished,
           isFeatured: formData.isFeatured,
+          enableWatermark: formData.enableWatermark,
         }),
       });
 
@@ -526,6 +530,35 @@ export default function EditCoursePage() {
               <span className="text-gray-700">
                 {language === 'ar' ? 'دورة مميزة' : 'Featured course'}
               </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Video Protection */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-primary-600" />
+            {language === 'ar' ? 'حماية الفيديو' : 'Video Protection'}
+          </h2>
+
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.enableWatermark}
+                onChange={(e) => setFormData({ ...formData, enableWatermark: e.target.checked })}
+                className="w-5 h-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+              />
+              <div>
+                <span className="text-gray-700 block">
+                  {language === 'ar' ? 'تفعيل العلامة المائية' : 'Enable Watermark'}
+                </span>
+                <span className="text-gray-500 text-sm">
+                  {language === 'ar'
+                    ? 'يظهر اسم المستخدم ومعرفه على الفيديو لمنع التسريب'
+                    : 'Shows user name and ID on video to prevent leaking'}
+                </span>
+              </div>
             </label>
           </div>
         </div>

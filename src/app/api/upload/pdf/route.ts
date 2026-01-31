@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import { sanitizeFilename, getJWTSecret } from '@/lib/security';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = getJWTSecret();
 
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -63,9 +64,9 @@ export async function POST(request: NextRequest) {
     // Ensure directory exists
     await mkdir(uploadPath, { recursive: true });
 
-    // Generate unique filename
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueName = `${Date.now()}-${originalName}`;
+    // Generate unique filename with sanitization
+    const sanitizedOriginalName = sanitizeFilename(file.name);
+    const uniqueName = `${Date.now()}-${sanitizedOriginalName}`;
     const filePath = path.join(uploadPath, uniqueName);
 
     // Convert file to buffer and save

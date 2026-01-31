@@ -108,9 +108,10 @@ model Course {
   originalPrice Float?
   level         Level         @default(BEGINNER)
   duration      Int           @default(0)
-  isPublished   Boolean       @default(false)
-  isFeatured    Boolean       @default(false)
-  createdAt     DateTime      @default(now())
+  isPublished     Boolean       @default(false)
+  isFeatured      Boolean       @default(false)
+  enableWatermark Boolean       @default(true)
+  createdAt       DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   categoryId    String
   instructorId  String
@@ -642,6 +643,82 @@ model RateLimitRecord {
   @@index([key])
   @@index([windowStart])
   @@map("rate_limit_records")
+}
+
+// ========== Security Audit Log ==========
+model SecurityAuditLog {
+  id          String   @id @default(cuid())
+  eventType   String   // waf_block, brute_force, bot_detected, etc.
+  severity    String   // info, warning, critical
+  ip          String
+  userId      String?
+  userAgent   String?  @db.Text
+  endpoint    String
+  method      String
+  details     String   @db.LongText // JSON details
+  fingerprint String?  // Request fingerprint hash
+  countryCode String?
+  blocked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([ip])
+  @@index([userId])
+  @@index([eventType])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("security_audit_logs")
+}
+
+// ========== Account Lockout ==========
+model AccountLockout {
+  id              String   @id @default(cuid())
+  identifier      String   @unique // email or IP:email
+  failedAttempts  Int      @default(0)
+  firstAttemptAt  DateTime @default(now())
+  lastAttemptAt   DateTime @default(now())
+  lockedUntil     DateTime?
+  lockCount       Int      @default(0) // Number of times locked (for progressive lockout)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([lockedUntil])
+  @@map("account_lockouts")
+}
+
+// ========== Blocked IPs ==========
+model BlockedIP {
+  id          String   @id @default(cuid())
+  ip          String   @unique
+  reason      String
+  blockedBy   String?  // admin user ID or "system"
+  blockedUntil DateTime?
+  isPermanent Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([ip])
+  @@index([blockedUntil])
+  @@map("blocked_ips")
+}
+
+// ========== API Keys (for signed requests) ==========
+model APIKey {
+  id          String   @id @default(cuid())
+  name        String
+  key         String   @unique
+  secret      String   // hashed
+  userId      String?  // owner
+  permissions String   @db.Text // JSON array of permissions
+  rateLimit   Int      @default(1000) // requests per hour
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@index([userId])
+  @@map("api_keys")
 }
 
 // ========== OAuth & Session Management ==========

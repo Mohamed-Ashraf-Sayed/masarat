@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import { sanitizeFilename, getJWTSecret } from '@/lib/security';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = getJWTSecret();
 
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -65,10 +66,12 @@ export async function POST(request: NextRequest) {
     const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'videos');
     await mkdir(uploadPath, { recursive: true });
 
-    // Generate unique filename
+    // Generate unique filename with sanitization
     const extension = file.name.split('.').pop()?.toLowerCase() || 'mp4';
     const sanitizedExtension = ['mp4', 'webm', 'ogg', 'mov'].includes(extension) ? extension : 'mp4';
-    const uniqueName = `video-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${sanitizedExtension}`;
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 15);
+    const uniqueName = sanitizeFilename(`video-${timestamp}-${randomStr}.${sanitizedExtension}`);
     const filePath = path.join(uploadPath, uniqueName);
 
     // Convert file to buffer and save

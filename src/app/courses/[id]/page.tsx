@@ -417,14 +417,17 @@ export default function CourseDetailPage() {
                     )}
                   </div>
 
-                  {isEnrolled ? (
+                  {isEnrolled || user?.role === 'ADMIN' || course.instructor.id === user?.id ? (
                     <>
                       <Link
                         href={`/courses/${id}/learn`}
                         className="w-full btn-primary mb-3 flex items-center justify-center gap-2"
                       >
                         <Play className="w-5 h-5" />
-                        {language === 'ar' ? 'متابعة التعلم' : 'Continue Learning'}
+                        {isEnrolled
+                          ? (language === 'ar' ? 'متابعة التعلم' : 'Continue Learning')
+                          : (language === 'ar' ? 'ابدأ التعلم' : 'Start Learning')
+                        }
                       </Link>
                       <Link
                         href={`/courses/${id}/quizzes`}
@@ -433,6 +436,14 @@ export default function CourseDetailPage() {
                         <FileQuestion className="w-5 h-5" />
                         {language === 'ar' ? 'اختبارات الدورة' : 'Course Quizzes'}
                       </Link>
+                      {(user?.role === 'ADMIN' || course.instructor.id === user?.id) && !isEnrolled && (
+                        <p className="text-center text-xs text-green-600 mb-2">
+                          {user?.role === 'ADMIN'
+                            ? (language === 'ar' ? '✓ لديك صلاحية الأدمن' : '✓ Admin Access')
+                            : (language === 'ar' ? '✓ أنت مدرب هذه الدورة' : '✓ You are the instructor')
+                          }
+                        </p>
+                      )}
                     </>
                   ) : (
                     <button
