@@ -175,6 +175,7 @@ export async function PUT(
     if (data.descriptionAr) updateData.descriptionAr = data.descriptionAr;
     if (data.descriptionEn) updateData.descriptionEn = data.descriptionEn;
     if (data.thumbnail !== undefined) updateData.thumbnail = data.thumbnail;
+    if (data.previewVideo !== undefined) updateData.previewVideo = data.previewVideo;
     if (data.price !== undefined) updateData.price = data.price;
     if (data.originalPrice !== undefined) updateData.originalPrice = data.originalPrice;
     if (data.level) updateData.level = data.level;
