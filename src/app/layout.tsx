@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import AntiInspect from '@/components/AntiInspect';
 
 export const metadata: Metadata = {
   title: 'مسارات | Masarat - برامج تحليل السلوك التطبيقي',
@@ -25,6 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-cairo antialiased">
+        <AntiInspect />
         <LanguageProvider>
           <AuthProvider>
             {children}
