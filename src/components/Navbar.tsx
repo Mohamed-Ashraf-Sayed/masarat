@@ -223,7 +223,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
             <img
               src="/images/logo.png"
               alt="Masarat"
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </Link>
 

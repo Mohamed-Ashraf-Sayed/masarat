@@ -68,7 +68,7 @@ export default function HeroSection() {
           {/* Hero Image - Left side for Arabic */}
           <div className="order-1 lg:order-2 relative flex justify-center items-center">
             <img
-              src="/images/home.png"
+              src="/images/hero.png"
               alt="Masarat Training"
               className="w-full max-w-lg h-auto drop-shadow-2xl"
             />
