@@ -7,6 +7,12 @@ const nextConfig = {
     config.resolve.alias['@'] = path.join(__dirname, 'src');
     return config;
   },
+  // Increase body size limit for file uploads (100MB for videos)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
   // تجاهل أخطاء ESLint أثناء البناء
   eslint: {
     ignoreDuringBuilds: true,

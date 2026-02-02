@@ -3,6 +3,15 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 
+// Increase body size limit for video uploads
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export const maxDuration = 60; // 60 seconds timeout for large uploads
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 function getUserFromToken(request: NextRequest) {
