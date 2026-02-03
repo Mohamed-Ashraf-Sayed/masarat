@@ -5,7 +5,9 @@ import jwt from 'jsonwebtoken';
 
 // Route segment config for Next.js 14 App Router
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 minutes for large videos
+export const fetchCache = 'force-no-store';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
