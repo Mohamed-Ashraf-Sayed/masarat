@@ -1,4 +1,12 @@
 DirectoryIndex disabled
+
+# Increase upload limit to 100MB
+LimitRequestBody 104857600
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 300
+php_value max_input_time 300
+
 RewriteEngine On
 RewriteRule ^$ http://127.0.0.1:3000/ [P,L]
 RewriteCond %{REQUEST_FILENAME} !-f

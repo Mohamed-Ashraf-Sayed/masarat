@@ -3,14 +3,9 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 
-// Increase body size limit for video uploads
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export const maxDuration = 60; // 60 seconds timeout for large uploads
+// Route segment config for Next.js 14 App Router
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 

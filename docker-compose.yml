@@ -12,4 +12,6 @@ services:
       - NEXTAUTH_URL=https://masaratedu.com
       - NEXT_PUBLIC_APP_URL=https://masaratedu.com
       - NODE_ENV=production
+    volumes:
+      - ./uploads:/app/public/uploads
     restart: unless-stopped
