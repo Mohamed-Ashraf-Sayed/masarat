@@ -2,8 +2,13 @@
 
 import { useEffect } from 'react';
 
+// Set to false to enable DevTools for debugging
+const ENABLE_ANTI_INSPECT = false; // TODO: Change to true in production
+
 export default function AntiInspect() {
   useEffect(() => {
+    // Skip if disabled
+    if (!ENABLE_ANTI_INSPECT) return;
     // ==================== 1. منع كليك يمين ====================
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
