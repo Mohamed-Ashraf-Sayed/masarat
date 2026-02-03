@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { mkdir } from 'fs/promises';
+import { createWriteStream } from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import { sanitizeFilename, getJWTSecret } from '@/lib/security';
+
+// Route segment config for large video uploads
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 minutes for large videos
 
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -74,13 +80,26 @@ export async function POST(request: NextRequest) {
     const uniqueName = sanitizeFilename(`video-${timestamp}-${randomStr}.${sanitizedExtension}`);
     const filePath = path.join(uploadPath, uniqueName);
 
-    // Convert file to buffer and save
+    // Stream file to disk for large files
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
 
-    // Return the public URL
-    const publicUrl = `/uploads/videos/${uniqueName}`;
+    const chunkSize = 1024 * 1024; // 1MB chunks
+    const writeStream = createWriteStream(filePath);
+
+    for (let i = 0; i < buffer.length; i += chunkSize) {
+      const chunk = buffer.slice(i, i + chunkSize);
+      writeStream.write(chunk);
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+      writeStream.end();
+    });
+
+    // Return the public URL (using API route for Docker standalone)
+    const publicUrl = `/api/files/videos/${uniqueName}`;
 
     return NextResponse.json({
       success: true,
