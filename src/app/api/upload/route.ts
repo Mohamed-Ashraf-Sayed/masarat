@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { mkdir } from 'fs/promises';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 
@@ -88,10 +88,25 @@ export async function POST(request: NextRequest) {
     const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
     const filePath = path.join(uploadPath, uniqueName);
 
-    // Convert file to buffer and save
+    // Stream file to disk to handle large files
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+
+    // Write in chunks for large files
+    const chunkSize = 1024 * 1024; // 1MB chunks
+    const fs = await import('fs');
+    const writeStream = fs.createWriteStream(filePath);
+
+    for (let i = 0; i < buffer.length; i += chunkSize) {
+      const chunk = buffer.slice(i, i + chunkSize);
+      writeStream.write(chunk);
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+      writeStream.end();
+    });
 
     // Return the public URL (using API route for standalone build compatibility)
     const publicUrl = `/api/files/${uploadDir}/${uniqueName}`;
