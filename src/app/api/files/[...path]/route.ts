@@ -30,6 +30,9 @@ export async function GET(
       '.mp4': 'video/mp4',
       '.webm': 'video/webm',
       '.ogg': 'video/ogg',
+      '.mov': 'video/quicktime',
+      '.avi': 'video/x-msvideo',
+      '.mkv': 'video/x-matroska',
       '.pdf': 'application/pdf',
     };
 

@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
 
     // Validate file type based on upload type
     const imageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'];
 
     if (type === 'video') {
       if (!videoTypes.includes(file.type)) {
         return NextResponse.json(
-          { success: false, error: 'Invalid file type. Only MP4, WebM, and OGG videos are allowed.' },
+          { success: false, error: 'Invalid file type. Only MP4, WebM, OGG, MOV, AVI, and MKV videos are allowed.' },
           { status: 400 }
         );
       }
