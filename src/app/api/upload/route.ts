@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
-    // Return the public URL
-    const publicUrl = `/uploads/${uploadDir}/${uniqueName}`;
+    // Return the public URL (using API route for standalone build compatibility)
+    const publicUrl = `/api/files/${uploadDir}/${uniqueName}`;
 
     return NextResponse.json({
       success: true,
