@@ -66,7 +66,7 @@ export async function GET(
     }
 
     // Check if it's a local file or external URL
-    const isLocalFile = lesson.videoUrl.startsWith('/uploads/');
+    const isLocalFile = lesson.videoUrl.startsWith('/uploads/') || lesson.videoUrl.startsWith('/api/files/');
 
     if (!isLocalFile) {
       // For external URLs, redirect (YouTube, Vimeo handled client-side)
@@ -74,7 +74,12 @@ export async function GET(
     }
 
     // Handle local file streaming
-    const videoPath = path.join(process.cwd(), 'public', lesson.videoUrl);
+    // Convert /api/files/xxx to /uploads/xxx for file path
+    let videoFilePath = lesson.videoUrl;
+    if (videoFilePath.startsWith('/api/files/')) {
+      videoFilePath = '/uploads/' + videoFilePath.substring('/api/files/'.length);
+    }
+    const videoPath = path.join(process.cwd(), 'public', videoFilePath);
 
     if (!existsSync(videoPath)) {
       return new NextResponse('Video file not found', { status: 404 });
