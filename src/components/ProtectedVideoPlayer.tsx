@@ -73,8 +73,18 @@ export default function ProtectedVideoPlayer({ lessonId, token, onEnded, classNa
     }
   }, [lessonId, token]);
 
-  // DevTools detection
+  // DevTools detection (desktop only - mobile has false positives due to browser UI)
   useEffect(() => {
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (typeof window !== 'undefined' && window.innerWidth < 768);
+
+    if (isMobile) {
+      // Skip DevTools detection on mobile
+      setDevToolsOpen(false);
+      return;
+    }
+
     const detectDevTools = () => {
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
