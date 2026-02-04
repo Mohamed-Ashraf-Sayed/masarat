@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 
 // Set to false to enable DevTools for debugging
-const ENABLE_ANTI_INSPECT = false; // TODO: Change to true in production
+const ENABLE_ANTI_INSPECT = true;
 
 export default function AntiInspect() {
   useEffect(() => {
