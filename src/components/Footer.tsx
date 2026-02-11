@@ -6,13 +6,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   BookOpen,
   Facebook,
-  Twitter,
   Instagram,
-  Linkedin,
-  Youtube,
   Mail,
   Phone,
-  MapPin,
   MessageCircle,
 } from 'lucide-react';
 
@@ -34,11 +30,8 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
+    { icon: Facebook, href: 'https://www.facebook.com/reda.gad.7', label: 'Facebook' },
+    { icon: Instagram, href: 'https://www.instagram.com/dr.redagadmohamed', label: 'Instagram' },
   ];
 
   return (
