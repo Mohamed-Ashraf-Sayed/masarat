@@ -50,6 +50,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/payment-settings', icon: CreditCard, label: { ar: 'إعدادات الدفع', en: 'Payment Settings' } },
     { href: '/admin/users', icon: Users, label: { ar: 'المستخدمين', en: 'Users' } },
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
+    { href: '/admin/team', icon: Users, label: { ar: 'فريق العمل', en: 'Team' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
     { href: '/admin/notifications', icon: Bell, label: { ar: 'الإشعارات', en: 'Notifications' } },
     { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },

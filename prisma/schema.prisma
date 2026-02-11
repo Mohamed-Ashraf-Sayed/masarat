@@ -1154,6 +1154,24 @@ enum InvoiceStatus {
   REFUNDED
 }
 
+// ==================== TEAM MEMBERS ====================
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  nameAr      String
+  nameEn      String
+  roleAr      String
+  roleEn      String
+  image       String?
+  credentials String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("team_members")
+}
+
 // ==================== BOOKSTORE ====================
 
 model Book {
