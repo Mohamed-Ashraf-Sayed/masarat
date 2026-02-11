@@ -13,6 +13,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  MessageCircle,
 } from 'lucide-react';
 
 export default function Footer() {
@@ -112,27 +113,32 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6">{t('contact')}</h4>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-gray-400">
-                <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <span>support@eduplatform.com</span>
+              <li>
+                <a href="tel:0096891366078" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                  <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <span dir="ltr">0096891366078</span>
+                </a>
               </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <span dir="ltr">+966 50 123 4567</span>
+              <li>
+                <a href="mailto:info@sulook.com" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                  <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <span>info@sulook.com</span>
+                </a>
               </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <span>
-                  {language === 'ar'
-                    ? 'الرياض، المملكة العربية السعودية'
-                    : 'Riyadh, Saudi Arabia'}
-                </span>
+              <li>
+                <a href="https://wa.me/201140277208" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                  <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="w-5 h-5" />
+                  </div>
+                  <div dir="ltr">
+                    <span className="block">00201140277208</span>
+                    <span className="block">0096891366078</span>
+                  </div>
+                </a>
               </li>
             </ul>
           </div>

@@ -47,9 +47,9 @@ export default function ContactPage() {
       icon: Phone,
       title: { ar: 'اتصل بنا', en: 'Call Us' },
       description: { ar: 'متاحون من الأحد للخميس', en: 'Available Sun-Thu' },
-      value: '+966 50 123 4567',
+      value: '0096891366078',
       action: { ar: 'اتصل الآن', en: 'Call Now' },
-      link: 'tel:+966501234567',
+      link: 'tel:0096891366078',
       color: 'from-blue-500 to-blue-600',
     },
     {
@@ -65,9 +65,9 @@ export default function ContactPage() {
       icon: MessagesSquare,
       title: { ar: 'واتساب', en: 'WhatsApp' },
       description: { ar: 'تواصل فوري ومباشر', en: 'Instant direct chat' },
-      value: '+966 50 123 4567',
+      value: '00201140277208 - 0096891366078',
       action: { ar: 'ابدأ محادثة', en: 'Start Chat' },
-      link: 'https://wa.me/966501234567',
+      link: 'https://wa.me/201140277208',
       color: 'from-green-500 to-green-600',
     },
   ];
