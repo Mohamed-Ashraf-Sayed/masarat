@@ -129,7 +129,7 @@ export default function AdminTeamPage() {
 
       const result = await response.json();
       if (result.success) {
-        setFormData(prev => ({ ...prev, image: result.url }));
+        setFormData(prev => ({ ...prev, image: result.data.url }));
       } else {
         alert(result.error || 'فشل رفع الصورة');
       }
