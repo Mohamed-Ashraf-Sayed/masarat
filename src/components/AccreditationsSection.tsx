@@ -9,20 +9,6 @@ export default function AccreditationsSection() {
 
   const accreditations = [
     {
-      id: 1,
-      name: { ar: 'BACB', en: 'BACB' },
-      fullName: {
-        ar: 'مجلس اعتماد محللي السلوك',
-        en: 'Behavior Analyst Certification Board'
-      },
-      description: {
-        ar: 'معتمدون من BACB لتقديم ساعات التعليم المستمر CEU',
-        en: 'Approved BACB CE Provider for Continuing Education Units'
-      },
-      logo: '/images/accreditations/bacb-logo.svg',
-      color: 'from-blue-500 to-blue-600',
-    },
-    {
       id: 2,
       name: { ar: 'QABA', en: 'QABA' },
       fullName: {
@@ -44,25 +30,11 @@ export default function AccreditationsSection() {
         en: 'International Behavior Analysis Organization'
       },
       description: {
-        ar: 'عضوية معتمدة في المنظمة الدولية لتحليل السلوك',
-        en: 'Certified membership in the International Behavior Analysis Organization'
+        ar: 'مزود معتمد في المنظمة الدولية لتحليل السلوك',
+        en: 'Approved provider in the International Behavior Analysis Organization'
       },
       logo: '/images/accreditations/ibao-logo.svg',
       color: 'from-purple-500 to-purple-600',
-    },
-    {
-      id: 4,
-      name: { ar: 'ISO 9001', en: 'ISO 9001' },
-      fullName: {
-        ar: 'شهادة الأيزو لإدارة الجودة',
-        en: 'Quality Management System Certification'
-      },
-      description: {
-        ar: 'معتمدون بشهادة الأيزو 9001 لضمان جودة التدريب',
-        en: 'ISO 9001 certified for quality assurance in training'
-      },
-      logo: '/images/accreditations/iso-logo.svg',
-      color: 'from-amber-500 to-amber-600',
     },
   ];
 
@@ -120,7 +92,7 @@ export default function AccreditationsSection() {
         </div>
 
         {/* Accreditations Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
           {accreditations.map((accreditation) => (
             <div
               key={accreditation.id}
@@ -192,20 +164,12 @@ export default function AccreditationsSection() {
           </p>
           <div className="flex items-center justify-center gap-8 opacity-60">
             <div className="text-gray-400">
-              <Award className="w-8 h-8 mx-auto mb-1" />
-              <span className="text-xs">BACB</span>
-            </div>
-            <div className="text-gray-400">
               <Shield className="w-8 h-8 mx-auto mb-1" />
               <span className="text-xs">QABA</span>
             </div>
             <div className="text-gray-400">
               <BadgeCheck className="w-8 h-8 mx-auto mb-1" />
               <span className="text-xs">IBAO</span>
-            </div>
-            <div className="text-gray-400">
-              <CheckCircle2 className="w-8 h-8 mx-auto mb-1" />
-              <span className="text-xs">ISO</span>
             </div>
           </div>
         </div>

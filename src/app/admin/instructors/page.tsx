@@ -20,6 +20,8 @@ import {
   ArrowLeft,
   Mail,
   Award,
+  Upload,
+  ImageIcon,
 } from 'lucide-react';
 
 interface Instructor {
@@ -47,6 +49,7 @@ export default function AdminInstructorsPage() {
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -188,6 +191,36 @@ export default function AdminInstructorsPage() {
       console.error('Error deleting instructor:', error);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    setUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('type', 'avatar');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: uploadFormData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setFormData(prev => ({ ...prev, avatar: result.data.url }));
+      } else {
+        alert(result.error || 'فشل رفع الصورة');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('حدث خطأ في رفع الصورة');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -432,15 +465,39 @@ export default function AdminInstructorsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === 'ar' ? 'رابط الصورة' : 'Avatar URL'}
+                  {language === 'ar' ? 'صورة المدرب' : 'Avatar'}
                 </label>
-                <input
-                  type="url"
-                  value={formData.avatar}
-                  onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                  className="input-field"
-                  placeholder="https://example.com/avatar.jpg"
-                />
+                {formData.avatar && (
+                  <div className="mb-3 relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 mx-auto">
+                    <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, avatar: '' }))}
+                      className="absolute top-0 end-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+                <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                  {uploading ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-primary-600" />
+                  ) : (
+                    <Upload className="w-5 h-5 text-gray-400" />
+                  )}
+                  <span className="text-sm text-gray-600">
+                    {uploading
+                      ? (language === 'ar' ? 'جاري الرفع...' : 'Uploading...')
+                      : (language === 'ar' ? 'اختر صورة' : 'Choose Image')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                </label>
               </div>
             </div>
 

@@ -131,6 +131,10 @@ export async function POST(request: NextRequest) {
       instructorId,
       isPublished,
       isFeatured,
+      learningOutcomesAr,
+      learningOutcomesEn,
+      requirementsAr,
+      requirementsEn,
     } = body;
 
     // التحقق من الحقول المطلوبة
@@ -157,6 +161,10 @@ export async function POST(request: NextRequest) {
         instructorId,
         isPublished: isPublished || false,
         isFeatured: isFeatured || false,
+        learningOutcomesAr: learningOutcomesAr || null,
+        learningOutcomesEn: learningOutcomesEn || null,
+        requirementsAr: requirementsAr || null,
+        requirementsEn: requirementsEn || null,
       },
     });
 

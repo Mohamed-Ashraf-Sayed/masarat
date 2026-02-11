@@ -104,6 +104,14 @@ export async function GET(
       duration: durationHours,
       isPublished: course.isPublished,
       isFeatured: course.isFeatured,
+      learningOutcomes: {
+        ar: course.learningOutcomesAr ? course.learningOutcomesAr.split('\n').filter((l: string) => l.trim()) : [],
+        en: course.learningOutcomesEn ? course.learningOutcomesEn.split('\n').filter((l: string) => l.trim()) : [],
+      },
+      requirements: {
+        ar: course.requirementsAr ? course.requirementsAr.split('\n').filter((l: string) => l.trim()) : [],
+        en: course.requirementsEn ? course.requirementsEn.split('\n').filter((l: string) => l.trim()) : [],
+      },
       createdAt: course.createdAt,
       category: {
         id: course.category.id,

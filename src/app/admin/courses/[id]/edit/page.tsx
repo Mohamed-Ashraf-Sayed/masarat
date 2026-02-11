@@ -21,6 +21,9 @@ import {
   Shield,
   Video,
   Play,
+  ListChecks,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 
 interface Category {
@@ -62,6 +65,11 @@ export default function EditCoursePage() {
     isFeatured: false,
     enableWatermark: true,
   });
+
+  const [learningOutcomesAr, setLearningOutcomesAr] = useState<string[]>(['']);
+  const [learningOutcomesEn, setLearningOutcomesEn] = useState<string[]>(['']);
+  const [requirementsAr, setRequirementsAr] = useState<string[]>(['']);
+  const [requirementsEn, setRequirementsEn] = useState<string[]>(['']);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
@@ -107,6 +115,17 @@ export default function EditCoursePage() {
           isFeatured: course.isFeatured || false,
           enableWatermark: course.enableWatermark !== false,
         });
+
+        // Load learning outcomes and requirements
+        const parseLines = (text: string | null) => {
+          if (!text) return [''];
+          const lines = text.split('\n').filter(l => l.trim());
+          return lines.length > 0 ? lines : [''];
+        };
+        setLearningOutcomesAr(parseLines(course.learningOutcomesAr));
+        setLearningOutcomesEn(parseLines(course.learningOutcomesEn));
+        setRequirementsAr(parseLines(course.requirementsAr));
+        setRequirementsEn(parseLines(course.requirementsEn));
       }
 
       // جلب التصنيفات
@@ -247,6 +266,10 @@ export default function EditCoursePage() {
           isPublished: formData.isPublished,
           isFeatured: formData.isFeatured,
           enableWatermark: formData.enableWatermark,
+          learningOutcomesAr: learningOutcomesAr.filter(l => l.trim()).join('\n') || null,
+          learningOutcomesEn: learningOutcomesEn.filter(l => l.trim()).join('\n') || null,
+          requirementsAr: requirementsAr.filter(l => l.trim()).join('\n') || null,
+          requirementsEn: requirementsEn.filter(l => l.trim()).join('\n') || null,
         }),
       });
 
@@ -350,6 +373,180 @@ export default function EditCoursePage() {
                 rows={4}
                 className="input-field resize-none"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Learning Outcomes & Requirements */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <ListChecks className="w-5 h-5 text-primary-600" />
+            {language === 'ar' ? 'ماذا ستتعلم والمتطلبات' : 'Learning Outcomes & Requirements'}
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Learning Outcomes Arabic */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'ar' ? 'ماذا ستتعلم (عربي)' : 'What You\'ll Learn (Arabic)'}
+              </label>
+              <div className="space-y-2">
+                {learningOutcomesAr.map((item, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => {
+                        const updated = [...learningOutcomesAr];
+                        updated[index] = e.target.value;
+                        setLearningOutcomesAr(updated);
+                      }}
+                      className="input-field flex-1"
+                      placeholder={language === 'ar' ? `النقطة ${index + 1}` : `Point ${index + 1}`}
+                    />
+                    {learningOutcomesAr.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setLearningOutcomesAr(learningOutcomesAr.filter((_, i) => i !== index))}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setLearningOutcomesAr([...learningOutcomesAr, ''])}
+                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة نقطة' : 'Add Point'}
+                </button>
+              </div>
+            </div>
+
+            {/* Learning Outcomes English */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'ar' ? 'ماذا ستتعلم (إنجليزي)' : 'What You\'ll Learn (English)'}
+              </label>
+              <div className="space-y-2">
+                {learningOutcomesEn.map((item, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => {
+                        const updated = [...learningOutcomesEn];
+                        updated[index] = e.target.value;
+                        setLearningOutcomesEn(updated);
+                      }}
+                      className="input-field flex-1"
+                      placeholder={`Point ${index + 1}`}
+                    />
+                    {learningOutcomesEn.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setLearningOutcomesEn(learningOutcomesEn.filter((_, i) => i !== index))}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setLearningOutcomesEn([...learningOutcomesEn, ''])}
+                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة نقطة' : 'Add Point'}
+                </button>
+              </div>
+            </div>
+
+            {/* Requirements Arabic */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'ar' ? 'المتطلبات (عربي)' : 'Requirements (Arabic)'}
+              </label>
+              <div className="space-y-2">
+                {requirementsAr.map((item, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => {
+                        const updated = [...requirementsAr];
+                        updated[index] = e.target.value;
+                        setRequirementsAr(updated);
+                      }}
+                      className="input-field flex-1"
+                      placeholder={language === 'ar' ? `المتطلب ${index + 1}` : `Requirement ${index + 1}`}
+                    />
+                    {requirementsAr.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setRequirementsAr(requirementsAr.filter((_, i) => i !== index))}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setRequirementsAr([...requirementsAr, ''])}
+                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة متطلب' : 'Add Requirement'}
+                </button>
+              </div>
+            </div>
+
+            {/* Requirements English */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {language === 'ar' ? 'المتطلبات (إنجليزي)' : 'Requirements (English)'}
+              </label>
+              <div className="space-y-2">
+                {requirementsEn.map((item, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => {
+                        const updated = [...requirementsEn];
+                        updated[index] = e.target.value;
+                        setRequirementsEn(updated);
+                      }}
+                      className="input-field flex-1"
+                      placeholder={`Requirement ${index + 1}`}
+                    />
+                    {requirementsEn.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setRequirementsEn(requirementsEn.filter((_, i) => i !== index))}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setRequirementsEn([...requirementsEn, ''])}
+                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة متطلب' : 'Add Requirement'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

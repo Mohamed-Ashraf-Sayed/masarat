@@ -581,46 +581,41 @@ export default function CourseDetailPage() {
               {activeTab === 'overview' && (
                 <div className="space-y-8">
                   {/* What You'll Learn */}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
-                      {t('whatYouLearn')}
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      {[
-                        language === 'ar' ? 'فهم أساسيات الموضوع بشكل شامل' : 'Understand the fundamentals comprehensively',
-                        language === 'ar' ? 'تطبيق المفاهيم في مشاريع حقيقية' : 'Apply concepts in real projects',
-                        language === 'ar' ? 'اكتساب مهارات عملية متقدمة' : 'Gain advanced practical skills',
-                        language === 'ar' ? 'الحصول على شهادة معتمدة' : 'Get a certified certificate',
-                      ].map((outcome, index) => (
-                        <div
-                          key={index}
-                          className="flex items-start gap-3 p-3 bg-green-50 rounded-xl"
-                        >
-                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-gray-700">{outcome}</span>
-                        </div>
-                      ))}
+                  {course.learningOutcomes?.[language]?.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        {t('whatYouLearn')}
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {course.learningOutcomes[language].map((outcome: string, index: number) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-3 p-3 bg-green-50 rounded-xl"
+                          >
+                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <span className="text-gray-700">{outcome}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Requirements */}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
-                      {t('requirements')}
-                    </h3>
-                    <ul className="space-y-2">
-                      {[
-                        language === 'ar' ? 'جهاز كمبيوتر مع اتصال بالإنترنت' : 'A computer with internet connection',
-                        language === 'ar' ? 'الرغبة في التعلم والتطوير' : 'Willingness to learn and grow',
-                        language === 'ar' ? 'لا يتطلب خبرة سابقة' : 'No prior experience required',
-                      ].map((req, index) => (
-                        <li key={index} className="flex items-center gap-3 text-gray-600">
-                          <div className="w-1.5 h-1.5 bg-primary-600 rounded-full"></div>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {course.requirements?.[language]?.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        {t('requirements')}
+                      </h3>
+                      <ul className="space-y-2">
+                        {course.requirements[language].map((req: string, index: number) => (
+                          <li key={index} className="flex items-center gap-3 text-gray-600">
+                            <div className="w-1.5 h-1.5 bg-primary-600 rounded-full"></div>
+                            {req}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 

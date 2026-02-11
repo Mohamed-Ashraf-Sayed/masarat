@@ -112,6 +112,10 @@ model Course {
   isPublished     Boolean       @default(false)
   isFeatured      Boolean       @default(false)
   enableWatermark Boolean       @default(true)
+  learningOutcomesAr String?    @db.Text
+  learningOutcomesEn String?    @db.Text
+  requirementsAr    String?    @db.Text
+  requirementsEn    String?    @db.Text
   createdAt       DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   categoryId    String

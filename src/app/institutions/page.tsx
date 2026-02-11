@@ -175,8 +175,8 @@ export default function InstitutionsPage() {
   ];
 
   const stats = [
-    { value: '50+', label: { ar: 'مؤسسة شريكة', en: 'Partner Institutions' } },
-    { value: '2000+', label: { ar: 'متدرب مؤسسي', en: 'Corporate Trainees' } },
+    { value: '3+', label: { ar: 'مؤسسة شريكة', en: 'Partner Institutions' } },
+    { value: '50+', label: { ar: 'متدرب مؤسسي', en: 'Corporate Trainees' } },
     { value: '95%', label: { ar: 'نسبة الرضا', en: 'Satisfaction Rate' } },
     { value: '100%', label: { ar: 'شهادات معتمدة', en: 'Certified Courses' } },
   ];

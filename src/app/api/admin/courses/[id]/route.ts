@@ -85,9 +85,25 @@ export async function PUT(
 
     const body = await request.json();
 
+    const data: Record<string, unknown> = {};
+    const allowedFields = [
+      'titleAr', 'titleEn', 'descriptionAr', 'descriptionEn',
+      'thumbnail', 'previewVideo', 'price', 'originalPrice',
+      'level', 'duration', 'categoryId', 'instructorId',
+      'isPublished', 'isFeatured', 'enableWatermark',
+      'learningOutcomesAr', 'learningOutcomesEn',
+      'requirementsAr', 'requirementsEn',
+    ];
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        data[field] = body[field];
+      }
+    }
+
     const course = await prisma.course.update({
       where: { id },
-      data: body,
+      data,
     });
 
     return NextResponse.json({ success: true, data: course });
@@ -117,9 +133,21 @@ export async function PATCH(
 
     const body = await request.json();
 
+    const data: Record<string, unknown> = {};
+    const patchFields = [
+      'isPublished', 'isFeatured', 'enableWatermark',
+      'titleAr', 'titleEn', 'price', 'level',
+    ];
+
+    for (const field of patchFields) {
+      if (body[field] !== undefined) {
+        data[field] = body[field];
+      }
+    }
+
     const course = await prisma.course.update({
       where: { id },
-      data: body,
+      data,
     });
 
     return NextResponse.json({ success: true, data: course });

@@ -33,26 +33,26 @@ export default function AboutPage() {
   const stats = [
     {
       icon: Users,
-      value: '10,000+',
-      label: { ar: 'متدرب مسجل', en: 'Enrolled Trainees' },
+      value: '50+',
+      label: { ar: 'عدد المتدربين', en: 'Trainees' },
       color: 'from-blue-500 to-blue-600',
     },
     {
       icon: BookOpen,
-      value: '200+',
-      label: { ar: 'دورة تدريبية', en: 'Training Courses' },
+      value: '500+',
+      label: { ar: 'عدد ساعات التدريب', en: 'Training Hours' },
       color: 'from-emerald-500 to-emerald-600',
     },
     {
       icon: Award,
-      value: '50+',
-      label: { ar: 'مدرب خبير', en: 'Expert Instructors' },
+      value: '200+',
+      label: { ar: 'عدد الشهادات المصدرة', en: 'Certificates Issued' },
       color: 'from-purple-500 to-purple-600',
     },
     {
       icon: Globe,
-      value: '20+',
-      label: { ar: 'دولة', en: 'Countries' },
+      value: '3',
+      label: { ar: 'عدد المؤسسات', en: 'Institutions' },
       color: 'from-amber-500 to-amber-600',
     },
   ];
@@ -91,7 +91,7 @@ export default function AboutPage() {
     {
       icon: Award,
       title: { ar: 'شهادات معتمدة دولياً', en: 'Internationally Accredited Certificates' },
-      description: { ar: 'معتمدون من BACB و QABA و IBAO', en: 'Accredited by BACB, QABA & IBAO' },
+      description: { ar: 'معتمدون من   QABA و IBAO', en: 'Accredited by BACB, QABA & IBAO' },
     },
     {
       icon: GraduationCap,
@@ -122,24 +122,24 @@ export default function AboutPage() {
 
   const timeline = [
     {
-      year: '2019',
+      year: '2026',
       title: { ar: 'تأسيس المنصة', en: 'Platform Founded' },
       description: { ar: 'بدأنا رحلتنا لتقديم تدريب متميز في ABA', en: 'We started our journey to provide excellent ABA training' },
     },
     {
-      year: '2020',
+      year: '2025',
       title: { ar: 'الاعتماد الدولي', en: 'International Accreditation' },
       description: { ar: 'حصلنا على اعتماد BACB كمزود تعليم مستمر', en: 'Obtained BACB accreditation as a CE provider' },
     },
     {
-      year: '2022',
+      year: '2025',
       title: { ar: 'التوسع الإقليمي', en: 'Regional Expansion' },
       description: { ar: 'وصلنا إلى أكثر من 15 دولة عربية', en: 'Reached over 15 Arab countries' },
     },
     {
-      year: '2024',
-      title: { ar: '10,000 متدرب', en: '10,000 Trainees' },
-      description: { ar: 'تجاوز عدد متدربينا 10,000 متدرب', en: 'Our trainees exceeded 10,000' },
+      year: '2025',
+      title: { ar: '50 متدرب', en: '50 Trainees' },
+      description: { ar: 'تجاوز عدد متدربينا 50  متدرب', en: 'Our trainees exceeded 10,000' },
     },
   ];
 
