@@ -53,57 +53,13 @@ export default function TestimonialsSection() {
               </div>
 
               {/* Content */}
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <p className="text-gray-600 leading-relaxed">
                 &ldquo;{testimonial.content[language]}&rdquo;
               </p>
-
-              {/* Author Role Only */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                  <Star className="w-5 h-5 text-primary-600" />
-                </div>
-                <p className="text-gray-500 text-sm font-medium">
-                  {testimonial.role[language]}
-                </p>
-              </div>
             </div>
           ))}
         </div>
 
-        {/* Stats Bar */}
-        <div className="mt-16 bg-gradient-to-r from-primary-600 to-primary-400 rounded-3xl p-8 md:p-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center text-white">
-              <div className="text-4xl md:text-5xl font-bold mb-2">4.9</div>
-              <div className="flex justify-center gap-1 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-300 fill-yellow-300" />
-                ))}
-              </div>
-              <p className="text-blue-100 text-sm">
-                {language === 'ar' ? 'متوسط التقييم' : 'Average Rating'}
-              </p>
-            </div>
-            <div className="text-center text-white">
-              <div className="text-4xl md:text-5xl font-bold mb-2">50K+</div>
-              <p className="text-blue-100">
-                {language === 'ar' ? 'طالب سعيد' : 'Happy Students'}
-              </p>
-            </div>
-            <div className="text-center text-white">
-              <div className="text-4xl md:text-5xl font-bold mb-2">200+</div>
-              <p className="text-blue-100">
-                {language === 'ar' ? 'دورة متاحة' : 'Available Courses'}
-              </p>
-            </div>
-            <div className="text-center text-white">
-              <div className="text-4xl md:text-5xl font-bold mb-2">98%</div>
-              <p className="text-blue-100">
-                {language === 'ar' ? 'نسبة الرضا' : 'Satisfaction Rate'}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

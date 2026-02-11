@@ -157,22 +157,6 @@ export default function AccreditationsSection() {
           </div>
         </div>
 
-        {/* Trust Badges */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-500 text-sm mb-4">
-            {language === 'ar' ? 'موثوق من قبل أكثر من 5000 متدرب' : 'Trusted by over 5,000 trainees'}
-          </p>
-          <div className="flex items-center justify-center gap-8 opacity-60">
-            <div className="text-gray-400">
-              <Shield className="w-8 h-8 mx-auto mb-1" />
-              <span className="text-xs">QABA</span>
-            </div>
-            <div className="text-gray-400">
-              <BadgeCheck className="w-8 h-8 mx-auto mb-1" />
-              <span className="text-xs">IBAO</span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

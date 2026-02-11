@@ -9,7 +9,6 @@ import PopularProgramsSection from '@/components/PopularProgramsSection';
 import ConsultationsSection from '@/components/ConsultationsSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CoursesSection from '@/components/CoursesSection';
-import MainTrainerSection from '@/components/MainTrainerSection';
 import TeamSection from '@/components/TeamSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import AccreditationsSection from '@/components/AccreditationsSection';
@@ -28,7 +27,6 @@ export default function Home() {
       <ConsultationsSection />
       <FeaturesSection />
       <CoursesSection />
-      <MainTrainerSection />
       <TeamSection />
       <TestimonialsSection />
       <AccreditationsSection />
