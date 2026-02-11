@@ -11,7 +11,6 @@ import FeaturesSection from '@/components/FeaturesSection';
 import CoursesSection from '@/components/CoursesSection';
 import MainTrainerSection from '@/components/MainTrainerSection';
 import TeamSection from '@/components/TeamSection';
-import AccreditationsSection from '@/components/AccreditationsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
@@ -30,7 +29,6 @@ export default function Home() {
       <CoursesSection />
       <MainTrainerSection />
       <TeamSection />
-      <AccreditationsSection />
       <TestimonialsSection />
       <CTASection />
       <Footer />
