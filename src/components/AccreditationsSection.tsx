@@ -9,32 +9,60 @@ export default function AccreditationsSection() {
 
   const accreditations = [
     {
+      id: 1,
+      name: { ar: 'QABA', en: 'QABA' },
+      fullName: {
+        ar: 'مزود معتمد للتعليم المستمر',
+        en: 'Continuing Education Approved Provider'
+      },
+      description: {
+        ar: 'مزود معتمد لبرامج التعليم المستمر من QABA',
+        en: 'Approved provider for QABA continuing education programs'
+      },
+      logo: '/images/accreditations/qaba-ce.jpeg',
+      color: 'from-blue-800 to-blue-900',
+    },
+    {
       id: 2,
       name: { ar: 'QABA', en: 'QABA' },
       fullName: {
-        ar: 'مجلس اعتماد محللي السلوك المؤهلين',
-        en: 'Qualified Applied Behavior Analysis Credentialing Board'
+        ar: 'مزود معتمد لبرامج الصحة السلوكية',
+        en: 'Behavioral Health Credentialing Approved Coursework Provider'
       },
       description: {
-        ar: 'مزود معتمد لبرامج تدريب محللي السلوك',
-        en: 'Approved training provider for behavior analyst programs'
+        ar: 'مزود معتمد لبرامج اعتماد الصحة السلوكية',
+        en: 'Approved coursework provider for behavioral health credentialing'
       },
-      logo: '/images/accreditations/qaba-logo.svg',
-      color: 'from-emerald-500 to-emerald-600',
+      logo: '/images/accreditations/qaba-bh.jpeg',
+      color: 'from-blue-800 to-blue-900',
     },
     {
       id: 3,
       name: { ar: 'IBAO', en: 'IBAO' },
       fullName: {
-        ar: 'المنظمة الدولية لمحللي السلوك',
-        en: 'International Behavior Analysis Organization'
+        ar: 'مزود محتوى معتمد - محلل سلوك دولي',
+        en: 'Approved Content Provider - International Behavior Analyst'
       },
       description: {
-        ar: 'مزود معتمد في المنظمة الدولية لتحليل السلوك',
-        en: 'Approved provider in the International Behavior Analysis Organization'
+        ar: 'مزود محتوى معتمد من المنظمة الدولية لتحليل السلوك',
+        en: 'Approved content provider by International Behavior Analysis Organization'
       },
-      logo: '/images/accreditations/ibao-logo.svg',
-      color: 'from-purple-500 to-purple-600',
+      logo: '/images/accreditations/ibao-acp.jpeg',
+      color: 'from-green-700 to-green-800',
+    },
+    {
+      id: 4,
+      name: { ar: 'IBAO', en: 'IBAO' },
+      fullName: {
+        ar: 'مزود ساعات التعليم المستمر',
+        en: 'CEU Provider - International Behavior Analysis Organization'
+      },
+      description: {
+        ar: 'مزود معتمد لساعات التعليم المستمر من المنظمة الدولية لتحليل السلوك',
+        en: 'Approved CEU provider by International Behavior Analysis Organization'
+      },
+      logo: '/images/accreditations/ibao-ceu.jpeg',
+      color: 'from-purple-600 to-purple-700',
     },
   ];
 
@@ -92,7 +120,7 @@ export default function AccreditationsSection() {
         </div>
 
         {/* Accreditations Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16">
           {accreditations.map((accreditation) => (
             <div
               key={accreditation.id}
@@ -101,24 +129,18 @@ export default function AccreditationsSection() {
               {/* Background Gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br ${accreditation.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
 
-              {/* Logo/Icon Container */}
-              <div className="w-16 h-16 rounded-xl overflow-hidden mb-4 shadow-lg">
+              {/* Logo */}
+              <div className="w-full h-40 rounded-xl overflow-hidden mb-4 flex items-center justify-center bg-white p-2">
                 <img
                   src={accreditation.logo}
                   alt={accreditation.name[language]}
-                  className="w-full h-full object-cover"
+                  className="max-w-full max-h-full object-contain"
                 />
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-bold text-gray-900 mb-1">
-                {accreditation.name[language]}
-              </h3>
-              <p className="text-sm text-[#4485b5] font-medium mb-2">
+              <p className="text-sm text-[#4485b5] font-medium text-center">
                 {accreditation.fullName[language]}
-              </p>
-              <p className="text-gray-600 text-sm">
-                {accreditation.description[language]}
               </p>
 
               {/* Verified Badge */}
