@@ -129,7 +129,7 @@ export default function AboutPage() {
     {
       year: '2025',
       title: { ar: 'الاعتماد الدولي', en: 'International Accreditation' },
-      description: { ar: 'حصلنا على اعتماد BACB كمزود تعليم مستمر', en: 'Obtained BACB accreditation as a CE provider' },
+      description: { ar: 'حصلنا على اعتماد IBA,QABA كمزود تعليم مستمر', en: 'Obtained IBA , QABA accreditation as a CE provider' },
     },
     {
       year: '2025',
@@ -210,7 +210,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img
-                src="/images/home.png"
+                src="/images/hero.png"
                 alt="Our Story"
                 className="rounded-3xl shadow-2xl"
               />
@@ -218,7 +218,7 @@ export default function AboutPage() {
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-8 h-8" />
                   <div>
-                    <div className="text-2xl font-bold">+5</div>
+                    <div className="text-2xl font-bold">+15</div>
                     <div className="text-sm text-white/80">
                       {language === 'ar' ? 'سنوات من الخبرة' : 'Years of Experience'}
                     </div>
@@ -373,13 +373,13 @@ export default function AboutPage() {
           </blockquote>
           <div className="flex items-center justify-center gap-4">
             <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100"
-              alt="CEO"
+              src="/images/trainer.jpg"
+              alt="Dr. Reda Gad"
               className="w-14 h-14 rounded-full object-cover"
             />
             <div className="text-start">
               <div className="font-bold text-gray-900">
-                {language === 'ar' ? 'د. أحمد المحمد' : 'Dr. Ahmed Al-Mohammed'}
+                {language === 'ar' ? 'د. رضا جاد محمد طه كرامه' : 'Dr. Reda Gad Mohamed Taha Karama'}
               </div>
               <div className="text-[#4485b5] text-sm">
                 {language === 'ar' ? 'المؤسس والرئيس التنفيذي' : 'Founder & CEO'}
