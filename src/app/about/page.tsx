@@ -237,8 +237,8 @@ export default function AboutPage() {
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 {language === 'ar'
-                  ? 'بدأت مسارات كحلم لتوفير تدريب متخصص وعالي الجودة في مجال تحليل السلوك التطبيقي باللغة العربية. منذ تأسيسنا، سعينا لسد الفجوة في المحتوى التدريبي المتخصص وتمكين المهنيين العرب من الحصول على شهادات معتمدة دولياً.'
-                  : 'Masarat started as a dream to provide specialized, high-quality training in Applied Behavior Analysis in Arabic. Since our founding, we have strived to bridge the gap in specialized training content and empower Arab professionals to obtain internationally accredited certifications.'}
+                  ? 'بدأت مسارات كحلم لتوفير تدريب متخصص وعالي الجودة في مجال تحليل السلوك التطبيقي باللغة العربية واللغة الإنجليزية. منذ تأسيسنا، سعينا لسد الفجوة في المحتوى التدريبي المتخصص وتمكين المهنيين العرب من الحصول على شهادات معتمدة دولياً.'
+                  : 'Masarat started as a dream to provide specialized, high-quality training in Applied Behavior Analysis in Arabic and English. Since our founding, we have strived to bridge the gap in specialized training content and empower Arab professionals to obtain internationally accredited certifications.'}
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 {language === 'ar'
