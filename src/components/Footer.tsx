@@ -18,8 +18,7 @@ export default function Footer() {
   const quickLinks = [
     { href: '/courses', label: t('courses') },
     { href: '/instructors', label: t('instructors') },
-    { href: '/pricing', label: t('pricing') },
-    { href: '/about', label: t('about') },
+{ href: '/about', label: t('about') },
   ];
 
   const supportLinks = [

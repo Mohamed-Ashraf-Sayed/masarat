@@ -30,8 +30,8 @@ export default function FeaturesSection() {
       icon: Award,
       title: { ar: 'شهادات معتمدة دولياً', en: 'Internationally Accredited' },
       description: {
-        ar: 'شهادات IBA® و IBT® و QBA® و QASP-S® معتمدة من IBAO',
-        en: 'IBA®, IBT®, QBA®, QASP-S® certificates accredited by IBAO',
+        ar: 'شهادات IBA® و IBT® و QBA® و QASP-S® معتمدة من IBAO,QABA',
+        en: 'IBA®, IBT®, QBA®, QASP-S® certificates accredited by IBAO,QABA',
       },
       color: 'bg-emerald-500',
     },
@@ -48,8 +48,8 @@ export default function FeaturesSection() {
       icon: HeadphonesIcon,
       title: { ar: 'إشراف متخصص', en: 'Expert Supervision' },
       description: {
-        ar: 'إشراف من محللي سلوك معتمدين BCBA لدعم رحلتك المهنية',
-        en: 'Supervision from certified BCBA behavior analysts to support your career',
+        ar: 'إشراف من محللي سلوك معتمدين  لدعم رحلتك المهنية',
+        en: 'Supervision from certified  behavior analysts to support your career',
       },
       color: 'bg-amber-500',
     },
@@ -84,8 +84,8 @@ export default function FeaturesSection() {
       icon: GraduationCap,
       title: { ar: 'مسارات مهنية', en: 'Career Paths' },
       description: {
-        ar: 'مسارات متكاملة من ABAT® إلى IBA® لبناء مسيرتك المهنية',
-        en: 'Complete paths from ABAT® to IBA® to build your professional career',
+        ar: 'مسارات متكاملة من بناء مسيرتك المهنية',
+        en: 'Complete paths  to build your professional career',
       },
       color: 'bg-indigo-500',
     },
