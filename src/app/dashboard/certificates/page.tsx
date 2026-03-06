@@ -1,31 +1,49 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Award, Download, Share2, Eye, Calendar, BookOpen } from 'lucide-react';
+import { Award, Download, Calendar, BookOpen, Loader2 } from 'lucide-react';
+
+interface Certificate {
+  id: string;
+  certificateId: string;
+  issuedAt: string;
+  course: {
+    titleAr: string;
+    titleEn: string;
+    instructor: { name: string };
+  };
+}
 
 export default function CertificatesPage() {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const certificates = [
-    {
-      id: '1',
-      courseName: { ar: 'دورة تطوير الويب الشاملة', en: 'Complete Web Development Bootcamp' },
-      instructor: 'محمد أحمد',
-      issueDate: '2024-01-10',
-      certificateId: 'CERT-2024-001234',
-      thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400',
-    },
-    {
-      id: '2',
-      courseName: { ar: 'التصميم الجرافيكي باستخدام Photoshop', en: 'Graphic Design with Photoshop' },
-      instructor: 'سارة علي',
-      issueDate: '2023-12-25',
-      certificateId: 'CERT-2023-005678',
-      thumbnail: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400',
-    },
-  ];
+  useEffect(() => {
+    fetch('/api/certificates')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setCertificates(data.certificates);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleDownload = (certId: string) => {
+    window.open(`/api/certificates/${certId}/download`, '_blank');
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -63,7 +81,7 @@ export default function CertificatesPage() {
                     {language === 'ar' ? 'شهادة إتمام' : 'Certificate of Completion'}
                   </h3>
                   <p className="text-blue-100 text-sm mb-4">
-                    {cert.courseName[language]}
+                    {language === 'ar' ? cert.course.titleAr : cert.course.titleEn}
                   </p>
                   <div className="text-xs text-blue-200">
                     ID: {cert.certificateId}
@@ -74,7 +92,7 @@ export default function CertificatesPage() {
               {/* Certificate Info */}
               <div className="p-6">
                 <h4 className="font-bold text-gray-900 mb-4">
-                  {cert.courseName[language]}
+                  {language === 'ar' ? cert.course.titleAr : cert.course.titleEn}
                 </h4>
 
                 <div className="space-y-3 mb-6">
@@ -82,32 +100,27 @@ export default function CertificatesPage() {
                     <BookOpen className="w-4 h-4 text-gray-400" />
                     <span>
                       {language === 'ar' ? 'المدرب: ' : 'Instructor: '}
-                      {cert.instructor}
+                      {cert.course.instructor.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-600 text-sm">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <span>
                       {language === 'ar' ? 'تاريخ الإصدار: ' : 'Issue Date: '}
-                      {new Date(cert.issueDate).toLocaleDateString(
+                      {new Date(cert.issuedAt).toLocaleDateString(
                         language === 'ar' ? 'ar-SA' : 'en-US'
                       )}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors">
-                    <Download className="w-4 h-4" />
-                    {language === 'ar' ? 'تحميل' : 'Download'}
-                  </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDownload(cert.id)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  {language === 'ar' ? 'تحميل الشهادة' : 'Download Certificate'}
+                </button>
               </div>
             </div>
           ))}
