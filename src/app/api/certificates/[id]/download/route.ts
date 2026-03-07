@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -68,111 +69,164 @@ export async function GET(
       );
     }
 
-    const issueDate = new Date(certificate.issuedAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    const issuedDate = new Date(certificate.issuedAt);
+    const completedDate = issuedDate.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', year: 'numeric'
     });
 
+    const certNumber = certificate.certificateId.replace('CERT-', '').split('-')[0];
+
     const html = `<!DOCTYPE html>
-<html dir="ltr">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Certificate - ${certificate.certificateId}</title>
+  <title>Certificate - ${certificate.user.name}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page { size: A4 landscape; margin: 0; }
     body {
       width: 297mm; height: 210mm;
-      font-family: 'Georgia', 'Times New Roman', serif;
-      background: #f8f9fa;
+      font-family: 'Lato', sans-serif;
+      background: #f0f0f0;
       display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
     }
     .certificate {
-      width: 277mm; height: 190mm;
+      width: 280mm; height: 198mm;
       background: white;
       position: relative;
-      padding: 30px;
-    }
-    .border-outer {
-      position: absolute; inset: 10px;
-      border: 3px solid #4485b5;
-      border-radius: 8px;
-    }
-    .border-inner {
-      position: absolute; inset: 18px;
-      border: 1px solid #2d5a7b;
-      border-radius: 4px;
-    }
-    .content {
-      position: relative; z-index: 1;
-      text-align: center;
-      height: 100%;
+      padding: 15mm 20mm;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 20px 40px;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    .logo { font-size: 18px; color: #4485b5; font-weight: bold; margin-bottom: 10px; }
-    .title { font-size: 42px; color: #4485b5; letter-spacing: 8px; margin-bottom: 5px; }
-    .subtitle { font-size: 18px; color: #666; letter-spacing: 4px; margin-bottom: 25px; }
-    .divider { width: 200px; height: 2px; background: linear-gradient(to right, transparent, #ddd, transparent); margin: 15px auto; }
-    .certify-text { font-size: 14px; color: #888; margin-bottom: 10px; }
-    .student-name { font-size: 32px; color: #333; font-weight: bold; margin-bottom: 15px; }
-    .completed-text { font-size: 14px; color: #888; margin-bottom: 10px; }
-    .course-name-en { font-size: 22px; color: #4485b5; font-weight: bold; margin-bottom: 8px; }
-    .course-name-ar { font-size: 18px; color: #666; direction: rtl; margin-bottom: 20px; }
-    .date { font-size: 12px; color: #888; margin-bottom: 5px; }
-    .cert-id { font-size: 10px; color: #aaa; margin-bottom: 25px; }
-    .footer { display: flex; justify-content: space-between; width: 100%; padding: 0 60px; align-items: flex-end; }
-    .footer-item { text-align: center; }
-    .footer-label { font-size: 12px; color: #888; margin-bottom: 5px; }
-    .footer-value { font-size: 14px; color: #333; font-weight: bold; }
-    .footer-line { width: 150px; height: 1px; background: #333; margin: 8px auto; }
-    .platform-name { font-size: 20px; color: #4485b5; font-weight: bold; }
-    .platform-sub { font-size: 10px; color: #999; }
+    .logo { width: 120px; margin-bottom: 5px; }
+    .student-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 48px;
+      color: #1a1a2e;
+      margin: 10px 0 5px;
+    }
+    .cert-number {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .recognition-text {
+      font-size: 15px;
+      color: #c2185b;
+      margin-bottom: 8px;
+    }
+    .course-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      font-style: italic;
+      color: #1a1a2e;
+      margin-bottom: 15px;
+      text-align: center;
+      max-width: 80%;
+    }
+    .dates {
+      font-size: 14px;
+      color: #c2185b;
+      margin-bottom: 5px;
+    }
+    .hours {
+      font-size: 14px;
+      color: #c2185b;
+      margin-bottom: 20px;
+    }
+    .hours strong {
+      font-size: 18px;
+      font-weight: 900;
+      color: #1a1a2e;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      margin-top: auto;
+      padding: 0 10mm;
+    }
+    .footer-section {
+      text-align: center;
+      flex: 1;
+    }
+    .signature-section .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #c2185b;
+    }
+    .signature-section .title-text {
+      font-size: 11px;
+      color: #555;
+    }
+    .signature-section .org {
+      font-size: 11px;
+      color: #333;
+      font-weight: 700;
+    }
+    .signature-line {
+      font-family: 'Dancing Script', cursive;
+      font-size: 28px;
+      color: #1a1a5e;
+      margin-bottom: 2px;
+    }
+    .badge-img {
+      height: 80px;
+      object-fit: contain;
+    }
+    .badge-label {
+      font-size: 9px;
+      color: #555;
+      margin-top: 4px;
+      font-weight: 700;
+    }
     @media print {
-      body { background: white; }
-      .no-print { display: none; }
+      body { background: white; margin: 0; }
+      .certificate { box-shadow: none; }
+      .no-print { display: none !important; }
     }
     .print-btn {
       position: fixed; top: 20px; right: 20px;
-      padding: 12px 24px; background: #4485b5; color: white;
+      padding: 12px 28px; background: #4485b5; color: white;
       border: none; border-radius: 8px; font-size: 16px;
-      cursor: pointer; z-index: 100;
+      cursor: pointer; z-index: 100; font-family: 'Lato', sans-serif;
     }
     .print-btn:hover { background: #2d5a7b; }
   </style>
 </head>
 <body>
-  <button class="print-btn no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
   <div class="certificate">
-    <div class="border-outer"></div>
-    <div class="border-inner"></div>
-    <div class="content">
-      <div class="platform-name">مسارات</div>
-      <div class="platform-sub">Masarat - ABA Training Platform</div>
-      <div class="divider"></div>
-      <div class="title">CERTIFICATE</div>
-      <div class="subtitle">OF COMPLETION</div>
-      <div class="divider"></div>
-      <div class="certify-text">This is to certify that</div>
-      <div class="student-name">${certificate.user.name}</div>
-      <div class="completed-text">has successfully completed the course</div>
-      <div class="course-name-en">${certificate.course.titleEn}</div>
-      <div class="course-name-ar">${certificate.course.titleAr}</div>
-      <div class="date">Issued on: ${issueDate}</div>
-      <div class="cert-id">Certificate ID: ${certificate.certificateId}</div>
-      <div class="footer">
-        <div class="footer-item">
-          <div class="footer-value">${certificate.course.instructor.name}</div>
-          <div class="footer-line"></div>
-          <div class="footer-label">Instructor</div>
-        </div>
-        <div class="footer-item">
-          <div class="footer-value">مسارات</div>
-          <div class="footer-line"></div>
-          <div class="footer-label">Platform</div>
-        </div>
+    <img src="${APP_URL}/images/logo.png" alt="Masarat" class="logo">
+
+    <div class="student-name">${certificate.user.name}</div>
+    <div class="cert-number">certificate #${certNumber}</div>
+
+    <div class="recognition-text">Has been recognized for completing the course of study</div>
+
+    <div class="course-name">${certificate.course.titleEn}</div>
+
+    <div class="dates">completed ${completedDate}</div>
+
+    <div class="footer">
+      <div class="footer-section signature-section">
+        <div class="signature-line">Reda gad</div>
+        <div class="name">Dr. Reda Gad Mohamed Taha</div>
+        <div class="title-text">Ph.D,QBA,IBA,AC</div>
+        <div class="org">MASARAT for ABA Director</div>
+      </div>
+      <div class="footer-section">
+        <img src="${APP_URL}/images/accreditations/qaba-bh.jpeg" alt="QABA" class="badge-img">
+        <div class="badge-label">APPROVED COURSEWORK PROVIDER</div>
+      </div>
+      <div class="footer-section">
+        <img src="${APP_URL}/images/accreditations/qaba-ce.jpeg" alt="QABA Approved" class="badge-img">
+        <div class="badge-label">QABA APPROVED<br>TRAINING PROGRAM</div>
       </div>
     </div>
   </div>
