@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -75,6 +74,7 @@ export async function GET(
     });
 
     const certNumber = certificate.certificateId.replace('CERT-', '').split('-')[0];
+    const origin = request.nextUrl.origin;
 
     const html = `<!DOCTYPE html>
 <html>
@@ -104,9 +104,11 @@ export async function GET(
     .logo { width: 120px; margin-bottom: 5px; }
     .student-name {
       font-family: 'Dancing Script', cursive;
-      font-size: 48px;
+      font-size: clamp(28px, 5vw, 48px);
       color: #1a1a2e;
       margin: 10px 0 5px;
+      max-width: 90%;
+      word-wrap: break-word;
     }
     .cert-number {
       font-size: 16px;
@@ -202,7 +204,7 @@ export async function GET(
 <body>
   <button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
   <div class="certificate">
-    <img src="${APP_URL}/images/logo.png" alt="Masarat" class="logo">
+    <img src="${origin}/images/logo.png" alt="Masarat" class="logo">
 
     <div class="student-name">${certificate.user.name}</div>
     <div class="cert-number">certificate #${certNumber}</div>
@@ -221,11 +223,11 @@ export async function GET(
         <div class="org">MASARAT for ABA Director</div>
       </div>
       <div class="footer-section">
-        <img src="${APP_URL}/images/accreditations/qaba-bh.jpeg" alt="QABA" class="badge-img">
+        <img src="${origin}/images/accreditations/qaba-bh.jpeg" alt="QABA" class="badge-img">
         <div class="badge-label">APPROVED COURSEWORK PROVIDER</div>
       </div>
       <div class="footer-section">
-        <img src="${APP_URL}/images/accreditations/qaba-ce.jpeg" alt="QABA Approved" class="badge-img">
+        <img src="${origin}/images/accreditations/qaba-ce.jpeg" alt="QABA Approved" class="badge-img">
         <div class="badge-label">QABA APPROVED<br>TRAINING PROGRAM</div>
       </div>
     </div>
