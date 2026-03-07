@@ -8,6 +8,7 @@ const nextConfig = {
     return config;
   },
   // Increase body size limit for file uploads (100MB for videos)
+  serverExternalPackages: ['pdfkit'],
   experimental: {
     serverActions: {
       bodySizeLimit: '100mb',
