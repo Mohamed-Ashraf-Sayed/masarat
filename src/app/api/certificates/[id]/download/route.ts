@@ -227,8 +227,7 @@ export async function GET(
         <div class="badge-label">APPROVED COURSEWORK PROVIDER</div>
       </div>
       <div class="footer-section">
-        <img src="${origin}/images/accreditations/qaba-ce.jpeg" alt="QABA Approved" class="badge-img">
-        <div class="badge-label">QABA APPROVED<br>TRAINING PROGRAM</div>
+        <img src="${origin}/images/accreditations/qaba-approved.png" alt="QABA Approved" class="badge-img">
       </div>
     </div>
   </div>
