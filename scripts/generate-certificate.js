@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const PDFDocument = require('pdfkit');
+const ArabicReshaper = require('arabic-reshaper');
 const path = require('path');
 
 // Read certificate data from stdin
@@ -9,6 +10,20 @@ process.stdin.on('end', () => {
   const data = JSON.parse(input);
   generatePDF(data);
 });
+
+function isArabic(char) {
+  const code = char.charCodeAt(0);
+  return (code >= 0x0600 && code <= 0x06FF) || (code >= 0xFB50 && code <= 0xFDFF) || (code >= 0xFE70 && code <= 0xFEFF);
+}
+
+function hasArabic(text) {
+  return [...text].some(ch => isArabic(ch));
+}
+
+function processArabicText(text) {
+  const reshaped = ArabicReshaper.convertArabic(text);
+  return reshaped.split(' ').reverse().join(' ');
+}
 
 function generatePDF(data) {
   const publicDir = path.join(process.cwd(), 'public');
@@ -23,6 +38,7 @@ function generatePDF(data) {
 
   // Register custom fonts
   doc.registerFont('DancingScript', path.join(fontsDir, 'DancingScript.ttf'));
+  doc.registerFont('Amiri', path.join(fontsDir, 'Amiri-Regular.ttf'));
 
   // White background
   doc.rect(0, 0, w, h).fill('#ffffff');
@@ -36,8 +52,11 @@ function generatePDF(data) {
   } catch (e) {}
 
   // Student name
-  doc.font('DancingScript').fontSize(data.studentName.length > 35 ? 28 : 38).fillColor('#1a1a2e')
-    .text(data.studentName, 50, 140, { align: 'center', width: w - 100 });
+  const nameIsArabic = hasArabic(data.studentName);
+  const displayName = nameIsArabic ? processArabicText(data.studentName) : data.studentName;
+  const nameFont = nameIsArabic ? 'Amiri' : 'DancingScript';
+  doc.font(nameFont).fontSize(data.studentName.length > 35 ? 28 : 38).fillColor('#1a1a2e')
+    .text(displayName, 50, 140, { align: 'center', width: w - 100 });
 
   // Certificate number
   doc.font('Helvetica').fontSize(14).fillColor('#333333')
