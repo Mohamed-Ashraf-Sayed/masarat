@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
-    const publicUrl = `/uploads/sliders/${uniqueName}`;
+    const publicUrl = `/api/files/sliders/${uniqueName}`;
 
     // Update slider list in DB
     const setting = await prisma.siteSetting.findUnique({
@@ -171,7 +171,8 @@ export async function DELETE(request: NextRequest) {
 
     // Try to delete the file
     try {
-      const filePath = path.join(process.cwd(), 'public', slideToDelete.src);
+      const fileName = slideToDelete.src.split('/').pop();
+      const filePath = path.join(process.cwd(), 'public', 'uploads', 'sliders', fileName);
       await unlink(filePath);
     } catch {
       // File might not exist, continue
