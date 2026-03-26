@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const fallbackSlides = [
@@ -61,12 +60,10 @@ export default function ImageSlider() {
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <Image
+            <img
               src={slide.src}
               alt={slide.alt}
-              fill
-              className="object-contain"
-              priority={index === 0}
+              className="w-full h-full object-contain"
             />
           </div>
         ))}
