@@ -335,9 +335,19 @@ export default function TakeQuizPage() {
                                   ? question.questionAr
                                   : question.questionEn}
                               </p>
+                              {/* User's answer */}
+                              <p className={`text-sm mt-1 ${answerDetail?.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                                {language === 'ar' ? 'إجابتك: ' : 'Your answer: '}
+                                {question.type === 'SHORT_ANSWER'
+                                  ? String(answerDetail?.answer ?? '')
+                                  : question.options[
+                                      answerDetail?.answer as number
+                                    ]?.[language === 'ar' ? 'ar' : 'en'] ?? (language === 'ar' ? 'لم تتم الإجابة' : 'Not answered')}
+                              </p>
+                              {/* Correct answer if wrong */}
                               {!answerDetail?.isCorrect &&
                                 answerDetail?.correctAnswer !== undefined && (
-                                  <p className="text-sm text-gray-600 mt-1">
+                                  <p className="text-sm text-green-700 mt-1">
                                     {language === 'ar'
                                       ? 'الإجابة الصحيحة: '
                                       : 'Correct answer: '}

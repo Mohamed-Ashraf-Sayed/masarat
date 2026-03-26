@@ -90,14 +90,29 @@ export async function PUT(
       'titleAr', 'titleEn', 'descriptionAr', 'descriptionEn',
       'thumbnail', 'previewVideo', 'price', 'originalPrice',
       'level', 'duration', 'categoryId', 'instructorId',
-      'isPublished', 'isFeatured', 'enableWatermark',
+      'isPublished', 'isFeatured', 'enableWatermark', 'certificateTemplate',
+      'ceuCount', 'generalCeus', 'supervisionCeus', 'ethicsCeus', 'eventModality', 'providerNumber',
       'learningOutcomesAr', 'learningOutcomesEn',
       'requirementsAr', 'requirementsEn',
     ];
 
+    const floatFields = ['price', 'originalPrice', 'ceuCount', 'generalCeus', 'supervisionCeus', 'ethicsCeus'];
+    const intFields = ['duration'];
+
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        data[field] = body[field];
+        if (field === 'categoryId') {
+          data.category = { connect: { id: body[field] } };
+        } else if (field === 'instructorId') {
+          data.instructor = { connect: { id: body[field] } };
+        } else if (floatFields.includes(field)) {
+          const val = body[field];
+          data[field] = (val === null || val === '' || val === undefined || isNaN(Number(val))) ? null : parseFloat(val);
+        } else if (intFields.includes(field)) {
+          data[field] = body[field] === null || body[field] === '' ? 0 : parseInt(body[field]);
+        } else {
+          data[field] = body[field];
+        }
       }
     }
 
@@ -107,10 +122,10 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true, data: course });
-  } catch (error) {
-    console.error('Error updating course:', error);
+  } catch (error: any) {
+    console.error('Error updating course:', error?.message || error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update course' },
+      { success: false, error: error?.message || 'Failed to update course' },
       { status: 500 }
     );
   }

@@ -31,6 +31,8 @@ import {
   UserCheck,
   FolderTree,
   ShoppingCart,
+  Image,
+  Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 
@@ -149,6 +151,8 @@ export default function AdminDashboard() {
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
+    { href: '/admin/certificates', icon: Award, label: { ar: 'الشهادات', en: 'Certificates' } },
+    { href: '/admin/sliders', icon: Image, label: { ar: 'البانرات', en: 'Banners' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];
 

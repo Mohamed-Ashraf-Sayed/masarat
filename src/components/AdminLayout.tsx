@@ -25,6 +25,8 @@ import {
   CreditCard,
   Shield,
   Bell,
+  Image,
+  Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 
@@ -55,6 +57,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/notifications', icon: Bell, label: { ar: 'الإشعارات', en: 'Notifications' } },
     { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
+    { href: '/admin/certificates', icon: Award, label: { ar: 'الشهادات', en: 'Certificates' } },
+    { href: '/admin/sliders', icon: Image, label: { ar: 'البانرات', en: 'Banners' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];
 
@@ -77,14 +81,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 transform transition-transform duration-300 ${
+        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 flex flex-col transform transition-transform duration-300 ${
           sidebarOpen
             ? 'translate-x-0'
             : '-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-400 rounded-xl flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-white" />
@@ -103,8 +107,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
         </div>
 
-        {/* Menu */}
-        <nav className="p-4 space-y-1">
+        {/* Menu - scrollable */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent hover:scrollbar-thumb-gray-600" style={{ scrollbarWidth: 'thin', scrollbarColor: '#374151 transparent' }}>
           {adminMenuItems.map((item) => (
             <Link
               key={item.href}
@@ -121,8 +125,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           ))}
         </nav>
 
-        {/* Back to Site */}
-        <div className="absolute bottom-0 start-0 end-0 p-4 border-t border-gray-800">
+        {/* Bottom Actions */}
+        <div className="flex-shrink-0 p-4 border-t border-gray-800">
           <Link
             href="/"
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all"

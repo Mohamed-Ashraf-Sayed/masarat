@@ -64,6 +64,13 @@ export default function EditCoursePage() {
     isPublished: false,
     isFeatured: false,
     enableWatermark: true,
+    certificateTemplate: 'QABA',
+    ceuCount: '',
+    generalCeus: '',
+    supervisionCeus: '',
+    ethicsCeus: '',
+    eventModality: '',
+    providerNumber: '',
   });
 
   const [learningOutcomesAr, setLearningOutcomesAr] = useState<string[]>(['']);
@@ -114,6 +121,13 @@ export default function EditCoursePage() {
           isPublished: course.isPublished || false,
           isFeatured: course.isFeatured || false,
           enableWatermark: course.enableWatermark !== false,
+          certificateTemplate: course.certificateTemplate || 'QABA',
+          ceuCount: course.ceuCount?.toString() || '',
+          generalCeus: course.generalCeus?.toString() || '',
+          supervisionCeus: course.supervisionCeus?.toString() || '',
+          ethicsCeus: course.ethicsCeus?.toString() || '',
+          eventModality: course.eventModality || '',
+          providerNumber: course.providerNumber || '',
         });
 
         // Load learning outcomes and requirements
@@ -266,6 +280,13 @@ export default function EditCoursePage() {
           isPublished: formData.isPublished,
           isFeatured: formData.isFeatured,
           enableWatermark: formData.enableWatermark,
+          certificateTemplate: formData.certificateTemplate,
+          ceuCount: formData.ceuCount ? parseFloat(formData.ceuCount) : null,
+          generalCeus: formData.generalCeus ? parseFloat(formData.generalCeus) : null,
+          supervisionCeus: formData.supervisionCeus ? parseFloat(formData.supervisionCeus) : null,
+          ethicsCeus: formData.ethicsCeus ? parseFloat(formData.ethicsCeus) : null,
+          eventModality: formData.eventModality || null,
+          providerNumber: formData.providerNumber || null,
           learningOutcomesAr: learningOutcomesAr.filter(l => l.trim()).join('\n') || null,
           learningOutcomesEn: learningOutcomesEn.filter(l => l.trim()).join('\n') || null,
           requirementsAr: requirementsAr.filter(l => l.trim()).join('\n') || null,
@@ -839,6 +860,53 @@ export default function EditCoursePage() {
               </span>
             </label>
           </div>
+
+          {/* Certificate Template */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {language === 'ar' ? 'نوع الشهادة' : 'Certificate Template'}
+            </label>
+            <select
+              value={formData.certificateTemplate}
+              onChange={(e) => setFormData({ ...formData, certificateTemplate: e.target.value })}
+              className="input-field"
+            >
+              <option value="QABA">QABA</option>
+              <option value="IBAO">IBAO</option>
+              <option value="CEU">CEU - QABA (Continuing Education)</option>
+              <option value="IBAO_CEU">CEU - IBAO (Continuing Education)</option>
+            </select>
+          </div>
+
+          {/* CEU Fields */}
+          {(formData.certificateTemplate === 'CEU' || formData.certificateTemplate === 'IBAO_CEU') && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 rounded-xl">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">CEU Count</label>
+                <input type="number" step="0.5" value={formData.ceuCount || ''} onChange={(e) => setFormData({ ...formData, ceuCount: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">General CEUs</label>
+                <input type="number" step="0.5" value={formData.generalCeus || ''} onChange={(e) => setFormData({ ...formData, generalCeus: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Supervision CEUs</label>
+                <input type="number" step="0.5" value={formData.supervisionCeus || ''} onChange={(e) => setFormData({ ...formData, supervisionCeus: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Ethics CEUs</label>
+                <input type="number" step="0.5" value={formData.ethicsCeus || ''} onChange={(e) => setFormData({ ...formData, ethicsCeus: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Event Modality</label>
+                <input type="text" value={formData.eventModality || ''} onChange={(e) => setFormData({ ...formData, eventModality: e.target.value })} className="input-field" placeholder="Online Zoom" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Provider Number</label>
+                <input type="text" value={formData.providerNumber || ''} onChange={(e) => setFormData({ ...formData, providerNumber: e.target.value })} className="input-field" placeholder="QCB-6529" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Video Protection */}

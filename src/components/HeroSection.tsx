@@ -1,11 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function HeroSection() {
   const { language } = useLanguage();
+  const [heroImage, setHeroImage] = useState('/images/hero.png');
+
+  useEffect(() => {
+    fetch('/api/site-images')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data.hero) {
+          setHeroImage(data.data.hero);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="relative min-h-[85vh] flex items-center pt-24 overflow-hidden">
@@ -68,7 +80,7 @@ export default function HeroSection() {
           {/* Hero Image - Left side for Arabic */}
           <div className="order-1 lg:order-2 relative flex justify-center items-center">
             <img
-              src="/images/hero.png"
+              src={heroImage}
               alt="Masarat Training"
               className="w-full max-w-lg h-auto drop-shadow-2xl"
             />

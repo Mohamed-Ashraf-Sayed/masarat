@@ -36,7 +36,12 @@ export async function GET(
       include: {
         user: { select: { id: true, name: true, email: true } },
         course: {
-          select: { titleAr: true, titleEn: true, instructor: { select: { name: true } } },
+          select: {
+            titleAr: true, titleEn: true, duration: true, certificateTemplate: true,
+            ceuCount: true, generalCeus: true, supervisionCeus: true, ethicsCeus: true,
+            eventModality: true, providerNumber: true,
+            instructor: { select: { name: true } },
+          },
         },
       },
     });
@@ -49,22 +54,52 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Access denied' }, { status: 403 });
     }
 
-    const completedDate = new Date(certificate.issuedAt).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'long', year: 'numeric',
+    // Get enrollment for start date
+    let startDate = '';
+    try {
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId: certificate.userId,
+            courseId: certificate.courseId,
+          },
+        },
+      });
+      if (enrollment) {
+        startDate = new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
+          day: '2-digit', month: 'long', year: 'numeric',
+        });
+      }
+    } catch {
+      // No enrollment found, skip start date
+    }
+
+    const completedDate = new Date(certificate.issuedAt).toLocaleDateString('en-US', {
+      day: '2-digit', month: 'long', year: 'numeric',
     });
     const certNumber = certificate.certificateId.replace('CERT-', '').split('-')[0];
+    const trainingHours = certificate.course.duration || 0;
 
-    // Use child process to generate PDF (bypasses Next.js bundling issues with PDFKit)
-    const certData = Buffer.from(JSON.stringify({
+    // Use child process to generate PDF
+    const certPayload = JSON.stringify({
       studentName: certificate.user.name,
       certNumber,
       courseEn: certificate.course.titleEn,
       completedDate,
-    })).toString('base64');
+      startDate,
+      trainingHours,
+      template: certificate.certificateTemplate || certificate.course.certificateTemplate || 'QABA',
+      ceuCount: certificate.course.ceuCount || 0,
+      generalCeus: certificate.course.generalCeus || 0,
+      supervisionCeus: certificate.course.supervisionCeus || 0,
+      ethicsCeus: certificate.course.ethicsCeus || 0,
+      eventModality: certificate.course.eventModality || 'Online Zoom',
+      providerNumber: certificate.course.providerNumber || 'QCB-6529',
+    });
 
     const pdfBuffer = execSync(
-      `echo "${certData}" | base64 -d | node scripts/generate-certificate.js`,
-      { maxBuffer: 10 * 1024 * 1024, cwd: process.cwd() }
+      `node scripts/generate-certificate.js`,
+      { input: certPayload, maxBuffer: 10 * 1024 * 1024, cwd: process.cwd() }
     );
 
     return new NextResponse(new Uint8Array(pdfBuffer), {

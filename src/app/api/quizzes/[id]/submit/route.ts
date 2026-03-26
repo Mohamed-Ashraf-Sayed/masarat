@@ -183,10 +183,8 @@ export async function POST(
         isCorrect,
         points: question.points,
         earnedPoints: isCorrect ? question.points : 0,
-        ...(quiz.showResults && {
-          correctAnswer: correctAnswerValue,
-          explanation: question.explanation,
-        }),
+        correctAnswer: correctAnswerValue,
+        explanation: question.explanation,
       });
     }
 
@@ -220,22 +218,14 @@ export async function POST(
       completedAt: attempt.completedAt,
     };
 
-    // Include detailed results if showResults is enabled
-    if (quiz.showResults) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...result,
-          answers: gradedAnswers,
-          questionsCount: quiz.questions.length,
-          correctCount: gradedAnswers.filter(a => a.isCorrect).length,
-        },
-      });
-    }
-
     return NextResponse.json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        answers: gradedAnswers,
+        questionsCount: quiz.questions.length,
+        correctCount: gradedAnswers.filter(a => a.isCorrect).length,
+      },
     });
   } catch (error) {
     console.error('Error submitting quiz:', error);

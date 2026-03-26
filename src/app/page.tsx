@@ -10,7 +10,6 @@ import ConsultationsSection from '@/components/ConsultationsSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CoursesSection from '@/components/CoursesSection';
 import TeamSection from '@/components/TeamSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
 import AccreditationsSection from '@/components/AccreditationsSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
@@ -28,7 +27,6 @@ export default function Home() {
       <FeaturesSection />
       <CoursesSection />
       <TeamSection />
-      <TestimonialsSection />
       <AccreditationsSection />
       <CTASection />
       <Footer />

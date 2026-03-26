@@ -112,6 +112,13 @@ model Course {
   isPublished     Boolean       @default(false)
   isFeatured      Boolean       @default(false)
   enableWatermark Boolean       @default(true)
+  certificateTemplate String    @default("QABA")
+  ceuCount          Float?
+  generalCeus       Float?
+  supervisionCeus   Float?
+  ethicsCeus        Float?
+  eventModality     String?
+  providerNumber    String?
   learningOutcomesAr String?    @db.Text
   learningOutcomesEn String?    @db.Text
   requirementsAr    String?    @db.Text
@@ -282,10 +289,11 @@ model Certificate {
   id            String   @id @default(cuid())
   certificateId String   @unique
   issuedAt      DateTime @default(now())
-  userId        String
-  courseId      String
-  course        Course   @relation(fields: [courseId], references: [id])
-  user          User     @relation(fields: [userId], references: [id])
+  userId               String
+  courseId              String
+  certificateTemplate  String?
+  course               Course   @relation(fields: [courseId], references: [id])
+  user                 User     @relation(fields: [userId], references: [id])
 
   @@index([courseId], map: "certificates_courseId_fkey")
   @@index([userId], map: "certificates_userId_fkey")

@@ -61,6 +61,7 @@ export default function NewCoursePage() {
     instructorId: '',
     isPublished: false,
     isFeatured: false,
+    certificateTemplate: 'QABA',
   });
 
   const [learningOutcomesAr, setLearningOutcomesAr] = useState<string[]>(['']);
@@ -811,6 +812,23 @@ export default function NewCoursePage() {
                 {language === 'ar' ? 'دورة مميزة' : 'Featured course'}
               </span>
             </label>
+          </div>
+
+          {/* Certificate Template */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {language === 'ar' ? 'نوع الشهادة' : 'Certificate Template'}
+            </label>
+            <select
+              value={formData.certificateTemplate}
+              onChange={(e) => setFormData({ ...formData, certificateTemplate: e.target.value })}
+              className="input-field"
+            >
+              <option value="QABA">QABA</option>
+              <option value="IBAO">IBAO</option>
+              <option value="CEU">CEU - QABA (Continuing Education)</option>
+              <option value="IBAO_CEU">CEU - IBAO (Continuing Education)</option>
+            </select>
           </div>
         </div>
 
