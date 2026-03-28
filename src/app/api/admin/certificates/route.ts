@@ -97,8 +97,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: certificate });
   } catch (error) {
-    console.error('Error creating certificate:', error);
-    return NextResponse.json({ success: false, error: 'Failed to create certificate' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('Error creating certificate:', errMsg);
+    return NextResponse.json({ success: false, error: errMsg || 'Failed to create certificate' }, { status: 500 });
   }
 }
 
