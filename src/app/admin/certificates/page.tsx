@@ -61,6 +61,16 @@ export default function AdminCertificatesPage() {
   const [userSearch, setUserSearch] = useState('');
   const [courseSearch, setCourseSearch] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [customCertNumber, setCustomCertNumber] = useState('');
+  const [trainingHours, setTrainingHours] = useState('');
+  const [ceuCount, setCeuCount] = useState('');
+  const [generalCeus, setGeneralCeus] = useState('');
+  const [supervisionCeus, setSupervisionCeus] = useState('');
+  const [ethicsCeus, setEthicsCeus] = useState('');
+  const [eventModality, setEventModality] = useState('');
+  const [providerNumber, setProviderNumber] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [completionDate, setCompletionDate] = useState('');
   const [issuing, setIssuing] = useState(false);
 
   // Confirm modal
@@ -126,6 +136,16 @@ export default function AdminCertificatesPage() {
     setSelectedUserId('');
     setSelectedCourseId('');
     setSelectedTemplate('');
+    setCustomCertNumber('');
+    setTrainingHours('');
+    setCeuCount('');
+    setGeneralCeus('');
+    setSupervisionCeus('');
+    setEthicsCeus('');
+    setEventModality('');
+    setProviderNumber('');
+    setStartDate('');
+    setCompletionDate('');
     setUserSearch('');
     setCourseSearch('');
     fetchUsersAndCourses();
@@ -147,7 +167,21 @@ export default function AdminCertificatesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ userId: selectedUserId, courseId: selectedCourseId, certificateTemplate: selectedTemplate || undefined }),
+        body: JSON.stringify({
+          userId: selectedUserId,
+          courseId: selectedCourseId,
+          certificateTemplate: selectedTemplate || undefined,
+          customCertNumber: customCertNumber || undefined,
+          trainingHours: trainingHours ? Number(trainingHours) : undefined,
+          ceuCount: ceuCount ? Number(ceuCount) : undefined,
+          generalCeus: generalCeus ? Number(generalCeus) : undefined,
+          supervisionCeus: supervisionCeus ? Number(supervisionCeus) : undefined,
+          ethicsCeus: ethicsCeus ? Number(ethicsCeus) : undefined,
+          eventModality: eventModality || undefined,
+          providerNumber: providerNumber || undefined,
+          startDate: startDate || undefined,
+          completionDate: completionDate || undefined,
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -374,7 +408,7 @@ export default function AdminCertificatesPage() {
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Award className="w-5 h-5 text-primary-600" />
@@ -468,6 +502,85 @@ export default function AdminCertificatesPage() {
                   <option value="IBAO_CEU">CEU - IBAO</option>
                 </select>
               </div>
+
+              {/* Custom Overrides */}
+              <details className="border border-gray-200 rounded-xl overflow-hidden">
+                <summary className="px-4 py-3 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors">
+                  {language === 'ar' ? 'تخصيص بيانات الشهادة (اختياري)' : 'Customize Certificate Data (Optional)'}
+                </summary>
+                <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {language === 'ar' ? 'رقم الشهادة' : 'Certificate Number'}
+                    </label>
+                    <input type="text" value={customCertNumber} onChange={(e) => setCustomCertNumber(e.target.value)}
+                      placeholder={language === 'ar' ? 'تلقائي' : 'Auto-generated'}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {language === 'ar' ? 'عدد ساعات التدريب' : 'Training Hours'}
+                    </label>
+                    <input type="number" value={trainingHours} onChange={(e) => setTrainingHours(e.target.value)}
+                      placeholder={language === 'ar' ? 'حسب الدورة' : 'From course'}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">CEU Count</label>
+                      <input type="number" step="0.01" value={ceuCount} onChange={(e) => setCeuCount(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">General CEUs</label>
+                      <input type="number" step="0.01" value={generalCeus} onChange={(e) => setGeneralCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Supervision CEUs</label>
+                      <input type="number" step="0.01" value={supervisionCeus} onChange={(e) => setSupervisionCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Ethics CEUs</label>
+                      <input type="number" step="0.01" value={ethicsCeus} onChange={(e) => setEthicsCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'نوع الحدث' : 'Event Modality'}
+                      </label>
+                      <input type="text" value={eventModality} onChange={(e) => setEventModality(e.target.value)}
+                        placeholder="Online Zoom" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'رقم المزود' : 'Provider Number'}
+                      </label>
+                      <input type="text" value={providerNumber} onChange={(e) => setProviderNumber(e.target.value)}
+                        placeholder="QCB-6529" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'تاريخ البدء' : 'Start Date'}
+                      </label>
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'تاريخ الإكمال' : 'Completion Date'}
+                      </label>
+                      <input type="date" value={completionDate} onChange={(e) => setCompletionDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                  </div>
+                </div>
+              </details>
             </div>
 
             <div className="flex gap-3 mt-6">

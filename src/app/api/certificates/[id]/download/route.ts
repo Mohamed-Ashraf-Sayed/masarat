@@ -54,31 +54,35 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Access denied' }, { status: 403 });
     }
 
-    // Get enrollment for start date
-    let startDate = '';
-    try {
-      const enrollment = await prisma.enrollment.findUnique({
-        where: {
-          userId_courseId: {
-            userId: certificate.userId,
-            courseId: certificate.courseId,
-          },
-        },
+    // Determine start date: custom > enrollment > empty
+    let startDateStr = '';
+    if (certificate.startDate) {
+      startDateStr = new Date(certificate.startDate).toLocaleDateString('en-US', {
+        day: '2-digit', month: 'long', year: 'numeric',
       });
-      if (enrollment) {
-        startDate = new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
-          day: '2-digit', month: 'long', year: 'numeric',
+    } else {
+      try {
+        const enrollment = await prisma.enrollment.findUnique({
+          where: {
+            userId_courseId: {
+              userId: certificate.userId,
+              courseId: certificate.courseId,
+            },
+          },
         });
-      }
-    } catch {
-      // No enrollment found, skip start date
+        if (enrollment) {
+          startDateStr = new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
+            day: '2-digit', month: 'long', year: 'numeric',
+          });
+        }
+      } catch {}
     }
 
-    const completedDate = new Date(certificate.issuedAt).toLocaleDateString('en-US', {
-      day: '2-digit', month: 'long', year: 'numeric',
-    });
-    const certNumber = certificate.certificateId.replace('CERT-', '').split('-')[0];
-    const trainingHours = certificate.course.duration || 0;
+    const completedDate = new Date(certificate.completionDate || certificate.issuedAt)
+      .toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
+    const certNumber = certificate.customCertNumber
+      || certificate.certificateId.replace('CERT-', '').split('-')[0];
+    const trainingHours = certificate.trainingHours ?? certificate.course.duration ?? 0;
 
     // Use child process to generate PDF
     const certPayload = JSON.stringify({
@@ -86,15 +90,15 @@ export async function GET(
       certNumber,
       courseEn: certificate.course.titleEn,
       completedDate,
-      startDate,
+      startDate: startDateStr,
       trainingHours,
       template: certificate.certificateTemplate || certificate.course.certificateTemplate || 'QABA',
-      ceuCount: certificate.course.ceuCount || 0,
-      generalCeus: certificate.course.generalCeus || 0,
-      supervisionCeus: certificate.course.supervisionCeus || 0,
-      ethicsCeus: certificate.course.ethicsCeus || 0,
-      eventModality: certificate.course.eventModality || 'Online Zoom',
-      providerNumber: certificate.course.providerNumber || 'QCB-6529',
+      ceuCount: certificate.ceuCount ?? certificate.course.ceuCount ?? 0,
+      generalCeus: certificate.generalCeus ?? certificate.course.generalCeus ?? 0,
+      supervisionCeus: certificate.supervisionCeus ?? certificate.course.supervisionCeus ?? 0,
+      ethicsCeus: certificate.ethicsCeus ?? certificate.course.ethicsCeus ?? 0,
+      eventModality: certificate.eventModality || certificate.course.eventModality || 'Online Zoom',
+      providerNumber: certificate.providerNumber || certificate.course.providerNumber || 'QCB-6529',
     });
 
     const pdfBuffer = execSync(

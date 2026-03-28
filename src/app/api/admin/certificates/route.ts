@@ -48,7 +48,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { userId, courseId, certificateTemplate } = await request.json();
+    const {
+      userId, courseId, certificateTemplate,
+      customCertNumber, trainingHours,
+      ceuCount, generalCeus, supervisionCeus, ethicsCeus,
+      eventModality, providerNumber,
+      startDate, completionDate,
+    } = await request.json();
 
     if (!userId || !courseId) {
       return NextResponse.json({ success: false, error: 'userId and courseId are required' }, { status: 400 });
@@ -72,6 +78,16 @@ export async function POST(request: NextRequest) {
         courseId,
         certificateTemplate: certificateTemplate || null,
         certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        customCertNumber: customCertNumber || null,
+        trainingHours: trainingHours != null ? parseInt(trainingHours) : null,
+        ceuCount: ceuCount != null ? parseFloat(ceuCount) : null,
+        generalCeus: generalCeus != null ? parseFloat(generalCeus) : null,
+        supervisionCeus: supervisionCeus != null ? parseFloat(supervisionCeus) : null,
+        ethicsCeus: ethicsCeus != null ? parseFloat(ethicsCeus) : null,
+        eventModality: eventModality || null,
+        providerNumber: providerNumber || null,
+        startDate: startDate ? new Date(startDate) : null,
+        completionDate: completionDate ? new Date(completionDate) : null,
       },
       include: {
         user: { select: { id: true, name: true, email: true } },

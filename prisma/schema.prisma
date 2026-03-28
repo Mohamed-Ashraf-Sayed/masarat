@@ -292,6 +292,16 @@ model Certificate {
   userId               String
   courseId              String
   certificateTemplate  String?
+  customCertNumber     String?
+  trainingHours        Int?
+  ceuCount             Float?
+  generalCeus          Float?
+  supervisionCeus      Float?
+  ethicsCeus           Float?
+  eventModality        String?
+  providerNumber       String?
+  startDate            DateTime?
+  completionDate       DateTime?
   course               Course   @relation(fields: [courseId], references: [id])
   user                 User     @relation(fields: [userId], references: [id])
 
