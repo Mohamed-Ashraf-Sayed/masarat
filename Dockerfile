@@ -38,6 +38,7 @@ RUN mkdir -p /app/public/uploads/courses /app/public/uploads/videos /app/public/
 RUN chown -R nextjs:nodejs /app/public/uploads
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/scripts ./scripts
 
 USER nextjs
 
