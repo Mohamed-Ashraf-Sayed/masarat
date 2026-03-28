@@ -39,12 +39,7 @@ RUN chown -R nextjs:nodejs /app/public/uploads
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/node_modules/pdfkit ./node_modules/pdfkit
-COPY --from=builder /app/node_modules/arabic-reshaper ./node_modules/arabic-reshaper
-COPY --from=builder /app/node_modules/fontkit ./node_modules/fontkit
-COPY --from=builder /app/node_modules/linebreak ./node_modules/linebreak
-COPY --from=builder /app/node_modules/png-js ./node_modules/png-js
-COPY --from=builder /app/node_modules/crypto-js ./node_modules/crypto-js
+COPY --from=deps /app/node_modules ./node_modules
 
 USER nextjs
 
