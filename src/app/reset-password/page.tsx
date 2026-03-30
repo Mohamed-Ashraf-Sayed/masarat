@@ -169,7 +169,7 @@ function ResetPasswordForm() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4485b5] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4485b5] focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -182,7 +182,6 @@ function ResetPasswordForm() {
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
-              <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
           </div>
 
@@ -196,7 +195,7 @@ function ResetPasswordForm() {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4485b5] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4485b5] focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -209,7 +208,6 @@ function ResetPasswordForm() {
               >
                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
-              <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
           </div>
 
