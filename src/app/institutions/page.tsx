@@ -427,16 +427,6 @@ export default function InstitutionsPage() {
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-[#4485b5]/10 rounded-xl flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-[#4485b5]" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">{language === 'ar' ? 'اتصل بنا' : 'Call Us'}</p>
-                    <p className="font-semibold text-gray-900" dir="ltr">+966 50 123 4567</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#4485b5]/10 rounded-xl flex items-center justify-center">
                     <Mail className="w-6 h-6 text-[#4485b5]" />
                   </div>
                   <div>
