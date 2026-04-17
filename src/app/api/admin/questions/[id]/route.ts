@@ -103,15 +103,18 @@ export async function PUT(
       ? (Array.isArray(options) ? JSON.stringify(options) : options)
       : existingQuestion.options;
 
-    // Find the correct answer index from isCorrect flag
-    let correctAnswerToSave = correctAnswer;
-    if (correctAnswerToSave === undefined || correctAnswerToSave === '') {
-      if (options && Array.isArray(options)) {
-        const correctIndex = options.findIndex((opt: { isCorrect?: boolean }) => opt.isCorrect === true);
-        if (correctIndex !== -1) {
-          correctAnswerToSave = String(correctIndex);
-        }
+    // When new options are provided, always derive correctAnswer from isCorrect
+    // to keep the two sources in sync. Fall back to explicit correctAnswer or existing.
+    const finalType = type || existingQuestion.type;
+    let correctAnswerToSave: string | undefined;
+    if (finalType !== 'SHORT_ANSWER' && options && Array.isArray(options)) {
+      const correctIndex = options.findIndex((opt: { isCorrect?: boolean }) => opt.isCorrect === true);
+      if (correctIndex !== -1) {
+        correctAnswerToSave = String(correctIndex);
       }
+    }
+    if (correctAnswerToSave === undefined && correctAnswer !== undefined && correctAnswer !== '') {
+      correctAnswerToSave = String(correctAnswer);
     }
     if (correctAnswerToSave === undefined) {
       correctAnswerToSave = existingQuestion.correctAnswer;

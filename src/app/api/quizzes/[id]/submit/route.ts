@@ -145,21 +145,24 @@ export async function POST(
           parsedOptions = question.options as unknown as QuestionOption[];
         }
 
+        const resolveCorrectIndex = (): number => {
+          const fromFlag = Array.isArray(parsedOptions)
+            ? parsedOptions.findIndex(opt => opt.isCorrect === true)
+            : -1;
+          if (fromFlag !== -1) return fromFlag;
+          const fromField = parseInt(question.correctAnswer, 10);
+          return Number.isNaN(fromField) ? -1 : fromField;
+        };
+
         switch (question.type) {
-          case 'MULTIPLE_CHOICE': {
-            const correctIndex = Array.isArray(parsedOptions)
-              ? parsedOptions.findIndex(opt => opt.isCorrect === true)
-              : -1;
-            correctAnswerValue = correctIndex;
-            isCorrect = submittedAnswer.answer === correctIndex;
-            break;
-          }
+          case 'MULTIPLE_CHOICE':
           case 'TRUE_FALSE': {
-            const correctIndex = Array.isArray(parsedOptions)
-              ? parsedOptions.findIndex(opt => opt.isCorrect === true)
-              : -1;
+            const correctIndex = resolveCorrectIndex();
             correctAnswerValue = correctIndex;
-            isCorrect = submittedAnswer.answer === correctIndex;
+            const submittedIndex = typeof submittedAnswer.answer === 'number'
+              ? submittedAnswer.answer
+              : parseInt(String(submittedAnswer.answer), 10);
+            isCorrect = !Number.isNaN(submittedIndex) && submittedIndex === correctIndex;
             break;
           }
           case 'SHORT_ANSWER': {
