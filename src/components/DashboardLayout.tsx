@@ -30,6 +30,7 @@ import {
   BarChart3,
   DollarSign,
 } from 'lucide-react';
+import Avatar from './Avatar';
 
 interface Notification {
   id: string;
@@ -266,10 +267,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* User Info */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <img
-              src={user?.avatar || 'https://via.placeholder.com/50'}
-              alt={user?.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-primary-100"
+            <Avatar
+              src={user?.avatar}
+              name={user?.name}
+              size={48}
+              className="border-2 border-primary-100"
             />
             <div>
               <h4 className="font-semibold text-gray-900">{user?.name}</h4>
@@ -494,10 +496,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                   className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-xl transition-colors"
                 >
-                  <img
-                    src={user?.avatar || 'https://via.placeholder.com/40'}
-                    alt={user?.name}
-                    className="w-8 h-8 rounded-full object-cover"
+                  <Avatar
+                    src={user?.avatar}
+                    name={user?.name}
+                    size={32}
                   />
                   <ChevronDown className={`w-4 h-4 text-gray-500 hidden sm:block transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>

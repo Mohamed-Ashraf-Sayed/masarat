@@ -35,6 +35,7 @@ import {
   CreditCard,
   BookMarked,
 } from 'lucide-react';
+import Avatar from '@/components/Avatar';
 
 interface SecurityStats {
   overview: {
@@ -347,11 +348,7 @@ export default function SecurityPage() {
                 <Globe className="w-5 h-5 text-gray-600" />
               </button>
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
-                <img
-                  src={user?.avatar || 'https://via.placeholder.com/40'}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                <Avatar src={user?.avatar} name={user?.name} size={32} />
                 <span className="hidden sm:block text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>

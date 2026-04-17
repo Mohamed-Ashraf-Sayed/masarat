@@ -29,6 +29,7 @@ import {
   Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
+import Avatar from '@/components/Avatar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -179,11 +180,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </button>
               <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
-                <img
-                  src={user?.avatar || 'https://via.placeholder.com/40'}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                <Avatar src={user?.avatar} name={user?.name} size={32} />
                 <span className="hidden sm:block text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>
