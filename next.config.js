@@ -48,6 +48,17 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
 
+  // Serve /uploads/* files through the /api/files/* route so that
+  // dynamically uploaded files work with Next.js standalone output.
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/files/:path*',
+      },
+    ];
+  },
+
   // إعدادات الأمان و CORS
   async headers() {
     // قائمة الدومينات المسموح بها
