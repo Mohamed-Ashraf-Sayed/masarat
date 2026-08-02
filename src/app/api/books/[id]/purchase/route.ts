@@ -96,9 +96,10 @@ export async function POST(
     const currency = (paymentSettings?.currency as string) || 'USD';
     const requireManualApproval = paymentSettings?.requireManualApproval ?? true;
 
-    // Determine payment status
+    // كتاب مجاني — موافقة فورية بدون دفع
+    const isFree = book.price === 0 || paymentMethod === 'free';
     const isBankTransfer = paymentMethod?.toUpperCase() === 'BANK';
-    const needsApproval = isBankTransfer || requireManualApproval;
+    const needsApproval = !isFree && (isBankTransfer || requireManualApproval);
     const paymentStatus = needsApproval ? 'PENDING' : 'COMPLETED';
 
     // Create purchase record

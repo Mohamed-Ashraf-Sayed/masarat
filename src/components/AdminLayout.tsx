@@ -25,6 +25,14 @@ import {
   CreditCard,
   Shield,
   Bell,
+  Building2,
+  Building,
+  Target,
+  Calendar,
+  Trophy,
+  DollarSign,
+  FileText,
+  Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 
@@ -52,6 +60,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
     { href: '/admin/team', icon: Users, label: { ar: 'فريق العمل', en: 'Team' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
+    { href: '/admin/unions', icon: Building2, label: { ar: 'الاتحادات', en: 'Unions' } },
+    { href: '/admin/entities', icon: Building, label: { ar: 'الجهات', en: 'Entities' } },
+    { href: '/admin/initiatives', icon: Target, label: { ar: 'المبادرات', en: 'Initiatives' } },
+    { href: '/admin/events', icon: Calendar, label: { ar: 'الفعاليات', en: 'Events' } },
+    { href: '/admin/competitions', icon: Trophy, label: { ar: 'المسابقات', en: 'Competitions' } },
+    { href: '/admin/certificates', icon: Award, label: { ar: 'الشهادات', en: 'Certificates' } },
+    { href: '/admin/revenue', icon: DollarSign, label: { ar: 'الإيرادات', en: 'Revenue' } },
+    { href: '/admin/audit-logs', icon: FileText, label: { ar: 'سجل العمليات', en: 'Audit Logs' } },
     { href: '/admin/notifications', icon: Bell, label: { ar: 'الإشعارات', en: 'Notifications' } },
     { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
@@ -77,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 transform transition-transform duration-300 ${
+        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 transform transition-transform duration-300 flex flex-col ${
           sidebarOpen
             ? 'translate-x-0'
             : '-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'
@@ -104,25 +120,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
 
         {/* Menu */}
-        <nav className="p-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-0.5" style={{ maxHeight: 'calc(100vh - 80px - 120px)' }}>
           {adminMenuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                 isActive(item.href)
                   ? 'bg-primary-600 text-white'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-white'
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label[language]}</span>
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium text-sm">{item.label[language]}</span>
             </Link>
           ))}
         </nav>
 
         {/* Back to Site */}
-        <div className="absolute bottom-0 start-0 end-0 p-4 border-t border-gray-800">
+        <div className="absolute bottom-0 start-0 end-0 p-4 border-t border-gray-800 bg-gray-900">
           <Link
             href="/"
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all"

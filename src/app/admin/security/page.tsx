@@ -97,7 +97,7 @@ export default function SecurityPage() {
   // التحقق من صلاحية الأدمن
   useEffect(() => {
     if (authLoading) return;
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !['ADMIN','SUPER_ADMIN'].includes(user.role)) {
       router.push('/login');
     }
   }, [user, router, authLoading]);

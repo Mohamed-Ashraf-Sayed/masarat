@@ -33,7 +33,7 @@ export async function GET(
     }
 
     // التحقق من أن المستخدم مسجل في الدورة أو أنه أدمن
-    if (tokenData.role !== 'ADMIN') {
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       const enrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseId: {

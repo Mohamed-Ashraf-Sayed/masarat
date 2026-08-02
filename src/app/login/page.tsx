@@ -63,7 +63,7 @@ function LoginForm() {
       const savedUser = localStorage.getItem('user');
       if (savedUser) {
         const userData = JSON.parse(savedUser);
-        if (userData.role === 'ADMIN') {
+        if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
           router.push('/admin');
         } else if (userData.role === 'INSTRUCTOR') {
           router.push('/instructor');

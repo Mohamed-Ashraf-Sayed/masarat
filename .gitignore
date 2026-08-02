@@ -4,3 +4,6 @@ node_modules
 .env.*
 *.log
 .DS_Store
+
+# Runtime user uploads (avatars, receipts, videos)
+public/uploads/

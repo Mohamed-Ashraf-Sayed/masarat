@@ -56,7 +56,7 @@ export async function GET(
     }
 
     // التحقق من ملكية الكورس
-    if (course.instructorId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (course.instructorId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -104,7 +104,7 @@ export async function PUT(
       );
     }
 
-    if (existingCourse.instructorId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (existingCourse.instructorId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -139,7 +139,7 @@ export async function PUT(
         categoryId,
         thumbnail,
         isPublished,
-        isFeatured: tokenData.role === 'ADMIN' ? isFeatured : existingCourse.isFeatured,
+        isFeatured: ['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role) ? isFeatured : existingCourse.isFeatured,
       },
     });
 
@@ -191,7 +191,7 @@ export async function DELETE(
       );
     }
 
-    if (existingCourse.instructorId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (existingCourse.instructorId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

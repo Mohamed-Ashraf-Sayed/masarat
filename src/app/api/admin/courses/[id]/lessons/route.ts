@@ -27,7 +27,7 @@ export async function GET(
   try {
     const { id: courseId } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -83,7 +83,7 @@ export async function POST(
   try {
     const { id: courseId } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 

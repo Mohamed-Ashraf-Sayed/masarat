@@ -46,7 +46,7 @@ export async function PUT(
     }
 
     // Only owner or admin can edit
-    if (comment.userId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (comment.userId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Not authorized to edit this comment' },
         { status: 403 }
@@ -107,7 +107,7 @@ export async function DELETE(
     }
 
     // Only owner or admin can delete
-    if (comment.userId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (comment.userId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Not authorized to delete this comment' },
         { status: 403 }

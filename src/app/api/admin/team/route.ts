@@ -13,7 +13,7 @@ async function verifyAdmin(request: NextRequest) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
-    if (decoded.role !== 'ADMIN') {
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(decoded.role)) {
       return null;
     }
     return decoded;

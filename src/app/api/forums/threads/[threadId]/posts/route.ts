@@ -170,7 +170,7 @@ export async function POST(
       );
     }
 
-    if (thread.isLocked && tokenData.role !== 'ADMIN') {
+    if (thread.isLocked && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'الموضوع مغلق' },
         { status: 403 }

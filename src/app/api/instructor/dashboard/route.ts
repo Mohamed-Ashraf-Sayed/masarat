@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     // التحقق من أن المستخدم مدرب
-    if (tokenData.role !== 'INSTRUCTOR' && tokenData.role !== 'ADMIN') {
+    if (!['INSTRUCTOR', 'ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied. Instructors only.' },
         { status: 403 }

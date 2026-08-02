@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }

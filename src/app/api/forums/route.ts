@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (tokenData.role !== 'ADMIN') {
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'غير مصرح لك بهذا الإجراء' },
         { status: 403 }

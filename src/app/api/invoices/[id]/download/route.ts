@@ -59,7 +59,7 @@ export async function GET(
     }
 
     // Verify ownership or admin
-    if (invoice.userId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (invoice.userId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'غير مصرح لك' },
         { status: 403 }

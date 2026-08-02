@@ -24,7 +24,7 @@ function getUserFromToken(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
       totalCourses,
       totalEnrollments,
       totalRevenue,
+      totalEvents,
+      totalCompetitions,
       recentUsers,
       recentEnrollments,
       courseStats,
@@ -53,6 +55,10 @@ export async function GET(request: NextRequest) {
         _sum: { amount: true },
         where: { status: 'COMPLETED' },
       }),
+      // إجمالي الفعاليات
+      prisma.event.count(),
+      // إجمالي المسابقات
+      prisma.competition.count(),
       // أحدث المستخدمين
       prisma.user.findMany({
         take: 5,
@@ -130,6 +136,8 @@ export async function GET(request: NextRequest) {
           totalCourses,
           totalEnrollments,
           totalRevenue: totalRevenue._sum.amount || 0,
+          totalEvents,
+          totalCompetitions,
         },
         userRoles,
         recentUsers,

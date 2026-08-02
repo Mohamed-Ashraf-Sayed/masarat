@@ -53,7 +53,7 @@ export async function POST(
     }
 
     // Check ownership
-    if (purchase.userId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (purchase.userId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -165,7 +165,7 @@ export async function GET(
     }
 
     // Check access
-    if (purchase.userId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (purchase.userId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

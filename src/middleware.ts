@@ -223,13 +223,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // حماية صفحات admin (فقط للأدمن)
-  if (pathname.startsWith('/admin') && userRole !== 'ADMIN') {
+  // حماية صفحات admin (فقط للأدمن والسوبر أدمن)
+  if (pathname.startsWith('/admin') && userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // حماية صفحات instructor
-  if (pathname.startsWith('/instructor') && userRole !== 'INSTRUCTOR' && userRole !== 'ADMIN') {
+  if (
+    pathname.startsWith('/instructor') &&
+    userRole !== 'INSTRUCTOR' &&
+    userRole !== 'ADMIN' &&
+    userRole !== 'SUPER_ADMIN'
+  ) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // حماية صفحات entity-owner (فقط لأصحاب الجهات والأدمن)
+  if (
+    pathname.startsWith('/entity-owner') &&
+    userRole !== 'ENTITY_OWNER' &&
+    userRole !== 'ADMIN' &&
+    userRole !== 'SUPER_ADMIN'
+  ) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -250,6 +265,7 @@ export const config = {
     '/dashboard/:path*',
     '/admin/:path*',
     '/instructor/:path*',
+    '/entity-owner/:path*',
     '/login',
     '/register',
     '/api/:path*',

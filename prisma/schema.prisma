@@ -17,7 +17,11 @@ model User {
   phone         String?
   bio           String?          @db.Text
   isActive      Boolean          @default(true)
+  status        UserStatus       @default(PENDING)
+  isDeleted     Boolean          @default(false)
+  deletedAt     DateTime?
   emailVerified DateTime?
+  tosAcceptedAt DateTime?        // Section 13: Terms of Service acceptance timestamp
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
@@ -75,6 +79,21 @@ model User {
   // Bookstore
   bookPurchases BookPurchase[]
 
+  // Union/Entity/Initiative
+  ownedEntities       Entity[]               @relation("EntityOwner")
+  ledInitiatives      Initiative[]           @relation("InitiativeLeader")
+
+  // Events
+  organizedEvents     Event[]                @relation("EventOrganizer")
+  eventRegistrations  EventRegistration[]
+
+  // Competitions
+  competitionJoins    CompetitionParticipant[]
+  ledTeams            CompetitionTeam[]      @relation("TeamLeader")
+
+  // Revenue
+  revenueTransactions RevenueTransaction[]   @relation("InstructorRevenue")
+
   @@map("users")
 }
 
@@ -109,6 +128,7 @@ model Course {
   originalPrice Float?
   level         Level         @default(BEGINNER)
   duration      Int           @default(0)
+  status          CourseStatus  @default(DRAFT)
   isPublished     Boolean       @default(false)
   isFeatured      Boolean       @default(false)
   enableWatermark Boolean       @default(true)
@@ -255,6 +275,7 @@ model Payment {
 
   course        Course?       @relation(fields: [courseId], references: [id])
   user          User          @relation(fields: [userId], references: [id])
+  revenueTransaction RevenueTransaction?
 
   @@index([courseId], map: "payments_courseId_fkey")
   @@index([userId], map: "payments_userId_fkey")
@@ -554,7 +575,25 @@ model Note {
 enum Role {
   STUDENT
   INSTRUCTOR
+  ENTITY_OWNER
   ADMIN
+  SUPER_ADMIN
+}
+
+enum CourseStatus {
+  DRAFT       // Created, not yet submitted for review
+  SUBMITTED   // Submitted by instructor, awaiting admin approval
+  APPROVED    // Approved by admin, not yet published
+  PUBLISHED   // Live and visible to students
+  ARCHIVED    // Closed for new enrollments (historical record)
+  SUSPENDED   // Taken down by admin
+}
+
+enum UserStatus {
+  PENDING     // Registered but pending email verification
+  ACTIVE      // Verified and fully active
+  SUSPENDED   // Temporarily suspended by admin
+  DELETED     // Soft-deleted
 }
 
 enum Level {
@@ -578,6 +617,8 @@ enum EnrollmentStatus {
 }
 
 enum PaymentStatus {
+  INITIATED
+  PROCESSING
   PENDING
   COMPLETED
   FAILED
@@ -1242,4 +1283,256 @@ model BookPurchase {
   @@index([userId])
   @@index([bookId])
   @@map("book_purchases")
+}
+
+// ========== Union / Entity / Initiative ==========
+
+model Union {
+  id            String   @id @default(cuid())
+  nameAr        String
+  nameEn        String
+  descriptionAr String   @db.Text
+  descriptionEn String   @db.Text
+  logo          String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  entities      Entity[]
+
+  @@map("unions")
+}
+
+model Entity {
+  id            String   @id @default(cuid())
+  nameAr        String
+  nameEn        String
+  descriptionAr String   @db.Text
+  descriptionEn String   @db.Text
+  logo          String?
+  isActive      Boolean  @default(true)
+  unionId       String
+  ownerId       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  union         Union        @relation(fields: [unionId], references: [id], onDelete: Cascade)
+  owner         User         @relation("EntityOwner", fields: [ownerId], references: [id])
+  initiatives   Initiative[]
+  events        Event[]
+
+  @@index([unionId])
+  @@index([ownerId])
+  @@map("entities")
+}
+
+model Initiative {
+  id            String           @id @default(cuid())
+  titleAr       String
+  titleEn       String
+  descriptionAr String           @db.Text
+  descriptionEn String           @db.Text
+  entityId      String
+  leaderId      String
+  status        InitiativeStatus @default(DRAFT)
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  entity        Entity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  leader        User   @relation("InitiativeLeader", fields: [leaderId], references: [id])
+
+  @@index([entityId])
+  @@index([leaderId])
+  @@map("initiatives")
+}
+
+enum InitiativeStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+}
+
+// ========== Events ==========
+
+model Event {
+  id              String      @id @default(cuid())
+  titleAr         String
+  titleEn         String
+  descriptionAr   String      @db.Text
+  descriptionEn   String      @db.Text
+  image           String?
+  venue           String?
+  startDate       DateTime
+  endDate         DateTime
+  capacity        Int         @default(0)
+  registeredCount Int         @default(0)
+  price           Decimal     @default(0) @db.Decimal(10, 2)
+  status          EventStatus @default(DRAFT)
+  organizerId     String
+  entityId        String?
+  refundPolicy    String?     @db.Text
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  organizer     User               @relation("EventOrganizer", fields: [organizerId], references: [id])
+  entity        Entity?            @relation(fields: [entityId], references: [id])
+  registrations EventRegistration[]
+
+  @@index([organizerId])
+  @@index([entityId])
+  @@index([status])
+  @@map("events")
+}
+
+model EventRegistration {
+  id        String                  @id @default(cuid())
+  eventId   String
+  userId    String
+  status    EventRegistrationStatus @default(REGISTERED)
+  paymentId String?
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+enum EventStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  PUBLISHED
+  COMPLETED
+  CANCELLED
+}
+
+enum EventRegistrationStatus {
+  REGISTERED
+  ATTENDED
+  CANCELLED
+  REFUNDED
+}
+
+// ========== Competitions ==========
+
+model Competition {
+  id            String            @id @default(cuid())
+  titleAr       String
+  titleEn       String
+  descriptionAr String            @db.Text
+  descriptionEn String            @db.Text
+  image         String?
+  mode          CompetitionMode   @default(INDIVIDUAL)
+  maxTeamSize   Int               @default(1)
+  startDate     DateTime
+  endDate       DateTime
+  status        CompetitionStatus @default(DRAFT)
+  prizes        String?           @db.Text
+  rules         String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  participants CompetitionParticipant[]
+  teams        CompetitionTeam[]
+
+  @@map("competitions")
+}
+
+model CompetitionParticipant {
+  id            String  @id @default(cuid())
+  competitionId String
+  userId        String
+  teamId        String?
+  score         Float?
+  rank          Int?
+  createdAt     DateTime @default(now())
+
+  competition Competition      @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        CompetitionTeam? @relation(fields: [teamId], references: [id])
+
+  @@unique([competitionId, userId])
+  @@index([competitionId])
+  @@index([userId])
+  @@map("competition_participants")
+}
+
+model CompetitionTeam {
+  id            String   @id @default(cuid())
+  competitionId String
+  name          String
+  leaderId      String
+  score         Float?
+  rank          Int?
+  createdAt     DateTime @default(now())
+
+  competition Competition              @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  leader      User                     @relation("TeamLeader", fields: [leaderId], references: [id])
+  members     CompetitionParticipant[]
+
+  @@index([competitionId])
+  @@map("competition_teams")
+}
+
+enum CompetitionMode {
+  INDIVIDUAL
+  TEAM
+}
+
+enum CompetitionStatus {
+  DRAFT
+  OPEN
+  JUDGING
+  COMPLETED
+}
+
+// ========== Revenue System ==========
+enum RevenueStatus {
+  HELD       // within 14-day refund buffer
+  AVAILABLE  // available for payout
+  PAID       // instructor paid out
+  REFUNDED   // payment was refunded, revenue cancelled
+}
+
+model RevenueSettings {
+  id               String   @id @default(cuid())
+  instructorShare  Float    @default(0.70)  // 70% trainer
+  platformShare    Float    @default(0.20)  // 20% platform
+  entityShare      Float    @default(0.10)  // 10% entity
+  minPayoutAmount  Float    @default(50.00) // minimum payout threshold
+  payoutCycleDays  Int      @default(30)    // monthly payout cycle
+  refundBufferDays Int      @default(14)    // 14-day refund buffer
+  updatedAt        DateTime @updatedAt
+  updatedById      String?
+
+  @@map("revenue_settings")
+}
+
+model RevenueTransaction {
+  id               String        @id @default(cuid())
+  paymentId        String        @unique
+  instructorId     String
+  courseId         String?
+  totalAmount      Float         // original payment amount
+  instructorAmount Float         // trainer share
+  platformAmount   Float         // platform share
+  entityAmount     Float         // entity share
+  status           RevenueStatus @default(HELD)
+  availableAt      DateTime?     // when refund buffer expires
+  payoutDate       DateTime?     // when instructor was paid
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  payment    Payment @relation(fields: [paymentId], references: [id])
+  instructor User    @relation("InstructorRevenue", fields: [instructorId], references: [id])
+
+  @@index([instructorId])
+  @@index([status])
+  @@map("revenue_transactions")
 }

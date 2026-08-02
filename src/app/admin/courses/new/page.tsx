@@ -75,7 +75,7 @@ export default function NewCoursePage() {
   const previewVideoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !['ADMIN','SUPER_ADMIN'].includes(user.role)) {
       router.push('/login');
       return;
     }

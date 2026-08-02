@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { notifyQuizResult } from '@/lib/notifications';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -94,22 +95,16 @@ export async function POST(
       );
     }
 
-    // Check max attempts
-    if (quiz.maxAttempts) {
-      const attemptsCount = await prisma.quizAttempt.count({
-        where: {
-          quizId: id,
-          userId: tokenData.userId,
-          completedAt: { not: null },
-        },
-      });
-
-      if (attemptsCount >= quiz.maxAttempts) {
-        return NextResponse.json(
-          { success: false, error: 'Maximum attempts reached' },
-          { status: 400 }
-        );
-      }
+    // Section 5: max 3 attempts by default; quiz can override via maxAttempts field
+    const MAX_ATTEMPTS = quiz.maxAttempts ?? 3;
+    const attemptsCount = await prisma.quizAttempt.count({
+      where: { quizId: id, userId: tokenData.userId, completedAt: { not: null } },
+    });
+    if (attemptsCount >= MAX_ATTEMPTS) {
+      return NextResponse.json(
+        { success: false, error: `Maximum attempts reached (${MAX_ATTEMPTS})` },
+        { status: 409 }
+      );
     }
 
     // Grade the answers
@@ -207,6 +202,9 @@ export async function POST(
         completedAt: new Date(),
       },
     });
+
+    // Notify quiz result (non-blocking)
+    notifyQuizResult(tokenData.userId, quiz.titleEn, passed, score);
 
     // Return result
     const result = {

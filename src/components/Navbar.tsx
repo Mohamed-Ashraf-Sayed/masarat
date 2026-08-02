@@ -203,6 +203,9 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
     { href: '/', label: t('home') },
     { href: '/about', label: t('about') },
     { href: '/courses', label: t('courses') },
+    { href: '/events', label: language === 'ar' ? 'الفعاليات' : 'Events' },
+    { href: '/union', label: language === 'ar' ? 'الاتحاد' : 'Union' },
+    { href: '/competitions', label: language === 'ar' ? 'المسابقات' : 'Competitions' },
     { href: '/store', label: t('store') },
     { href: '/institutions', label: language === 'ar' ? 'للمؤسسات' : 'Institutions' },
     { href: '/contact', label: language === 'ar' ? 'تواصل معنا' : 'Contact' },
@@ -216,27 +219,27 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <img
               src="/images/logo.png"
               alt="Masarat"
-              className="h-16 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-medium transition-colors ${
+                className={`text-sm font-medium px-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                   showSolidBg
-                    ? 'text-gray-600 hover:text-primary-600'
-                    : 'text-white/90 hover:text-white'
+                    ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                    : 'text-white/90 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {link.label}
@@ -245,30 +248,30 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-1.5 rounded-lg transition-all ${
                 showSolidBg
                   ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-100'
                   : 'text-white/90 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             </button>
 
             {/* Language Toggle */}
             <button
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-all ${
                 showSolidBg
                   ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-100'
                   : 'text-white/90 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Globe className="w-5 h-5" />
-              <span className="text-sm font-medium">
+              <Globe className="w-4 h-4" />
+              <span className="text-xs font-medium">
                 {language === 'ar' ? 'EN' : 'عربي'}
               </span>
             </button>
@@ -419,7 +422,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                       <Settings className="w-4 h-4" />
                       {t('settings')}
                     </Link>
-                    {user.role === 'ADMIN' && (
+                    {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
                       <Link
                         href="/admin"
                         className="dropdown-item text-primary-600"
@@ -453,10 +456,10 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                 )}
               </div>
             ) : (
-              <div className="hidden sm:flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2">
                 <Link
                   href="/login"
-                  className={`px-4 py-2 font-medium rounded-xl transition-all ${
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     showSolidBg
                       ? 'text-gray-600 hover:text-primary-600 hover:bg-gray-100'
                       : 'text-white hover:bg-white/10'
@@ -466,7 +469,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                 </Link>
                 <Link
                   href="/register"
-                  className={`px-4 py-2 font-medium rounded-xl transition-all ${
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     showSolidBg
                       ? 'bg-primary-600 text-white hover:bg-primary-700'
                       : 'bg-white text-primary-600 hover:bg-gray-100'

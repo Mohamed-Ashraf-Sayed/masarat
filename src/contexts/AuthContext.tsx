@@ -7,7 +7,7 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
-  role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
+  role: 'STUDENT' | 'INSTRUCTOR' | 'ENTITY_OWNER' | 'ADMIN' | 'SUPER_ADMIN';
   enrolledCourses?: string[];
   completedCourses?: string[];
   certificates?: string[];

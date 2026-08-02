@@ -30,6 +30,14 @@ export async function POST(request: NextRequest) {
 
     const { name, email, password } = validation.data;
 
+    // Section 13: Terms of Service acceptance is mandatory
+    if (!body.tosAccepted) {
+      return NextResponse.json(
+        { success: false, error: 'You must accept the Terms of Service to register' },
+        { status: 400 }
+      );
+    }
+
     // التحقق من عدم وجود المستخدم
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -52,6 +60,7 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         role: 'STUDENT',
+        tosAcceptedAt: new Date(), // record ToS acceptance timestamp
       },
       select: {
         id: true,

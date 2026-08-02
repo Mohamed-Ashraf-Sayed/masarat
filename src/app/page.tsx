@@ -2,13 +2,14 @@
 
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
-import ImageSlider from '@/components/ImageSlider';
 import AboutVideoSection from '@/components/AboutVideoSection';
 import StatsSection from '@/components/StatsSection';
 import PopularProgramsSection from '@/components/PopularProgramsSection';
 import ConsultationsSection from '@/components/ConsultationsSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CoursesSection from '@/components/CoursesSection';
+import UpcomingEventsSection from '@/components/UpcomingEventsSection';
+import ActiveInitiativesSection from '@/components/ActiveInitiativesSection';
 import TeamSection from '@/components/TeamSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import AccreditationsSection from '@/components/AccreditationsSection';
@@ -20,13 +21,14 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar variant="solid" />
       <HeroSection />
-      <ImageSlider />
       <AboutVideoSection />
       <StatsSection />
       <PopularProgramsSection />
       <ConsultationsSection />
       <FeaturesSection />
       <CoursesSection />
+      <UpcomingEventsSection />
+      <ActiveInitiativesSection />
       <TeamSection />
       <TestimonialsSection />
       <AccreditationsSection />

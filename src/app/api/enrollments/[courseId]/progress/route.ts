@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { notifyCourseCompletion, notifyCertificate } from '@/lib/notifications';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -53,6 +54,7 @@ export async function POST(
       include: {
         course: {
           select: {
+            titleEn: true,
             lessons: {
               select: { id: true },
             },
@@ -115,28 +117,32 @@ export async function POST(
       progress,
     };
 
-    // إذا اكتمل الكورس
-    if (progress === 100) {
+    // Section 5 + 14.5: Course COMPLETED when ≥80% of lessons are done
+    const COMPLETION_THRESHOLD = 80;
+    const wasAlreadyCompleted = enrollment.status === 'COMPLETED';
+
+    if (progress >= COMPLETION_THRESHOLD && !wasAlreadyCompleted) {
       updateData.status = 'COMPLETED';
       updateData.completedAt = new Date();
 
-      // إنشاء شهادة إذا لم تكن موجودة
+      // إنشاء شهادة إذا لم تكن موجودة (Section 14.5: immutable — only create once)
       const existingCertificate = await prisma.certificate.findFirst({
-        where: {
-          userId: tokenData.userId,
-          courseId,
-        },
+        where: { userId: tokenData.userId, courseId },
       });
 
       if (!existingCertificate) {
+        const uniqueId = `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
         await prisma.certificate.create({
           data: {
             userId: tokenData.userId,
             courseId,
-            certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+            certificateId: uniqueId,
           },
         });
+        notifyCertificate(tokenData.userId, enrollment.course.titleEn);
       }
+
+      notifyCourseCompletion(tokenData.userId, enrollment.course.titleEn);
     }
 
     await prisma.enrollment.update({

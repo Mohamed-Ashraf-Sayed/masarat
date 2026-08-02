@@ -90,7 +90,7 @@ export default function LessonsPage() {
   const [uploadingPdf, setUploadingPdf] = useState(false);
 
   useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !['ADMIN','SUPER_ADMIN'].includes(user.role)) {
       router.push('/login');
       return;
     }

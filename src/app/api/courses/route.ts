@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     const where: Prisma.CourseWhereInput = {
       isPublished: true,
+      status: 'PUBLISHED',
     };
 
     if (category && category !== 'all') {

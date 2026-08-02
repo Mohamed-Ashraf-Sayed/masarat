@@ -111,6 +111,35 @@ export default function BookDetailPage() {
       return;
     }
 
+    // كتاب مجاني — اضف مباشرة بدون دفع
+    if (book?.price === 0) {
+      setPurchasing(true);
+      setError('');
+      try {
+        const response = await fetch(`/api/books/${book.id}/purchase`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ paymentMethod: 'free' }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          setPurchaseSuccess(true);
+          setPurchaseId(result.data.purchaseId);
+          setBook({ ...book, hasPurchased: true });
+        } else {
+          setError(result.error);
+        }
+      } catch (e) {
+        setError(language === 'ar' ? 'حدث خطأ' : 'An error occurred');
+      } finally {
+        setPurchasing(false);
+      }
+      return;
+    }
+
     setShowPaymentModal(true);
   };
 
@@ -223,22 +252,41 @@ export default function BookDetailPage() {
   };
 
   const handleDownload = async () => {
-    if (!token || !book) return;
+    if (!book) return;
+
+    // لو مش logged in وكتاب مدفوع
+    if (!token && book.price > 0) {
+      router.push(`/login?redirect=/store/${id}`);
+      return;
+    }
 
     try {
       const response = await fetch(`/api/books/${book.id}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       const result = await response.json();
 
       if (result.success && result.data.downloadUrl) {
-        window.open(result.data.downloadUrl, '_blank');
+        const url = result.data.downloadUrl;
+        if (result.data.isExternal) {
+          // رابط خارجي — افتح في تاب جديد
+          window.open(url, '_blank');
+        } else {
+          // ملف مرفوع — حمّله مباشرة
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = result.data.title?.[language] || 'book';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
       } else {
-        setError(result.error || 'Download failed');
+        setError(result.error || (language === 'ar' ? 'فشل التحميل' : 'Download failed'));
       }
     } catch (error) {
       console.error('Download error:', error);
+      setError(language === 'ar' ? 'حدث خطأ أثناء التحميل' : 'An error occurred');
     }
   };
 
@@ -495,16 +543,17 @@ export default function BookDetailPage() {
                   ) : (
                     <button
                       onClick={handlePurchase}
-                      className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+                      disabled={purchasing}
+                      className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors disabled:opacity-70"
                     >
-                      <ShoppingCart className="w-5 h-5" />
+                      {purchasing ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <ShoppingCart className="w-5 h-5" />
+                      )}
                       {book.price > 0
-                        ? language === 'ar'
-                          ? 'شراء الآن'
-                          : 'Buy Now'
-                        : language === 'ar'
-                        ? 'احصل عليه مجاناً'
-                        : 'Get it Free'}
+                        ? language === 'ar' ? 'شراء الآن' : 'Buy Now'
+                        : language === 'ar' ? 'احصل عليه مجاناً' : 'Get it Free'}
                     </button>
                   )}
                 </div>

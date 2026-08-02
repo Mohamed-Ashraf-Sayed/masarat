@@ -29,6 +29,8 @@ import {
   Plus,
   BarChart3,
   DollarSign,
+  Calendar,
+  Trophy,
 } from 'lucide-react';
 
 interface Notification {
@@ -175,6 +177,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       href: '/dashboard/certificates',
       icon: GraduationCap,
       label: { ar: 'الشهادات', en: 'Certificates' },
+    },
+    {
+      href: '/dashboard/events',
+      icon: Calendar,
+      label: { ar: 'فعالياتي', en: 'My Events' },
+    },
+    {
+      href: '/dashboard/competitions',
+      icon: Trophy,
+      label: { ar: 'مسابقاتي', en: 'My Competitions' },
     },
     {
       href: '/dashboard/security',

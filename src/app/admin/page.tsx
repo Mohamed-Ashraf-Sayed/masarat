@@ -31,6 +31,16 @@ import {
   UserCheck,
   FolderTree,
   ShoppingCart,
+  Calendar,
+  Trophy,
+  Building2,
+  Building,
+  Target,
+  Crown,
+  Shield,
+  FileText,
+  Lock,
+  Percent,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 
@@ -40,6 +50,8 @@ interface Stats {
     totalCourses: number;
     totalEnrollments: number;
     totalRevenue: number;
+    totalEvents: number;
+    totalCompetitions: number;
   };
   userRoles: {
     students: number;
@@ -66,7 +78,7 @@ export default function AdminDashboard() {
     // انتظر حتى يتم تحميل بيانات المستخدم
     if (authLoading) return;
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
       router.push('/login');
     }
   }, [user, router, authLoading]);
@@ -138,6 +150,22 @@ export default function AdminDashboard() {
       changeType: 'positive',
       color: 'bg-orange-500',
     },
+    {
+      icon: Calendar,
+      label: { ar: 'الفعاليات', en: 'Events' },
+      value: stats?.overview.totalEvents?.toString() || '0',
+      change: '',
+      changeType: 'positive',
+      color: 'bg-blue-500',
+    },
+    {
+      icon: Trophy,
+      label: { ar: 'المسابقات', en: 'Competitions' },
+      value: stats?.overview.totalCompetitions?.toString() || '0',
+      change: '',
+      changeType: 'positive',
+      color: 'bg-yellow-500',
+    },
   ];
 
   const adminMenuItems = [
@@ -148,6 +176,11 @@ export default function AdminDashboard() {
     { href: '/admin/users', icon: Users, label: { ar: 'المستخدمين', en: 'Users' } },
     { href: '/admin/instructors', icon: GraduationCap, label: { ar: 'المدربين', en: 'Instructors' } },
     { href: '/admin/enrollments', icon: UserCheck, label: { ar: 'التسجيلات', en: 'Enrollments' } },
+    { href: '/admin/unions', icon: Building2, label: { ar: 'الاتحادات', en: 'Unions' } },
+    { href: '/admin/entities', icon: Building, label: { ar: 'الجهات', en: 'Entities' } },
+    { href: '/admin/initiatives', icon: Target, label: { ar: 'المبادرات', en: 'Initiatives' } },
+    { href: '/admin/events', icon: Calendar, label: { ar: 'الفعاليات', en: 'Events' } },
+    { href: '/admin/competitions', icon: Trophy, label: { ar: 'المسابقات', en: 'Competitions' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];
@@ -201,7 +234,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Menu */}
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
           {adminMenuItems.map((item) => (
             <Link
               key={item.href}
@@ -216,6 +249,37 @@ export default function AdminDashboard() {
               <span className="font-medium">{item.label[language]}</span>
             </Link>
           ))}
+
+          {/* SUPER_ADMIN Section */}
+          {user?.role === 'SUPER_ADMIN' && (
+            <div className="pt-3 mt-3 border-t border-gray-700">
+              <div className="flex items-center gap-2 px-4 py-2 mb-1">
+                <Crown className="w-4 h-4 text-yellow-400" />
+                <span className="text-yellow-400 text-xs font-bold uppercase tracking-wider">
+                  {language === 'ar' ? 'سوبر أدمن' : 'Super Admin'}
+                </span>
+              </div>
+              {[
+                { href: '/admin/super', icon: Shield, label: { ar: 'لوحة السوبر أدمن', en: 'Super Admin Panel' } },
+                { href: '/admin/audit-logs', icon: FileText, label: { ar: 'سجلات التدقيق', en: 'Audit Logs' } },
+                { href: '/admin/security', icon: Lock, label: { ar: 'الأمان', en: 'Security' } },
+                { href: '/admin/revenue-settings', icon: Percent, label: { ar: 'توزيع الإيرادات', en: 'Revenue Split' } },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                    isActive(item.href)
+                      ? 'bg-yellow-500 text-gray-900'
+                      : 'text-yellow-400/70 hover:bg-yellow-500/10 hover:text-yellow-400'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label[language]}</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </nav>
 
         {/* Back to Site */}
@@ -277,9 +341,15 @@ export default function AdminDashboard() {
                   alt={user?.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <span className="hidden sm:block text-sm font-medium text-gray-700">
-                  {user?.name}
-                </span>
+                <div className="hidden sm:block">
+                  <span className="text-sm font-medium text-gray-700 block">{user?.name}</span>
+                  {user?.role === 'SUPER_ADMIN' && (
+                    <span className="text-xs font-bold text-yellow-600 flex items-center gap-1">
+                      <Crown className="w-3 h-3" />
+                      Super Admin
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -315,7 +385,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
             {statsCards.map((stat, index) => (
               <div
                 key={index}
@@ -327,20 +397,22 @@ export default function AdminDashboard() {
                   >
                     <stat.icon className="w-6 h-6 text-white" />
                   </div>
-                  <span
-                    className={`flex items-center gap-1 text-sm font-medium ${
-                      stat.changeType === 'positive'
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }`}
-                  >
-                    {stat.changeType === 'positive' ? (
-                      <ArrowUp className="w-4 h-4" />
-                    ) : (
-                      <ArrowDown className="w-4 h-4" />
-                    )}
-                    {stat.change}
-                  </span>
+                  {stat.change && (
+                    <span
+                      className={`flex items-center gap-1 text-sm font-medium ${
+                        stat.changeType === 'positive'
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      }`}
+                    >
+                      {stat.changeType === 'positive' ? (
+                        <ArrowUp className="w-4 h-4" />
+                      ) : (
+                        <ArrowDown className="w-4 h-4" />
+                      )}
+                      {stat.change}
+                    </span>
+                  )}
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
                   {stat.value}

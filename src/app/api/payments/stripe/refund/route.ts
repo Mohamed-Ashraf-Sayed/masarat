@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only admins can process refunds
-    if (tokenData.role !== 'ADMIN') {
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'غير مصرح لك بهذا الإجراء' },
         { status: 403 }

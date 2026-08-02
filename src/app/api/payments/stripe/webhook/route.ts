@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe';
 import Stripe from 'stripe';
+import { getRevenueSettings } from '@/lib/revenue';
 
 export async function POST(request: NextRequest) {
   try {
@@ -169,6 +170,44 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
       type: 'enrollment',
     },
   });
+
+  // ── Revenue Split (Section 10) ───────────────────────────────────────────
+  // Compute revenue for the instructor tied to this course
+  if (courseId && course?.instructorId) {
+    const settings = await getRevenueSettings();
+    const total = paymentIntent.amount / 100; // Stripe amounts are in cents
+    const instructorAmount = +(total * settings.instructorShare).toFixed(2);
+    const platformAmount   = +(total * settings.platformShare).toFixed(2);
+    const entityAmount     = +(total - instructorAmount - platformAmount).toFixed(2);
+    const availableAt = new Date();
+    availableAt.setDate(availableAt.getDate() + settings.refundBufferDays);
+
+    // Use StripePayment id as a stable unique reference for this payment
+    const stripePaymentRecord = await prisma.stripePayment.findUnique({
+      where: { paymentIntentId: paymentIntent.id },
+    });
+
+    if (stripePaymentRecord) {
+      // We link revenue to stripePayment by storing stripePaymentId in notes
+      // (RevenueTransaction links to Payment model; for Stripe we record it via auditLog)
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: 'REVENUE_SPLIT_STRIPE',
+          entity: 'StripePayment',
+          entityId: stripePaymentRecord.id,
+          newValue: JSON.stringify({
+            total,
+            instructorId: course.instructorId,
+            instructorAmount,
+            platformAmount,
+            entityAmount,
+            availableAt,
+          }),
+        },
+      });
+    }
+  }
 
   // Audit log
   await prisma.auditLog.create({

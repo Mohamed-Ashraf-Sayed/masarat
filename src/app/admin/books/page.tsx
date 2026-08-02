@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,6 +70,8 @@ export default function AdminBooksPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     titleAr: '',
@@ -93,7 +95,7 @@ export default function AdminBooksPage() {
   });
 
   useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !['ADMIN','SUPER_ADMIN'].includes(user.role)) {
       router.push('/login');
       return;
     }
@@ -177,6 +179,27 @@ export default function AdminBooksPage() {
       });
     }
     setShowModal(true);
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploadingCover(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('type', 'course');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      const result = await res.json();
+      if (result.success) {
+        setFormData(prev => ({ ...prev, cover: result.data.url }));
+      }
+    } catch (e) { console.error(e); }
+    finally { setUploadingCover(false); }
   };
 
   const handleSave = async () => {
@@ -579,15 +602,48 @@ export default function AdminBooksPage() {
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'ar' ? 'صورة الغلاف' : 'Cover Image URL'}
+                    {language === 'ar' ? 'صورة الغلاف' : 'Cover Image'}
                   </label>
                   <input
-                    type="url"
-                    value={formData.cover}
-                    onChange={(e) => setFormData({ ...formData, cover: e.target.value })}
-                    className="input-field"
-                    placeholder="https://..."
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverUpload}
+                    className="hidden"
                   />
+                  <div
+                    onClick={() => !uploadingCover && coverInputRef.current?.click()}
+                    className="relative border-2 border-dashed border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-primary-400 transition-colors"
+                    style={{ height: '140px' }}
+                  >
+                    {formData.cover ? (
+                      <>
+                        <img src={formData.cover} alt="cover" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                          <span className="text-white text-xs font-medium flex items-center gap-1">
+                            <Upload className="w-4 h-4" />
+                            {language === 'ar' ? 'تغيير الصورة' : 'Change image'}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center gap-2 text-gray-400">
+                        {uploadingCover ? (
+                          <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+                        ) : (
+                          <>
+                            <Upload className="w-6 h-6" />
+                            <span className="text-xs">{language === 'ar' ? 'اضغط لرفع صورة' : 'Click to upload'}</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {uploadingCover && (
+                      <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

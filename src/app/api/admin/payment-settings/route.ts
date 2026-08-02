@@ -45,7 +45,7 @@ const DEFAULT_PAYMENT_SETTINGS = {
 export async function GET(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -75,12 +75,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT - تحديث إعدادات الدفع
+// PUT - تحديث إعدادات الدفع (SUPER_ADMIN فقط)
 export async function PUT(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // تعديل إعدادات الدفع يتطلب SUPER_ADMIN فقط
+    if (tokenData.role !== 'SUPER_ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Only SUPER_ADMIN can modify payment settings' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

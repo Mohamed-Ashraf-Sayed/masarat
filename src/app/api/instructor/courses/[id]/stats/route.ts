@@ -78,7 +78,7 @@ export async function GET(
       );
     }
 
-    if (course.instructorId !== tokenData.userId && tokenData.role !== 'ADMIN') {
+    if (course.instructorId !== tokenData.userId && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

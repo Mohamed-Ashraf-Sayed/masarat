@@ -37,61 +37,54 @@ export async function GET(
 
     const { id: bookId } = await params;
 
-    // Check if user has purchased this book
-    const purchase = await prisma.bookPurchase.findUnique({
-      where: {
-        userId_bookId: {
-          userId: tokenData.userId,
-          bookId,
-        },
-      },
-      include: {
-        book: {
-          select: {
-            id: true,
-            titleAr: true,
-            titleEn: true,
-            fileUrl: true,
-          },
-        },
-      },
+    // جلب بيانات الكتاب
+    const book = await prisma.book.findUnique({
+      where: { id: bookId },
+      select: { id: true, titleAr: true, titleEn: true, fileUrl: true, price: true },
     });
 
-    if (!purchase) {
-      return NextResponse.json(
-        { success: false, error: 'You have not purchased this book' },
-        { status: 403 }
-      );
+    if (!book) {
+      return NextResponse.json({ success: false, error: 'Book not found' }, { status: 404 });
     }
 
-    if (purchase.status !== 'COMPLETED') {
-      return NextResponse.json(
-        { success: false, error: 'Purchase is pending approval' },
-        { status: 403 }
-      );
+    if (!book.fileUrl) {
+      return NextResponse.json({ success: false, error: 'Book file not available' }, { status: 404 });
     }
 
-    if (!purchase.book.fileUrl) {
-      return NextResponse.json(
-        { success: false, error: 'Book file not available' },
-        { status: 404 }
-      );
+    // للكتب المدفوعة فقط — تحقق من وجود عملية شراء مكتملة
+    if (book.price > 0) {
+      const purchase = await prisma.bookPurchase.findUnique({
+        where: { userId_bookId: { userId: tokenData.userId, bookId } },
+      });
+
+      if (!purchase) {
+        return NextResponse.json({ success: false, error: 'You have not purchased this book' }, { status: 403 });
+      }
+
+      if (purchase.status !== 'COMPLETED') {
+        return NextResponse.json({ success: false, error: 'Purchase is pending approval' }, { status: 403 });
+      }
+
+      await prisma.bookPurchase.update({
+        where: { id: purchase.id },
+        data: { downloadCount: { increment: 1 } },
+      });
     }
 
-    // Update download count
-    await prisma.bookPurchase.update({
-      where: { id: purchase.id },
-      data: { downloadCount: { increment: 1 } },
+    // تحديث عداد التحميلات
+    await prisma.book.update({
+      where: { id: bookId },
+      data: { downloads: { increment: 1 } },
     });
+
+    const isExternalUrl = book.fileUrl.startsWith('http://') || book.fileUrl.startsWith('https://');
 
     return NextResponse.json({
       success: true,
       data: {
-        downloadUrl: purchase.book.fileUrl,
-        title: {
-          ar: purchase.book.titleAr,
-          en: purchase.book.titleEn,
-        },
+        downloadUrl: book.fileUrl,
+        isExternal: isExternalUrl,
+        title: { ar: book.titleAr, en: book.titleEn },
       },
     });
   } catch (error) {

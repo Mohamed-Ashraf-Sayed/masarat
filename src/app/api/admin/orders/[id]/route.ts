@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { processRevenueFromPayment, cancelRevenueForPayment } from '@/lib/revenue';
+import { auditPaymentApproved, auditPaymentRefunded } from '@/lib/audit';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -28,7 +30,7 @@ export async function GET(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -103,7 +105,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -144,7 +146,7 @@ export async function PUT(
       },
     });
 
-    // If status changed to COMPLETED, create enrollment if not exists
+    // If status changed to COMPLETED, create enrollment + revenue split
     if (status === 'COMPLETED' && currentPayment.status !== 'COMPLETED' && currentPayment.courseId) {
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
@@ -165,6 +167,10 @@ export async function PUT(
         });
       }
 
+      // Process 70/20/10 revenue split + audit (fire-and-forget)
+      processRevenueFromPayment(id).catch(console.error);
+      auditPaymentApproved(tokenData.userId, id, currentPayment.amount);
+
       // Create notification for user
       await prisma.notification.create({
         data: {
@@ -178,7 +184,7 @@ export async function PUT(
       });
     }
 
-    // If status changed to FAILED/REFUNDED, notify user
+    // If status changed to FAILED/REFUNDED, notify user + cancel revenue
     if ((status === 'FAILED' || status === 'REFUNDED') && currentPayment.status === 'PENDING') {
       await prisma.notification.create({
         data: {
@@ -194,6 +200,12 @@ export async function PUT(
           type: status === 'REFUNDED' ? 'ORDER_REFUNDED' : 'ORDER_REJECTED',
         },
       });
+
+      // Cancel revenue transaction + audit if refunded
+      if (status === 'REFUNDED') {
+        cancelRevenueForPayment(id).catch(console.error);
+        auditPaymentRefunded(tokenData.userId, id, currentPayment.amount);
+      }
 
       // If status is FAILED/REFUNDED and there was an enrollment, cancel it
       if (currentPayment.courseId) {
@@ -231,7 +243,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 

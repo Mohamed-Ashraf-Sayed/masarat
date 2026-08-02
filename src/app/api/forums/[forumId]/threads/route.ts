@@ -134,7 +134,7 @@ export async function POST(
         },
       });
 
-      if (!enrollment && !isInstructor && tokenData.role !== 'ADMIN') {
+      if (!enrollment && !isInstructor && !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
         return NextResponse.json(
           { success: false, error: 'يجب أن تكون مسجلاً في الدورة للمشاركة' },
           { status: 403 }

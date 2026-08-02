@@ -12,6 +12,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '100mb',
     },
+    // pdfkit needs to run as native Node module (not webpack bundled)
+    serverComponentsExternalPackages: ['pdfkit', 'arabic-reshaper', 'puppeteer-core'],
   },
   // تجاهل أخطاء ESLint أثناء البناء
   eslint: {
@@ -37,6 +39,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.hstgr.io', // لصور Hostinger
+      },
+      {
+        protocol: 'https',
+        hostname: 'image2url.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.image2url.com',
       },
     ],
     // لتجنب مشاكل الصور على Hostinger

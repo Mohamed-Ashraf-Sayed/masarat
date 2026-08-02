@@ -6,11 +6,13 @@ import {
   GraduationCap,
   Award,
   Clock,
-  HeadphonesIcon,
+  Trophy,
   MonitorPlay,
   Users,
-  Globe,
   BookOpen,
+  Calendar,
+  Globe,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function FeaturesSection() {
@@ -19,73 +21,73 @@ export default function FeaturesSection() {
   const features = [
     {
       icon: MonitorPlay,
-      title: { ar: 'محتوى علمي متخصص', en: 'Specialized Scientific Content' },
+      title: { ar: 'دورات إلكترونية تفاعلية', en: 'Interactive Online Courses' },
       description: {
-        ar: 'دورات مبنية على أحدث الأبحاث في تحليل السلوك التطبيقي ABA',
-        en: 'Courses based on the latest research in Applied Behavior Analysis ABA',
+        ar: 'مئات الدورات في تخصصات متنوعة مع فيديوهات عالية الجودة وتمارين تفاعلية',
+        en: 'Hundreds of courses in various specializations with high-quality videos and interactive exercises',
       },
       color: 'bg-blue-500',
     },
     {
       icon: Award,
-      title: { ar: 'شهادات معتمدة دولياً', en: 'Internationally Accredited' },
+      title: { ar: 'شهادات إتمام معتمدة', en: 'Accredited Completion Certificates' },
       description: {
-        ar: 'شهادات IBA® و IBT® و QBA® و QASP-S® معتمدة من IBAO,QABA',
-        en: 'IBA®, IBT®, QBA®, QASP-S® certificates accredited by IBAO,QABA',
+        ar: 'احصل على شهادة رقمية قابلة للتحقق عند إتمام أي دورة بنجاح',
+        en: 'Earn a verifiable digital certificate upon successful completion of any course',
       },
       color: 'bg-emerald-500',
     },
     {
-      icon: Clock,
-      title: { ar: 'تعلم في أي وقت', en: 'Learn Anytime' },
+      icon: Calendar,
+      title: { ar: 'فعاليات ومؤتمرات', en: 'Events & Conferences' },
       description: {
-        ar: 'وصول غير محدود للمحتوى على مدار الساعة من أي مكان في العالم',
-        en: 'Unlimited 24/7 access to content from anywhere in the world',
+        ar: 'شارك في فعاليات تدريبية حية، ندوات، ومؤتمرات متخصصة على مدار العام',
+        en: 'Participate in live training events, webinars, and specialized conferences throughout the year',
       },
       color: 'bg-cyan-500',
     },
     {
-      icon: HeadphonesIcon,
-      title: { ar: 'إشراف متخصص', en: 'Expert Supervision' },
+      icon: BookOpen,
+      title: { ar: 'مكتبة الكتب الرقمية', en: 'Digital Books Library' },
       description: {
-        ar: 'إشراف من محللي سلوك معتمدين  لدعم رحلتك المهنية',
-        en: 'Supervision from certified  behavior analysts to support your career',
+        ar: 'تصفح مئات الكتب والمراجع المتخصصة — مجانية ومدفوعة — في متناول يدك',
+        en: 'Browse hundreds of specialized books and references — free and paid — at your fingertips',
       },
       color: 'bg-amber-500',
     },
     {
-      icon: Users,
-      title: { ar: 'مجتمع الأخصائيين', en: 'Specialists Community' },
+      icon: Trophy,
+      title: { ar: 'مسابقات تعليمية', en: 'Educational Competitions' },
       description: {
-        ar: 'انضم لمجتمع من الأخصائيين وتبادل الخبرات في مجال تحليل السلوك',
-        en: 'Join a community of specialists and share experiences in behavior analysis',
-      },
-      color: 'bg-teal-500',
-    },
-    {
-      icon: BookOpen,
-      title: { ar: 'تدريب عملي', en: 'Practical Training' },
-      description: {
-        ar: 'حالات دراسية وتطبيقات عملية لتعزيز مهاراتك العلاجية',
-        en: 'Case studies and practical applications to enhance your therapeutic skills',
+        ar: 'شارك في المسابقات التعليمية، تحدَّ نفسك، واحصل على جوائز قيّمة',
+        en: 'Join educational competitions, challenge yourself, and win valuable prizes',
       },
       color: 'bg-yellow-500',
     },
     {
-      icon: Globe,
-      title: { ar: 'عربي وإنجليزي', en: 'Arabic & English' },
+      icon: Users,
+      title: { ar: 'مدربون خبراء', en: 'Expert Instructors' },
       description: {
-        ar: 'جميع البرامج متاحة باللغتين العربية والإنجليزية',
-        en: 'All programs available in both Arabic and English languages',
+        ar: 'تعلم على يد نخبة من المدربين المعتمدين ذوي الخبرة الميدانية والأكاديمية',
+        en: 'Learn from elite certified trainers with field and academic expertise',
+      },
+      color: 'bg-teal-500',
+    },
+    {
+      icon: Globe,
+      title: { ar: 'ثنائي اللغة', en: 'Bilingual Platform' },
+      description: {
+        ar: 'المنصة والمحتوى متاحان بالكامل باللغتين العربية والإنجليزية',
+        en: 'Platform and content fully available in both Arabic and English',
       },
       color: 'bg-rose-500',
     },
     {
-      icon: GraduationCap,
-      title: { ar: 'مسارات مهنية', en: 'Career Paths' },
+      icon: Clock,
+      title: { ar: 'تعلم في أي وقت ومكان', en: 'Learn Anytime, Anywhere' },
       description: {
-        ar: 'مسارات متكاملة من بناء مسيرتك المهنية',
-        en: 'Complete paths  to build your professional career',
+        ar: 'وصول غير محدود على مدار الساعة من أي جهاز — هاتف، تابلت، أو كمبيوتر',
+        en: 'Unlimited 24/7 access from any device — phone, tablet, or computer',
       },
       color: 'bg-indigo-500',
     },
@@ -100,12 +102,12 @@ export default function FeaturesSection() {
             {language === 'ar' ? 'مميزاتنا' : 'Our Features'}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {language === 'ar' ? 'لماذا تختار مسارات؟' : 'Why Choose Masarat?'}
+            {language === 'ar' ? 'كل ما تحتاجه في منصة واحدة' : 'Everything You Need in One Platform'}
           </h2>
           <p className="text-gray-600 text-lg">
             {language === 'ar'
-              ? 'نقدم لك تجربة تعليمية متخصصة في تحليل السلوك التطبيقي بمعايير عالمية'
-              : 'We offer you a specialized learning experience in Applied Behavior Analysis with global standards'}
+              ? 'منصة مسارات تجمع التعليم، التدريب، والمحتوى المتخصص لتمنحك تجربة تعلم متكاملة'
+              : 'Masarat platform combines education, training, and specialized content to give you a complete learning experience'}
           </p>
         </div>
 

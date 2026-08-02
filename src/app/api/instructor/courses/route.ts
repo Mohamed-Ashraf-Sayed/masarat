@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (tokenData.role !== 'INSTRUCTOR' && tokenData.role !== 'ADMIN') {
+    if (!['INSTRUCTOR', 'ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (tokenData.role !== 'INSTRUCTOR' && tokenData.role !== 'ADMIN') {
+    if (!['INSTRUCTOR', 'ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

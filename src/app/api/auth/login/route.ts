@@ -127,6 +127,8 @@ export async function POST(request: NextRequest) {
         avatar: true,
         role: true,
         isActive: true,
+        status: true,
+        isDeleted: true,
         twoFactor: {
           select: {
             isEnabled: true,
@@ -155,10 +157,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // التحقق من حالة الحساب
-    if (!user.isActive) {
+    // Section 12: Immediate access revocation — block DELETED accounts
+    if (user.isDeleted) {
       return NextResponse.json(
-        { success: false, error: 'Account is deactivated' },
+        { success: false, error: 'This account no longer exists' },
+        { status: 403 }
+      );
+    }
+
+    // Block SUSPENDED or inactive accounts
+    if (!user.isActive || user.status === 'SUSPENDED') {
+      return NextResponse.json(
+        { success: false, error: 'Account is suspended. Please contact support.' },
         { status: 403 }
       );
     }

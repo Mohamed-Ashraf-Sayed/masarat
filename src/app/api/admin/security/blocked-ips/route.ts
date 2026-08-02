@@ -25,7 +25,7 @@ function getUserFromToken(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -80,14 +80,17 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Block an IP
+// POST - Block an IP (SUPER_ADMIN فقط)
 export async function POST(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (tokenData.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
+        { success: false, error: 'Only SUPER_ADMIN can block IP addresses' },
+        { status: 403 }
       );
     }
 
@@ -157,14 +160,17 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE - Unblock an IP
+// DELETE - Unblock an IP (SUPER_ADMIN فقط)
 export async function DELETE(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (tokenData.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
+        { success: false, error: 'Only SUPER_ADMIN can unblock IP addresses' },
+        { status: 403 }
       );
     }
 

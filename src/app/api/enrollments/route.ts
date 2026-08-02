@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { notifyEnrollment, notifyInstructorNewStudent } from '@/lib/notifications';
+import { courseNotAvailable, alreadyEnrolled, paymentRequired, notFound, unauthorized, internalError } from '@/lib/errors';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -66,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
 
     // للأدمن - جلب كل التسجيلات
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -124,70 +126,75 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - تسجيل في كورس جديد
+// Section 14.4: Enrollment Rules — course must be PUBLISHED, paid courses need verified payment
+// Section 14.9: Concurrency — uses $transaction to prevent duplicate enrollments
 export async function POST(request: NextRequest) {
   try {
     const tokenData = getUserFromToken(request);
-    if (!tokenData) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    if (!tokenData) return unauthorized();
 
     const { courseId } = await request.json();
-
     if (!courseId) {
-      return NextResponse.json(
-        { success: false, error: 'Course ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'courseId is required' }, { status: 400 });
     }
 
-    // التحقق من وجود الكورس
+    // ── Rule 1: Course must exist and be PUBLISHED ───────────────────────────
     const course = await prisma.course.findUnique({
       where: { id: courseId },
+      select: { id: true, titleAr: true, titleEn: true, status: true, isPublished: true, price: true, instructorId: true },
     });
 
-    if (!course) {
-      return NextResponse.json(
-        { success: false, error: 'Course not found' },
-        { status: 404 }
-      );
+    if (!course) return notFound('Course');
+
+    // Only PUBLISHED courses can be enrolled in
+    if (course.status !== 'PUBLISHED' || !course.isPublished) {
+      return courseNotAvailable(course.status);
     }
 
-    // التحقق من عدم التسجيل المسبق
-    const existingEnrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
+    // ── Rule 2: Paid courses require a verified COMPLETED payment ────────────
+    if (course.price > 0) {
+      const completedPayment = await prisma.payment.findFirst({
+        where: {
           userId: tokenData.userId,
           courseId,
+          status: 'COMPLETED',
         },
-      },
-    });
-
-    if (existingEnrollment) {
-      return NextResponse.json(
-        { success: false, error: 'Already enrolled in this course' },
-        { status: 409 }
-      );
+      });
+      if (!completedPayment) {
+        return paymentRequired();
+      }
     }
 
-    // إنشاء التسجيل
-    const enrollment = await prisma.enrollment.create({
-      data: {
-        userId: tokenData.userId,
-        courseId,
-      },
-      include: {
-        course: {
-          select: {
-            id: true,
-            titleAr: true,
-            titleEn: true,
-          },
+    // ── Rule 3 + Concurrency: atomic enrollment creation via $transaction ────
+    // Prevents race conditions / duplicate enrollments
+    const enrollment = await prisma.$transaction(async (tx) => {
+      const existing = await tx.enrollment.findUnique({
+        where: { userId_courseId: { userId: tokenData.userId, courseId } },
+      });
+      if (existing) throw new Error('ALREADY_ENROLLED');
+
+      return tx.enrollment.create({
+        data: { userId: tokenData.userId, courseId, status: 'ACTIVE' },
+        include: {
+          course: { select: { id: true, titleAr: true, titleEn: true } },
         },
-      },
+      });
+    }).catch((err: Error) => {
+      if (err.message === 'ALREADY_ENROLLED') return 'ALREADY_ENROLLED' as const;
+      throw err;
     });
+
+    if (enrollment === 'ALREADY_ENROLLED') return alreadyEnrolled();
+
+    // ── Notifications (non-blocking) ─────────────────────────────────────────
+    const enrolledUser = await prisma.user.findUnique({
+      where: { id: tokenData.userId },
+      select: { name: true },
+    });
+    notifyEnrollment(tokenData.userId, enrollment.course.titleEn);
+    if (course.instructorId) {
+      notifyInstructorNewStudent(course.instructorId, enrolledUser?.name ?? '', enrollment.course.titleEn);
+    }
 
     return NextResponse.json(
       {
@@ -197,10 +204,7 @@ export async function POST(request: NextRequest) {
           courseId: enrollment.courseId,
           course: {
             id: enrollment.course.id,
-            title: {
-              ar: enrollment.course.titleAr,
-              en: enrollment.course.titleEn,
-            },
+            title: { ar: enrollment.course.titleAr, en: enrollment.course.titleEn },
           },
           progress: enrollment.progress,
           enrolledAt: enrollment.enrolledAt,
@@ -211,9 +215,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error creating enrollment:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to enroll' },
-      { status: 500 }
-    );
+    return internalError('Failed to enroll');
   }
 }

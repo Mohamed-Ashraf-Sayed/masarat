@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { notifyCourseApproved, notifyCourseSuspended } from '@/lib/notifications';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -27,7 +28,7 @@ export async function GET(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -76,7 +77,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -124,7 +125,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -150,6 +151,15 @@ export async function PATCH(
       data,
     });
 
+    // Notify instructor on publish status change
+    if (body.isPublished !== undefined && course.instructorId) {
+      if (body.isPublished) {
+        notifyCourseApproved(course.instructorId, course.titleEn);
+      } else {
+        notifyCourseSuspended(course.instructorId, course.titleEn);
+      }
+    }
+
     return NextResponse.json({ success: true, data: course });
   } catch (error) {
     console.error('Error updating course:', error);
@@ -168,7 +178,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const tokenData = getUserFromToken(request);
-    if (!tokenData || tokenData.role !== 'ADMIN') {
+    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
