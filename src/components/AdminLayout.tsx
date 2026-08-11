@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   BookMarked,
@@ -33,9 +32,11 @@ import {
   Trophy,
   DollarSign,
   FileText,
+  Image,
   Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
+import Avatar from '@/components/Avatar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -72,6 +73,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/notifications', icon: Bell, label: { ar: 'الإشعارات', en: 'Notifications' } },
     { href: '/admin/security', icon: Shield, label: { ar: 'الأمان', en: 'Security' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
+    { href: '/admin/sliders', icon: Image, label: { ar: 'البانرات', en: 'Banners' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];
 
@@ -94,14 +96,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 transform transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 start-0 z-50 h-full w-72 bg-gray-900 flex flex-col transform transition-transform duration-300 ${
           sidebarOpen
             ? 'translate-x-0'
             : '-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-400 rounded-xl flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-white" />
@@ -120,8 +122,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
         </div>
 
-        {/* Menu */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-0.5" style={{ maxHeight: 'calc(100vh - 80px - 120px)' }}>
+        {/* Menu - scrollable */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent hover:scrollbar-thumb-gray-600" style={{ scrollbarWidth: 'thin', scrollbarColor: '#374151 transparent' }}>
           {adminMenuItems.map((item) => (
             <Link
               key={item.href}
@@ -138,8 +140,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           ))}
         </nav>
 
-        {/* Back to Site */}
-        <div className="absolute bottom-0 start-0 end-0 p-4 border-t border-gray-800 bg-gray-900">
+        {/* Bottom Actions */}
+        <div className="flex-shrink-0 p-4 border-t border-gray-800">
           <Link
             href="/"
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all"
@@ -192,11 +194,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </button>
               <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
-                <img
-                  src={ikUrl(user?.avatar || 'https://via.placeholder.com/40', { width: 100 })}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                <Avatar src={user?.avatar} name={user?.name} size={32} />
                 <span className="hidden sm:block text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>

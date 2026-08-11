@@ -6,4 +6,5 @@ node_modules
 .DS_Store
 
 # Runtime user uploads (avatars, receipts, videos)
+uploads/
 public/uploads/

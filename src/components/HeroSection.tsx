@@ -1,11 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 
 export default function HeroSection() {
   const { language } = useLanguage();
+  // Admin-configured hero image (falls back to the SVG illustration when unset)
+  const [heroImage, setHeroImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/site-images')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data.hero) {
+          setHeroImage(data.data.hero);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="relative min-h-[85vh] flex items-center pt-24 overflow-hidden">
@@ -81,6 +95,13 @@ export default function HeroSection() {
 
           {/* Hero Image - Left side for Arabic */}
           <div className="order-1 lg:order-2 relative flex justify-center items-center">
+            {heroImage ? (
+            <img
+              src={ikUrl(heroImage, { width: 600 })}
+              alt="Masarat Training"
+              className="w-full max-w-lg h-auto drop-shadow-2xl"
+            />
+            ) : (
             <svg viewBox="0 0 500 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-lg h-auto">
 
               {/* ── BACKGROUND CIRCLE ── */}
@@ -257,6 +278,7 @@ export default function HeroSection() {
               <circle cx="455" cy="412" r="4" fill="#ffd166" fillOpacity="0.35"/>
 
             </svg>
+            )}
           </div>
         </div>
       </div>

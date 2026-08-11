@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ikUrl } from '@/lib/imagekit';
@@ -30,6 +30,18 @@ import {
 export default function AboutPage() {
   const { language, direction } = useLanguage();
   const Arrow = ArrowLeft;
+  const [aboutImage, setAboutImage] = useState('/images/hero.png');
+
+  useEffect(() => {
+    fetch('/api/site-images')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data.about) {
+          setAboutImage(data.data.about);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const stats = [
     {
@@ -211,7 +223,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img
-                src={ikUrl('/images/hero.png', { width: 1200 })}
+                src={ikUrl(aboutImage, { width: 1200 })}
                 alt="Our Story"
                 className="rounded-3xl shadow-2xl"
               />

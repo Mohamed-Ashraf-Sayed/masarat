@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
       learningOutcomesEn,
       requirementsAr,
       requirementsEn,
+      certificateTemplate,
     } = body;
 
     // التحقق من الحقول المطلوبة
@@ -166,6 +167,7 @@ export async function POST(request: NextRequest) {
         learningOutcomesEn: learningOutcomesEn || null,
         requirementsAr: requirementsAr || null,
         requirementsEn: requirementsEn || null,
+        certificateTemplate: certificateTemplate || 'QABA',
       },
     });
 

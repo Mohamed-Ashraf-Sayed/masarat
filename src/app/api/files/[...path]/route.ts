@@ -38,10 +38,15 @@ export async function GET(
 
     const contentType = contentTypes[ext] || 'application/octet-stream';
 
+    // إيصالات الدفع فيها بيانات شخصية — ممنوع أي كاش مشترك
+    const isReceipt = filePath[0] === 'receipts' || filePath[0] === 'book-receipts';
+
     return new NextResponse(file, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Cache-Control': isReceipt
+          ? 'private, no-store'
+          : 'public, max-age=31536000, immutable',
       },
     });
   } catch (error) {

@@ -21,7 +21,6 @@ import {
   Phone,
   Mail,
   Clock,
-  Star,
   Heart,
   Landmark,
 } from 'lucide-react';
@@ -179,27 +178,6 @@ export default function InstitutionsPage() {
     { value: '50+', label: { ar: 'متدرب مؤسسي', en: 'Corporate Trainees' } },
     { value: '95%', label: { ar: 'نسبة الرضا', en: 'Satisfaction Rate' } },
     { value: '100%', label: { ar: 'شهادات معتمدة', en: 'Certified Courses' } },
-  ];
-
-  const testimonials = [
-    {
-      quote: {
-        ar: 'تجربة رائعة مع أكاديمية سلوك. البرامج التدريبية ساعدت فريقنا على تطوير مهاراتهم بشكل ملحوظ.',
-        en: 'Amazing experience with Sulook Academy. The training programs helped our team develop their skills remarkably.',
-      },
-      author: { ar: 'د. محمد الأحمد', en: 'Dr. Mohammed Al-Ahmed' },
-      position: { ar: 'مدير مركز التأهيل', en: 'Rehabilitation Center Director' },
-      institution: { ar: 'مركز الأمل للتأهيل', en: 'Al-Amal Rehabilitation Center' },
-    },
-    {
-      quote: {
-        ar: 'الدعم المخصص والتقارير المفصلة ساعدتنا على متابعة تقدم موظفينا بسهولة.',
-        en: 'The dedicated support and detailed reports helped us easily track our employees progress.',
-      },
-      author: { ar: 'أ. سارة القحطاني', en: 'Ms. Sarah Al-Qahtani' },
-      position: { ar: 'مديرة الموارد البشرية', en: 'HR Director' },
-      institution: { ar: 'مستشفى الرياض', en: 'Riyadh Hospital' },
-    },
   ];
 
   return (
@@ -428,48 +406,6 @@ export default function InstitutionsPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-2 bg-[#4485b5]/10 text-[#4485b5] rounded-full text-sm font-medium mb-4">
-              {language === 'ar' ? 'آراء عملائنا' : 'Client Testimonials'}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {language === 'ar' ? 'ماذا يقول شركاؤنا' : 'What Our Partners Say'}
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 rounded-2xl p-8 border border-gray-100"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-gray-700 text-lg mb-6 leading-relaxed">
-                  "{testimonial.quote[language]}"
-                </p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#4485b5] to-[#2d5a7b] rounded-full flex items-center justify-center text-white font-bold">
-                    {testimonial.author[language].charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{testimonial.author[language]}</p>
-                    <p className="text-sm text-gray-500">{testimonial.position[language]}</p>
-                    <p className="text-sm text-[#4485b5]">{testimonial.institution[language]}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Contact Form Section */}
       <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -495,7 +431,7 @@ export default function InstitutionsPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">{language === 'ar' ? 'اتصل بنا' : 'Call Us'}</p>
-                    <p className="font-semibold text-gray-900" dir="ltr">+966 50 123 4567</p>
+                    <p className="font-semibold text-gray-900" dir="ltr">0096891366078</p>
                   </div>
                 </div>
 
@@ -505,7 +441,7 @@ export default function InstitutionsPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">{language === 'ar' ? 'البريد الإلكتروني' : 'Email'}</p>
-                    <p className="font-semibold text-gray-900">institutions@sulook.com</p>
+                    <p className="font-semibold text-gray-900">info@masaratedu.com</p>
                   </div>
                 </div>
 

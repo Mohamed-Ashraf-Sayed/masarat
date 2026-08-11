@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e8f4fc] to-[#f0f5fa] p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-green-600" />
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium"
+            className="inline-flex items-center gap-2 text-[#4485b5] hover:text-[#3a7299] font-medium"
           >
             <ArrowRight className="w-4 h-4" />
             العودة لتسجيل الدخول
@@ -63,11 +63,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e8f4fc] to-[#f0f5fa] p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Mail className="w-8 h-8 text-purple-600" />
+          <div className="w-16 h-16 bg-[#e8f4fc] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-8 h-8 text-[#4485b5]" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">نسيت كلمة المرور؟</h1>
           <p className="text-gray-600">
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 pr-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4485b5] focus:border-transparent transition-all"
                 placeholder="example@email.com"
                 required
                 dir="ltr"
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-[#4485b5] text-white font-medium rounded-full hover:bg-[#3a7299] focus:outline-none focus:ring-2 focus:ring-[#4485b5] focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
         <div className="mt-6 text-center">
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium"
+            className="inline-flex items-center gap-2 text-[#4485b5] hover:text-[#3a7299] font-medium"
           >
             <ArrowRight className="w-4 h-4" />
             العودة لتسجيل الدخول

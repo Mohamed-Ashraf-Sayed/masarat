@@ -1,381 +1,660 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
 import {
-  Award, Plus, Search, Trash2, Eye, Download,
-  Loader2, X, CheckCircle, User, BookOpen,
+  ArrowLeft,
+  Loader2,
+  Award,
+  Plus,
+  Trash2,
+  Search,
+  X,
+  AlertCircle,
+  CheckCircle,
+  Download,
+  Eye,
+  User,
 } from 'lucide-react';
 
 interface Certificate {
   id: string;
   certificateId: string;
   issuedAt: string;
-  user: { id: string; name: string; email: string; avatar: string | null };
-  course: { id: string; titleAr: string; titleEn: string };
+  certificateTemplate?: string;
+  user: { id: string; name: string; email: string; avatar?: string | null };
+  course: { id: string; titleAr: string; titleEn: string; certificateTemplate?: string };
 }
 
-interface UserOption { id: string; name: string; email: string }
-interface CourseOption { id: string; titleAr: string; titleEn: string; title?: { ar: string; en: string } }
+interface UserOption {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface CourseOption {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+}
 
 export default function AdminCertificatesPage() {
   const { language } = useLanguage();
-  const { user, token } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  const ar = language === 'ar';
 
   const [certificates, setCertificates] = useState<Certificate[]>([]);
-  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   // Issue modal
   const [showModal, setShowModal] = useState(false);
-  const [issuing, setIssuing] = useState(false);
   const [users, setUsers] = useState<UserOption[]>([]);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [courseSearch, setCourseSearch] = useState('');
-  const [issueError, setIssueError] = useState('');
-  const [issueSuccess, setIssueSuccess] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [customCertNumber, setCustomCertNumber] = useState('');
+  const [trainingHours, setTrainingHours] = useState('');
+  const [ceuCount, setCeuCount] = useState('');
+  const [generalCeus, setGeneralCeus] = useState('');
+  const [supervisionCeus, setSupervisionCeus] = useState('');
+  const [ethicsCeus, setEthicsCeus] = useState('');
+  const [eventModality, setEventModality] = useState('');
+  const [providerNumber, setProviderNumber] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [completionDate, setCompletionDate] = useState('');
+  const [issuing, setIssuing] = useState(false);
+
+  // Confirm modal
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    id: string;
+    name: string;
+  }>({ open: false, id: '', name: '' });
 
   useEffect(() => {
-    if (!user) { router.push('/login'); return; }
-    if (!['ADMIN', 'SUPER_ADMIN'].includes(user.role)) { router.push('/dashboard'); return; }
+    if (authLoading) return;
+    if (!user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+      router.push('/login');
+      return;
+    }
     fetchCertificates();
-  }, [user, router]);
+  }, [user, router, authLoading]);
 
-  const fetchCertificates = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
+  const fetchCertificates = async () => {
     try {
-      const params = new URLSearchParams({ ...(search && { search }) });
-      const res = await fetch(`/api/admin/certificates?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch('/api/admin/certificates', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
-      if (data.success) { setCertificates(data.data.certificates); setTotal(data.data.total); }
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  }, [token, search]);
-
-  useEffect(() => { fetchCertificates(); }, [fetchCertificates]);
-
-  const fetchUsersAndCourses = async () => {
-    if (!token) return;
-    const [uRes, cRes] = await Promise.all([
-      fetch('/api/admin/users?limit=200', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/api/admin/courses?limit=200', { headers: { Authorization: `Bearer ${token}` } }),
-    ]);
-    const [uData, cData] = await Promise.all([uRes.json(), cRes.json()]);
-    if (uData.success) setUsers(uData.data.users || uData.data || []);
-    if (cData.success) {
-      // Normalize courses — admin API may return title:{ar,en} or titleAr/titleEn
-      const raw: any[] = cData.data.courses || (Array.isArray(cData.data) ? cData.data : Object.values(cData.data));
-      setCourses(raw.map(c => ({
-        id: c.id,
-        titleAr: c.titleAr || c.title?.ar || '',
-        titleEn: c.titleEn || c.title?.en || '',
-      })));
+      if (data.success) setCertificates(data.data);
+    } catch {
+      setError(language === 'ar' ? 'فشل في تحميل الشهادات' : 'Failed to load certificates');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const openModal = () => {
+  const fetchUsersAndCourses = async () => {
+    try {
+      const [usersRes, coursesRes] = await Promise.all([
+        fetch('/api/admin/users?limit=1000', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/admin/courses?limit=1000', { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      const usersData = await usersRes.json();
+      const coursesData = await coursesRes.json();
+
+      if (usersData.success) {
+        const list = usersData.data?.users || usersData.data || [];
+        setUsers(list.map((u: { id: string; name: string; email: string }) => ({
+          id: u.id, name: u.name, email: u.email,
+        })));
+      }
+      if (coursesData.success) {
+        const list = coursesData.data?.courses || coursesData.data || [];
+        setCourses(list.map((c: any) => ({
+          id: c.id,
+          titleAr: c.titleAr || c.title?.ar || '',
+          titleEn: c.titleEn || c.title?.en || '',
+        })));
+      }
+    } catch {
+      setError(language === 'ar' ? 'فشل في تحميل البيانات' : 'Failed to load data');
+    }
+  };
+
+  const openIssueModal = () => {
+    setShowModal(true);
     setSelectedUserId('');
     setSelectedCourseId('');
+    setSelectedTemplate('');
+    setCustomCertNumber('');
+    setTrainingHours('');
+    setCeuCount('');
+    setGeneralCeus('');
+    setSupervisionCeus('');
+    setEthicsCeus('');
+    setEventModality('');
+    setProviderNumber('');
+    setStartDate('');
+    setCompletionDate('');
     setUserSearch('');
     setCourseSearch('');
-    setIssueError('');
-    setIssueSuccess('');
-    setShowModal(true);
     fetchUsersAndCourses();
   };
 
   const handleIssue = async () => {
     if (!selectedUserId || !selectedCourseId) {
-      setIssueError(ar ? 'اختر الطالب والدورة' : 'Select student and course');
+      setError(language === 'ar' ? 'اختر المستخدم والدورة' : 'Select user and course');
       return;
     }
+
     setIssuing(true);
-    setIssueError('');
+    setError('');
+
     try {
       const res = await fetch('/api/admin/certificates', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ userId: selectedUserId, courseId: selectedCourseId }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: selectedUserId,
+          courseId: selectedCourseId,
+          certificateTemplate: selectedTemplate || undefined,
+          customCertNumber: customCertNumber || undefined,
+          trainingHours: trainingHours ? Number(trainingHours) : undefined,
+          ceuCount: ceuCount ? Number(ceuCount) : undefined,
+          generalCeus: generalCeus ? Number(generalCeus) : undefined,
+          supervisionCeus: supervisionCeus ? Number(supervisionCeus) : undefined,
+          ethicsCeus: ethicsCeus ? Number(ethicsCeus) : undefined,
+          eventModality: eventModality || undefined,
+          providerNumber: providerNumber || undefined,
+          startDate: startDate || undefined,
+          completionDate: completionDate || undefined,
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        setIssueSuccess(ar ? `تم إصدار الشهادة بنجاح: ${data.data.certificateId}` : `Certificate issued: ${data.data.certificateId}`);
+        setShowModal(false);
         fetchCertificates();
-        setTimeout(() => { setShowModal(false); setIssueSuccess(''); }, 2000);
+        setSuccess(language === 'ar' ? 'تم إصدار الشهادة بنجاح' : 'Certificate issued successfully');
+        setTimeout(() => setSuccess(''), 3000);
       } else {
-        setIssueError(data.error || (ar ? 'فشل إصدار الشهادة' : 'Failed to issue certificate'));
+        setError(data.error);
       }
-    } catch (e) { setIssueError(ar ? 'خطأ في الاتصال' : 'Connection error'); }
-    finally { setIssuing(false); }
+    } catch {
+      setError(language === 'ar' ? 'فشل في إصدار الشهادة' : 'Failed to issue certificate');
+    } finally {
+      setIssuing(false);
+    }
   };
 
-  const handleDelete = async () => {
-    if (!deleteId || !token) return;
-    setDeleting(true);
+  const handleDelete = async (id: string) => {
+    setConfirmModal({ open: false, id: '', name: '' });
+    setDeleting(id);
     try {
-      const res = await fetch(`/api/admin/certificates/${deleteId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`/api/admin/certificates?id=${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
-      if (data.success) { setCertificates(p => p.filter(c => c.id !== deleteId)); setTotal(p => p - 1); }
-      else { alert(data.error); }
-    } catch (e) { console.error(e); }
-    finally { setDeleting(false); setDeleteId(null); }
+      if (data.success) {
+        setCertificates((prev) => prev.filter((c) => c.id !== id));
+        setSuccess(language === 'ar' ? 'تم حذف الشهادة' : 'Certificate deleted');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(data.error);
+      }
+    } catch {
+      setError(language === 'ar' ? 'فشل في حذف الشهادة' : 'Failed to delete certificate');
+    } finally {
+      setDeleting(null);
+    }
   };
 
-  const filteredUsers = users.filter(u =>
-    (u.name || '').toLowerCase().includes(userSearch.toLowerCase()) ||
-    (u.email || '').toLowerCase().includes(userSearch.toLowerCase())
-  );
+  const filteredCerts = certificates.filter((c) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      c.user.name.toLowerCase().includes(term) ||
+      c.user.email.toLowerCase().includes(term) ||
+      c.course.titleAr.toLowerCase().includes(term) ||
+      c.course.titleEn.toLowerCase().includes(term) ||
+      c.certificateId.toLowerCase().includes(term)
+    );
+  });
 
-  const filteredCourses = courses.filter(c =>
-    (c.titleAr || '').toLowerCase().includes(courseSearch.toLowerCase()) ||
-    (c.titleEn || '').toLowerCase().includes(courseSearch.toLowerCase())
-  );
+  const filteredUsers = users.filter((u) => {
+    if (!userSearch) return true;
+    const term = userSearch.toLowerCase();
+    return u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
+  });
+
+  const filteredCourses = courses.filter((c) => {
+    if (!courseSearch) return true;
+    const term = courseSearch.toLowerCase();
+    return c.titleAr.toLowerCase().includes(term) || c.titleEn.toLowerCase().includes(term);
+  });
+
+  if (authLoading || loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{ar ? 'إدارة الشهادات' : 'Certificates'}</h1>
-          <p className="text-gray-500">{ar ? `${total} شهادة` : `${total} certificates`}</p>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {language === 'ar' ? 'إدارة الشهادات' : 'Manage Certificates'}
+            </h1>
+            <p className="text-gray-500">
+              {language === 'ar' ? `${certificates.length} شهادة` : `${certificates.length} certificates`}
+            </p>
+          </div>
         </div>
-        <button onClick={openModal} className="btn-primary flex items-center gap-2">
+        <button onClick={openIssueModal} className="btn-primary flex items-center gap-2">
           <Plus className="w-5 h-5" />
-          {ar ? 'إصدار شهادة' : 'Issue Certificate'}
+          {language === 'ar' ? 'إصدار شهادة' : 'Issue Certificate'}
         </button>
       </div>
 
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+          <p className="text-green-700">{success}</p>
+        </div>
+      )}
+
       {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        <input
-          type="text"
-          placeholder={ar ? 'بحث بالاسم أو البريد أو رقم الشهادة...' : 'Search by name, email or certificate ID...'}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="input-field ps-10"
-        />
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={language === 'ar' ? 'بحث بالاسم أو البريد أو الدورة...' : 'Search by name, email or course...'}
+            className="w-full ps-10 pe-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+          />
+        </div>
       </div>
 
-      {/* Table */}
+      {/* Certificates Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-primary-600 animate-spin" /></div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="text-start py-4 px-5 text-sm font-semibold text-gray-600">{ar ? 'الطالب' : 'Student'}</th>
-                  <th className="text-start py-4 px-5 text-sm font-semibold text-gray-600">{ar ? 'الدورة' : 'Course'}</th>
-                  <th className="text-start py-4 px-5 text-sm font-semibold text-gray-600">{ar ? 'رقم الشهادة' : 'Certificate ID'}</th>
-                  <th className="text-start py-4 px-5 text-sm font-semibold text-gray-600">{ar ? 'تاريخ الإصدار' : 'Issued At'}</th>
-                  <th className="text-start py-4 px-5 text-sm font-semibold text-gray-600">{ar ? 'إجراءات' : 'Actions'}</th>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'المتدرب' : 'Student'}
+                </th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'الدورة' : 'Course'}
+                </th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'رقم الشهادة' : 'Certificate #'}
+                </th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'النوع' : 'Template'}
+                </th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'تاريخ الإصدار' : 'Issued Date'}
+                </th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-gray-600">
+                  {language === 'ar' ? 'إجراءات' : 'Actions'}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCerts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-16 text-center">
+                    <Award className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">
+                      {language === 'ar' ? 'لا توجد شهادات' : 'No certificates found'}
+                    </p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {certificates.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-16 text-center">
-                      <Award className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                      <p className="text-gray-400">{ar ? 'لا توجد شهادات' : 'No certificates found'}</p>
-                    </td>
-                  </tr>
-                ) : certificates.map(cert => (
+              ) : (
+                filteredCerts.map((cert) => (
                   <tr key={cert.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-5">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {cert.user.avatar
                             ? <img src={ikUrl(cert.user.avatar, { width: 100 })} className="w-9 h-9 rounded-full object-cover" alt="" />
                             : <User className="w-4 h-4 text-primary-600" />}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{cert.user.name}</p>
-                          <p className="text-xs text-gray-400">{cert.user.email}</p>
+                          <p className="font-medium text-gray-900">{cert.user.name}</p>
+                          <p className="text-sm text-gray-500">{cert.user.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-5">
-                      <p className="text-sm text-gray-700 max-w-[200px] truncate">
-                        {ar ? cert.course.titleAr : cert.course.titleEn}
-                      </p>
+                    <td className="px-6 py-4">
+                      <p className="text-gray-900">{language === 'ar' ? cert.course.titleAr : cert.course.titleEn}</p>
                     </td>
-                    <td className="py-4 px-5">
-                      <span className="font-mono text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg">
-                        {cert.certificateId}
-                      </span>
+                    <td className="px-6 py-4">
+                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">{cert.certificateId}</code>
                     </td>
-                    <td className="py-4 px-5 text-sm text-gray-500">
-                      {new Date(cert.issuedAt).toLocaleDateString(ar ? 'ar-EG' : 'en-US')}
+                    <td className="px-6 py-4">
+                      {(() => {
+                        const tmpl = cert.certificateTemplate || cert.course.certificateTemplate || 'QABA';
+                        const colors: Record<string, string> = {
+                          QABA: 'bg-blue-100 text-blue-700',
+                          IBAO: 'bg-amber-100 text-amber-700',
+                          CEU: 'bg-purple-100 text-purple-700',
+                          IBAO_CEU: 'bg-emerald-100 text-emerald-700',
+                        };
+                        return (
+                          <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${colors[tmpl] || 'bg-gray-100 text-gray-700'}`}>
+                            {tmpl === 'IBAO_CEU' ? 'CEU IBAO' : tmpl}
+                          </span>
+                        );
+                      })()}
                     </td>
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-1">
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {new Date(cert.issuedAt).toLocaleDateString('ar-EG')}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
                         <Link
                           href={`/certificates/${cert.id}`}
                           target="_blank"
                           className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"
-                          title={ar ? 'عرض' : 'View'}
+                          title={language === 'ar' ? 'عرض' : 'View'}
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
-                        <button
-                          onClick={() => setDeleteId(cert.id)}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title={ar ? 'سحب الشهادة' : 'Revoke'}
+                        <a
+                          href={`/api/certificates/${cert.id}/download`}
+                          className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                          title={language === 'ar' ? 'تحميل' : 'Download'}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Download className="w-4 h-4" />
+                        </a>
+                        <button
+                          onClick={() => setConfirmModal({ open: true, id: cert.id, name: cert.user.name })}
+                          disabled={deleting === cert.id}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          {deleting === cert.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Issue Certificate Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Award className="w-5 h-5 text-primary-600" />
-                {ar ? 'إصدار شهادة جديدة' : 'Issue New Certificate'}
+                {language === 'ar' ? 'إصدار شهادة جديدة' : 'Issue New Certificate'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
 
-            {issueSuccess ? (
-              <div className="text-center py-8">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-3" />
-                <p className="text-green-700 font-medium">{issueSuccess}</p>
+            <div className="space-y-4">
+              {/* User Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {language === 'ar' ? 'المتدرب' : 'Student'} *
+                </label>
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder={language === 'ar' ? 'ابحث عن المتدرب...' : 'Search student...'}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none mb-2"
+                />
+                <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-xl">
+                  {filteredUsers.slice(0, 50).map((u) => (
+                    <button
+                      key={u.id}
+                      onClick={() => { setSelectedUserId(u.id); setUserSearch(u.name); }}
+                      className={`w-full text-start px-4 py-2 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
+                        selectedUserId === u.id ? 'bg-primary-50 text-primary-700' : ''
+                      }`}
+                    >
+                      <p className="font-medium text-sm">{u.name}</p>
+                      <p className="text-xs text-gray-500">{u.email}</p>
+                    </button>
+                  ))}
+                  {filteredUsers.length === 0 && (
+                    <p className="px-4 py-3 text-sm text-gray-500 text-center">
+                      {language === 'ar' ? 'لا توجد نتائج' : 'No results'}
+                    </p>
+                  )}
+                </div>
               </div>
-            ) : (
-              <>
-                {/* User Select */}
-                <div className="mb-5">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="w-4 h-4 inline me-1" />
-                    {ar ? 'الطالب' : 'Student'}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={ar ? 'بحث عن طالب...' : 'Search student...'}
-                    value={userSearch}
-                    onChange={e => setUserSearch(e.target.value)}
-                    className="input-field mb-2 text-sm"
-                  />
-                  <div className="border border-gray-200 rounded-xl max-h-40 overflow-y-auto">
-                    {filteredUsers.length === 0 ? (
-                      <p className="text-center text-gray-400 py-4 text-sm">{ar ? 'لا توجد نتائج' : 'No results'}</p>
-                    ) : filteredUsers.slice(0, 20).map(u => (
-                      <button
-                        key={u.id}
-                        onClick={() => setSelectedUserId(u.id)}
-                        className={`w-full text-start px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-0 ${selectedUserId === u.id ? 'bg-primary-50' : ''}`}
-                      >
-                        <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="w-3.5 h-3.5 text-primary-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{u.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{u.email}</p>
-                        </div>
-                        {selectedUserId === u.id && <CheckCircle className="w-4 h-4 text-primary-600 flex-shrink-0" />}
-                      </button>
-                    ))}
+
+              {/* Course Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {language === 'ar' ? 'الدورة' : 'Course'} *
+                </label>
+                <input
+                  type="text"
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                  placeholder={language === 'ar' ? 'ابحث عن الدورة...' : 'Search course...'}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none mb-2"
+                />
+                <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-xl">
+                  {filteredCourses.slice(0, 50).map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => { setSelectedCourseId(c.id); setCourseSearch(language === 'ar' ? c.titleAr : c.titleEn); }}
+                      className={`w-full text-start px-4 py-2 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
+                        selectedCourseId === c.id ? 'bg-primary-50 text-primary-700' : ''
+                      }`}
+                    >
+                      <p className="font-medium text-sm">{language === 'ar' ? c.titleAr : c.titleEn}</p>
+                    </button>
+                  ))}
+                  {filteredCourses.length === 0 && (
+                    <p className="px-4 py-3 text-sm text-gray-500 text-center">
+                      {language === 'ar' ? 'لا توجد نتائج' : 'No results'}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Certificate Template Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {language === 'ar' ? 'نوع الشهادة' : 'Certificate Template'}
+                </label>
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-gray-900"
+                >
+                  <option value="">{language === 'ar' ? 'حسب إعدادات الدورة' : 'Use course default'}</option>
+                  <option value="QABA">QABA</option>
+                  <option value="IBAO">IBAO</option>
+                  <option value="CEU">CEU - QABA</option>
+                  <option value="IBAO_CEU">CEU - IBAO</option>
+                </select>
+              </div>
+
+              {/* Custom Overrides */}
+              <details className="border border-gray-200 rounded-xl overflow-hidden">
+                <summary className="px-4 py-3 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors">
+                  {language === 'ar' ? 'تخصيص بيانات الشهادة (اختياري)' : 'Customize Certificate Data (Optional)'}
+                </summary>
+                <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {language === 'ar' ? 'رقم الشهادة' : 'Certificate Number'}
+                    </label>
+                    <input type="text" value={customCertNumber} onChange={(e) => setCustomCertNumber(e.target.value)}
+                      placeholder={language === 'ar' ? 'تلقائي' : 'Auto-generated'}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {language === 'ar' ? 'عدد ساعات التدريب' : 'Training Hours'}
+                    </label>
+                    <input type="number" value={trainingHours} onChange={(e) => setTrainingHours(e.target.value)}
+                      placeholder={language === 'ar' ? 'حسب الدورة' : 'From course'}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">CEU Count</label>
+                      <input type="number" step="0.01" value={ceuCount} onChange={(e) => setCeuCount(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">General CEUs</label>
+                      <input type="number" step="0.01" value={generalCeus} onChange={(e) => setGeneralCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Supervision CEUs</label>
+                      <input type="number" step="0.01" value={supervisionCeus} onChange={(e) => setSupervisionCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Ethics CEUs</label>
+                      <input type="number" step="0.01" value={ethicsCeus} onChange={(e) => setEthicsCeus(e.target.value)}
+                        placeholder="0" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'نوع الحدث' : 'Event Modality'}
+                      </label>
+                      <input type="text" value={eventModality} onChange={(e) => setEventModality(e.target.value)}
+                        placeholder="Online Zoom" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'رقم المزود' : 'Provider Number'}
+                      </label>
+                      <input type="text" value={providerNumber} onChange={(e) => setProviderNumber(e.target.value)}
+                        placeholder="QCB-6529" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'تاريخ البدء' : 'Start Date'}
+                      </label>
+                      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        {language === 'ar' ? 'تاريخ الإكمال' : 'Completion Date'}
+                      </label>
+                      <input type="date" value={completionDate} onChange={(e) => setCompletionDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                    </div>
                   </div>
                 </div>
+              </details>
+            </div>
 
-                {/* Course Select */}
-                <div className="mb-5">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <BookOpen className="w-4 h-4 inline me-1" />
-                    {ar ? 'الدورة' : 'Course'}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={ar ? 'بحث عن دورة...' : 'Search course...'}
-                    value={courseSearch}
-                    onChange={e => setCourseSearch(e.target.value)}
-                    className="input-field mb-2 text-sm"
-                  />
-                  <div className="border border-gray-200 rounded-xl max-h-40 overflow-y-auto">
-                    {filteredCourses.length === 0 ? (
-                      <p className="text-center text-gray-400 py-4 text-sm">{ar ? 'لا توجد نتائج' : 'No results'}</p>
-                    ) : filteredCourses.slice(0, 20).map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedCourseId(c.id)}
-                        className={`w-full text-start px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-0 ${selectedCourseId === c.id ? 'bg-primary-50' : ''}`}
-                      >
-                        <BookOpen className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <p className="text-sm text-gray-700 flex-1 truncate">{ar ? (c.titleAr || c.titleEn) : (c.titleEn || c.titleAr)}</p>
-                        {selectedCourseId === c.id && <CheckCircle className="w-4 h-4 text-primary-600 flex-shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {issueError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
-                    {issueError}
-                  </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={handleIssue}
+                disabled={issuing || !selectedUserId || !selectedCourseId}
+                className="flex-1 px-4 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {issuing ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Award className="w-5 h-5" />
                 )}
-
-                <div className="flex gap-3">
-                  <button onClick={() => setShowModal(false)} className="flex-1 btn-secondary">
-                    {ar ? 'إلغاء' : 'Cancel'}
-                  </button>
-                  <button
-                    onClick={handleIssue}
-                    disabled={issuing || !selectedUserId || !selectedCourseId}
-                    className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {issuing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Award className="w-4 h-4" />}
-                    {ar ? 'إصدار الشهادة' : 'Issue Certificate'}
-                  </button>
-                </div>
-              </>
-            )}
+                {language === 'ar' ? 'إصدار الشهادة' : 'Issue Certificate'}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Revoke Confirm Modal */}
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{ar ? 'سحب الشهادة' : 'Revoke Certificate'}</h3>
-            <p className="text-gray-600 mb-6">{ar ? 'هل تريد سحب هذه الشهادة؟ لن يتمكن الطالب من الوصول إليها.' : 'Are you sure? The student will no longer be able to access this certificate.'}</p>
+      {/* Confirm Delete Modal */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmModal({ open: false, id: '', name: '' })} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-7 h-7 text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+              {language === 'ar' ? 'حذف الشهادة' : 'Delete Certificate'}
+            </h3>
+            <p className="text-gray-500 text-center mb-6">
+              {language === 'ar'
+                ? `هل أنت متأكد من حذف شهادة ${confirmModal.name}؟`
+                : `Are you sure you want to delete ${confirmModal.name}'s certificate?`}
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteId(null)} className="flex-1 btn-secondary" disabled={deleting}>{ar ? 'إلغاء' : 'Cancel'}</button>
               <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                onClick={() => setConfirmModal({ open: false, id: '', name: '' })}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
-                {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {ar ? 'سحب' : 'Revoke'}
+                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={() => handleDelete(confirmModal.id)}
+                className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors"
+              >
+                {language === 'ar' ? 'حذف' : 'Delete'}
               </button>
             </div>
           </div>

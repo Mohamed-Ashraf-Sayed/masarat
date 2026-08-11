@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { ikUrl } from '@/lib/imagekit';
 import {
   FileQuestion,
   CheckCircle,
@@ -19,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import Avatar from '@/components/Avatar';
 
 interface QuizAttempt {
   id: string;
@@ -353,11 +353,7 @@ export default function AdminQuizResultsPage() {
                   <tr key={attempt.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={ikUrl(attempt.user.avatar || 'https://via.placeholder.com/40', { width: 100 })}
-                          alt={attempt.user.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
+                        <Avatar src={attempt.user.avatar} name={attempt.user.name} size={40} />
                         <div>
                           <div className="font-medium text-gray-900">{attempt.user.name}</div>
                           <div className="text-sm text-gray-500">{attempt.user.email}</div>

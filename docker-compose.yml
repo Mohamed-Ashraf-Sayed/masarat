@@ -15,6 +15,12 @@ services:
       - NEXTAUTH_URL=https://masaratedu.com
       - NEXT_PUBLIC_APP_URL=https://masaratedu.com
       - NODE_ENV=production
+      - SMTP_HOST=smtp.hostinger.com
+      - SMTP_PORT=465
+      - SMTP_SECURE=true
+      - SMTP_USER=info@masaratedu.com
+      - SMTP_PASS=Mohamed@135680
+      - SMTP_FROM=Masarat <info@masaratedu.com>
     volumes:
       - ./uploads:/app/public/uploads
     restart: unless-stopped

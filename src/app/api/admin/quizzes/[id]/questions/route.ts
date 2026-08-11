@@ -72,15 +72,17 @@ export async function POST(
     // Convert options array to JSON string for storage
     const optionsToSave = Array.isArray(options) ? JSON.stringify(options) : '[]';
 
-    // Find the correct answer index from isCorrect flag
-    let correctAnswerToSave = correctAnswer;
-    if ((correctAnswerToSave === undefined || correctAnswerToSave === '') && type !== 'SHORT_ANSWER') {
-      if (options && Array.isArray(options)) {
-        const correctIndex = options.findIndex((opt: { isCorrect?: boolean }) => opt.isCorrect === true);
-        if (correctIndex !== -1) {
-          correctAnswerToSave = String(correctIndex);
-        }
+    // Derive correctAnswer from isCorrect flag when options are provided, to keep
+    // the two sources in sync. Fall back to explicit correctAnswer.
+    let correctAnswerToSave: string | undefined;
+    if (type !== 'SHORT_ANSWER' && options && Array.isArray(options)) {
+      const correctIndex = options.findIndex((opt: { isCorrect?: boolean }) => opt.isCorrect === true);
+      if (correctIndex !== -1) {
+        correctAnswerToSave = String(correctIndex);
       }
+    }
+    if (correctAnswerToSave === undefined && correctAnswer !== undefined && correctAnswer !== '') {
+      correctAnswerToSave = String(correctAnswer);
     }
 
     const question = await prisma.question.create({

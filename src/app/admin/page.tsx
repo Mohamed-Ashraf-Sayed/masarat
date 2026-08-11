@@ -42,8 +42,11 @@ import {
   FileText,
   Lock,
   Percent,
+  Image,
+  Award,
 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
+import Avatar from '@/components/Avatar';
 
 interface Stats {
   overview: {
@@ -183,6 +186,8 @@ export default function AdminDashboard() {
     { href: '/admin/events', icon: Calendar, label: { ar: 'الفعاليات', en: 'Events' } },
     { href: '/admin/competitions', icon: Trophy, label: { ar: 'المسابقات', en: 'Competitions' } },
     { href: '/admin/analytics', icon: BarChart3, label: { ar: 'الإحصائيات', en: 'Analytics' } },
+    { href: '/admin/certificates', icon: Award, label: { ar: 'الشهادات', en: 'Certificates' } },
+    { href: '/admin/sliders', icon: Image, label: { ar: 'البانرات', en: 'Banners' } },
     { href: '/admin/settings', icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' } },
   ];
 
@@ -337,11 +342,7 @@ export default function AdminDashboard() {
               </button>
               <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
-                <img
-                  src={ikUrl(user?.avatar || 'https://via.placeholder.com/40', { width: 100 })}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                <Avatar src={user?.avatar} name={user?.name} size={32} />
                 <div className="hidden sm:block">
                   <span className="text-sm font-medium text-gray-700 block">{user?.name}</span>
                   {user?.role === 'SUPER_ADMIN' && (

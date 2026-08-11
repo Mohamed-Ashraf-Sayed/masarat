@@ -21,6 +21,7 @@ import {
   CheckCheck,
   Loader2,
 } from 'lucide-react';
+import Avatar from './Avatar';
 
 interface Notification {
   id: string;
@@ -382,10 +383,11 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                       : 'hover:bg-white/10'
                   }`}
                 >
-                  <img
-                    src={ikUrl(user.avatar || 'https://via.placeholder.com/40', { width: 100 })}
-                    alt={user.name}
-                    className={`w-9 h-9 rounded-full object-cover border-2 ${
+                  <Avatar
+                    src={user.avatar}
+                    name={user.name}
+                    size={36}
+                    className={`border-2 ${
                       showSolidBg ? 'border-primary-200' : 'border-white/50'
                     }`}
                   />

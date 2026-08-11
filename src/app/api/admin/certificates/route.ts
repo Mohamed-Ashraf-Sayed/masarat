@@ -9,99 +9,92 @@ function getUserFromToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) return null;
   try {
-    return jwt.verify(authHeader.substring(7), JWT_SECRET) as { userId: string; role: string };
-  } catch { return null; }
+    return jwt.verify(authHeader.substring(7), JWT_SECRET) as { userId: string; email: string; role: string };
+  } catch {
+    return null;
+  }
 }
 
-// GET /api/admin/certificates — list all certificates
+// GET - list all certificates
 export async function GET(request: NextRequest) {
   try {
-    const tokenData = getUserFromToken(request);
-    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
+    const user = getUserFromToken(request);
+    if (!user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
-    const courseId = searchParams.get('courseId') || '';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = 50;
-    const skip = (page - 1) * limit;
+    const certificates = await prisma.certificate.findMany({
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        course: { select: { id: true, titleAr: true, titleEn: true, certificateTemplate: true } },
+      },
+      orderBy: { issuedAt: 'desc' },
+    });
 
-    const where: any = {};
-    if (courseId) where.courseId = courseId;
-    if (search) {
-      where.OR = [
-        { user: { name: { contains: search } } },
-        { user: { email: { contains: search } } },
-        { course: { titleAr: { contains: search } } },
-        { course: { titleEn: { contains: search } } },
-        { certificateId: { contains: search } },
-      ];
-    }
-
-    const [certificates, total] = await Promise.all([
-      prisma.certificate.findMany({
-        where,
-        include: {
-          user: { select: { id: true, name: true, email: true, avatar: true } },
-          course: { select: { id: true, titleAr: true, titleEn: true } },
-        },
-        orderBy: { issuedAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.certificate.count({ where }),
-    ]);
-
-    return NextResponse.json({ success: true, data: { certificates, total, page, pages: Math.ceil(total / limit) } });
+    return NextResponse.json({ success: true, data: certificates });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching certificates:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch certificates' }, { status: 500 });
   }
 }
 
-// POST /api/admin/certificates — issue certificate manually
+// POST - issue certificate manually
 export async function POST(request: NextRequest) {
   try {
-    const tokenData = getUserFromToken(request);
-    if (!tokenData || !['ADMIN', 'SUPER_ADMIN'].includes(tokenData.role)) {
+    const user = getUserFromToken(request);
+    if (!user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { userId, courseId } = body;
+    const {
+      userId, courseId, certificateTemplate,
+      customCertNumber, trainingHours,
+      ceuCount, generalCeus, supervisionCeus, ethicsCeus,
+      eventModality, providerNumber,
+      startDate, completionDate,
+    } = await request.json();
 
     if (!userId || !courseId) {
       return NextResponse.json({ success: false, error: 'userId and courseId are required' }, { status: 400 });
     }
 
-    // Check user and course exist
-    const [user, course] = await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true } }),
-      prisma.course.findUnique({ where: { id: courseId }, select: { id: true, titleAr: true, titleEn: true } }),
-    ]);
-
-    if (!user) return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    if (!course) return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404 });
-
-    // Check if certificate already exists
-    const existing = await prisma.certificate.findFirst({
-      where: { userId, courseId },
-    });
-    if (existing) {
-      return NextResponse.json({ success: false, error: 'Certificate already issued for this user and course' }, { status: 409 });
+    // Check user exists
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    // Generate unique certificate ID
-    const certId = `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    // Check course exists
+    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    if (!course) {
+      return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404 });
+    }
+
+    // منع تكرار الشهادة لنفس الطالب في نفس الكورس (مفيش unique constraint في الـ schema)
+    const existing = await prisma.certificate.findFirst({ where: { userId, courseId } });
+    if (existing) {
+      return NextResponse.json(
+        { success: false, error: 'Certificate already issued for this user and course' },
+        { status: 409 }
+      );
+    }
 
     const certificate = await prisma.certificate.create({
       data: {
-        certificateId: certId,
         userId,
         courseId,
-        issuedAt: new Date(),
+        certificateTemplate: certificateTemplate || null,
+        certificateId: `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        customCertNumber: customCertNumber || null,
+        trainingHours: trainingHours != null ? parseInt(trainingHours) : null,
+        ceuCount: ceuCount != null ? parseFloat(ceuCount) : null,
+        generalCeus: generalCeus != null ? parseFloat(generalCeus) : null,
+        supervisionCeus: supervisionCeus != null ? parseFloat(supervisionCeus) : null,
+        ethicsCeus: ethicsCeus != null ? parseFloat(ethicsCeus) : null,
+        eventModality: eventModality || null,
+        providerNumber: providerNumber || null,
+        startDate: startDate ? new Date(startDate) : null,
+        completionDate: completionDate ? new Date(completionDate) : null,
       },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -111,16 +104,16 @@ export async function POST(request: NextRequest) {
 
     // Audit
     createAuditLog({
-      userId: tokenData.userId,
+      userId: user.userId,
       action: 'CERTIFICATE_ISSUED',
       entity: 'Certificate',
       entityId: certificate.id,
-      newValue: { userId, courseId, certificateId: certId },
+      newValue: { userId, courseId, certificateId: certificate.certificateId },
     });
 
-    // Notify user
-    try {
-      await prisma.notification.create({
+    // إشعار الطالب بإصدار الشهادة
+    prisma.notification
+      .create({
         data: {
           userId,
           titleAr: 'تهانينا! حصلت على شهادة',
@@ -129,12 +122,46 @@ export async function POST(request: NextRequest) {
           messageEn: `A certificate for "${course.titleEn}" has been issued to you`,
           type: 'achievement',
         },
-      });
-    } catch { /* non-critical */ }
+      })
+      .catch((e) => console.error('Failed to create certificate notification:', e));
 
-    return NextResponse.json({ success: true, data: certificate }, { status: 201 });
+    return NextResponse.json({ success: true, data: certificate });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ success: false, error: 'Failed to issue certificate' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('Error creating certificate:', errMsg);
+    return NextResponse.json({ success: false, error: errMsg || 'Failed to create certificate' }, { status: 500 });
+  }
+}
+
+// DELETE - revoke certificate
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = getUserFromToken(request);
+    if (!user || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Certificate ID required' }, { status: 400 });
+    }
+
+    const deleted = await prisma.certificate.delete({ where: { id } });
+
+    // Audit
+    createAuditLog({
+      userId: user.userId,
+      action: 'CERTIFICATE_REVOKED',
+      entity: 'Certificate',
+      entityId: id,
+      oldValue: { userId: deleted.userId, courseId: deleted.courseId, certificateId: deleted.certificateId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting certificate:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete certificate' }, { status: 500 });
   }
 }

@@ -56,9 +56,9 @@ export default function ContactPage() {
       icon: Mail,
       title: { ar: 'راسلنا', en: 'Email Us' },
       description: { ar: 'نرد خلال 24 ساعة', en: 'We reply within 24 hours' },
-      value: 'info@sulook.com',
+      value: 'info@masaratedu.com',
       action: { ar: 'أرسل بريد', en: 'Send Email' },
-      link: 'mailto:info@sulook.com',
+      link: 'mailto:info@masaratedu.com',
       color: 'from-emerald-500 to-emerald-600',
     },
     {

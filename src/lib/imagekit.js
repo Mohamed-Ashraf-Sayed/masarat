@@ -8,11 +8,11 @@ export function ikUrl(src, { width, quality } = {}) {
   if (!ENDPOINT || typeof src !== 'string' || !src.startsWith('/') || src.startsWith('//')) {
     return src;
   }
-  if (src.startsWith('/_next/') || src.startsWith('/api/')) return src;
+  if (src.startsWith('/_next/')) return src;
   // إيصالات الدفع فيها بيانات شخصية — متعديش على CDN خارجي أبداً
-  if (src.startsWith('/uploads/receipts/') || src.startsWith('/uploads/book-receipts/')) {
-    return src;
-  }
+  if (/^\/(?:uploads|api\/files)\/(?:receipts|book-receipts)\//.test(src)) return src;
+  // /api/files/* بيقدّم الملفات المرفوعة فينفع يتحوّل — باقي الـ API routes بتعدي زي ما هي
+  if (src.startsWith('/api/') && !src.startsWith('/api/files/')) return src;
 
   const tr = ['f-auto', `q-${quality || 80}`];
   if (width) tr.push(`w-${Math.round(width)}`);

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_PAYMENT_SETTINGS = {
   currency: 'USD',
   paymentMethods: {

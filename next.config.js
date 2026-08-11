@@ -8,6 +8,7 @@ const nextConfig = {
     return config;
   },
   // Increase body size limit for file uploads (100MB for videos)
+  serverExternalPackages: ['pdfkit'],
   experimental: {
     serverActions: {
       bodySizeLimit: '100mb',
@@ -65,6 +66,17 @@ const nextConfig = {
   // إعدادات الإنتاج
   poweredByHeader: false,
   reactStrictMode: true,
+
+  // Serve /uploads/* files through the /api/files/* route so that
+  // dynamically uploaded files work with Next.js standalone output.
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/files/:path*',
+      },
+    ];
+  },
 
   // إعدادات الأمان و CORS
   async headers() {
