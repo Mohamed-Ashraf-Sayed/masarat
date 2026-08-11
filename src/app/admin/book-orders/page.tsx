@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
@@ -631,7 +632,7 @@ export default function BookOrdersPage() {
                         className="block"
                       >
                         <img
-                          src={selectedPurchase.receiptUrl}
+                          src={ikUrl(selectedPurchase.receiptUrl, { width: 1200 })}
                           alt="Transfer Receipt"
                           className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                         />

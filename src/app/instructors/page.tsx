@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   Users,
@@ -86,7 +87,7 @@ export default function InstructorsPage() {
                   <div className="w-24 h-24 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
                     {instructor.avatar ? (
                       <img
-                        src={instructor.avatar}
+                        src={ikUrl(instructor.avatar, { width: 200 })}
                         alt={instructor.name}
                         className="w-full h-full object-cover"
                       />

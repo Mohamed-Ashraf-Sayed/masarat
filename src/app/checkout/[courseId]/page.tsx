@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ikUrl } from '@/lib/imagekit';
 import {
   CreditCard,
   Lock,
@@ -477,7 +478,7 @@ export default function CheckoutPage() {
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <div className="flex items-center gap-4">
                   <img
-                    src={course.thumbnail || 'https://via.placeholder.com/100'}
+                    src={ikUrl(course.thumbnail || 'https://via.placeholder.com/100', { width: 200 })}
                     alt={course.title[language]}
                     className="w-20 h-14 object-cover rounded-lg"
                   />
@@ -757,7 +758,7 @@ export default function CheckoutPage() {
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <div className="flex items-center gap-4">
                   <img
-                    src={course.thumbnail || 'https://via.placeholder.com/100'}
+                    src={ikUrl(course.thumbnail || 'https://via.placeholder.com/100', { width: 200 })}
                     alt={course.title[language]}
                     className="w-20 h-14 object-cover rounded-lg"
                   />
@@ -1337,7 +1338,7 @@ export default function CheckoutPage() {
                 {/* Course Card */}
                 <div className="flex gap-4 pb-4 border-b border-gray-100">
                   <img
-                    src={course.thumbnail || 'https://via.placeholder.com/100'}
+                    src={ikUrl(course.thumbnail || 'https://via.placeholder.com/100', { width: 200 })}
                     alt={course.title[language]}
                     className="w-20 h-14 object-cover rounded-lg"
                   />

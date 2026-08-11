@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   MessageCircle,
@@ -440,7 +441,7 @@ export default function MessagesPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 {currentUser.avatar ? (
-                  <img src={currentUser.avatar} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
+                  <img src={ikUrl(currentUser.avatar, { width: 100 })} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
                 ) : (
                   <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                     <User className="w-5 h-5 text-primary-600" />
@@ -494,7 +495,7 @@ export default function MessagesPage() {
                     <div className="relative flex-shrink-0">
                       {participant?.avatar ? (
                         <img
-                          src={participant.avatar}
+                          src={ikUrl(participant.avatar, { width: 100 })}
                           alt={participant.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -564,7 +565,7 @@ export default function MessagesPage() {
                   </button>
                   {selectedConversation.participants?.[0]?.avatar ? (
                     <img
-                      src={selectedConversation.participants[0].avatar}
+                      src={ikUrl(selectedConversation.participants[0].avatar, { width: 100 })}
                       alt={selectedConversation.participants[0].name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -626,7 +627,7 @@ export default function MessagesPage() {
                             {showAvatar && (
                               message.sender?.avatar ? (
                                 <img
-                                  src={message.sender.avatar}
+                                  src={ikUrl(message.sender.avatar, { width: 100 })}
                                   alt=""
                                   className="w-8 h-8 rounded-full object-cover"
                                 />
@@ -791,7 +792,7 @@ export default function MessagesPage() {
                     >
                       {availableUser.avatar ? (
                         <img
-                          src={availableUser.avatar}
+                          src={ikUrl(availableUser.avatar, { width: 100 })}
                           alt={availableUser.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />

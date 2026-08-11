@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Calendar, MapPin, Users, Search, Filter, Clock } from 'lucide-react';
 
@@ -89,7 +90,7 @@ export default function EventsPage() {
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                     <div className="relative h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex-shrink-0">
                       {event.image ? (
-                        <img src={event.image} alt="" className="w-full h-full object-cover" />
+                        <img src={ikUrl(event.image, { width: 600 })} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><Calendar className="w-16 h-16 text-blue-400" /></div>
                       )}

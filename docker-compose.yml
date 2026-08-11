@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # بيتقري من ملف .env جنب الـ compose على السيرفر
+        - NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=${NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT:-}
     ports:
       - "3000:3000"
     environment:

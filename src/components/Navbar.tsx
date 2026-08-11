@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Menu,
   X,
@@ -224,7 +225,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <img
-              src="/images/logo.png"
+              src={ikUrl('/images/logo.png', { width: 100 })}
               alt="Masarat"
               className="h-12 w-auto"
             />
@@ -382,7 +383,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                   }`}
                 >
                   <img
-                    src={user.avatar || 'https://via.placeholder.com/40'}
+                    src={ikUrl(user.avatar || 'https://via.placeholder.com/40', { width: 100 })}
                     alt={user.name}
                     className={`w-9 h-9 rounded-full object-cover border-2 ${
                       showSolidBg ? 'border-primary-200' : 'border-white/50'
@@ -540,7 +541,7 @@ export default function Navbar({ variant = 'default' }: NavbarProps) {
                         className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0"
                       >
                         <img
-                          src={course.thumbnail || '/images/course-placeholder.jpg'}
+                          src={ikUrl(course.thumbnail || '/images/course-placeholder.jpg', { width: 200 })}
                           alt={course.title[language]}
                           className="w-16 h-12 object-cover rounded-lg"
                         />

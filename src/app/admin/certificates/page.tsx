@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
@@ -200,7 +201,7 @@ export default function AdminCertificatesPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                           {cert.user.avatar
-                            ? <img src={cert.user.avatar} className="w-9 h-9 rounded-full object-cover" alt="" />
+                            ? <img src={ikUrl(cert.user.avatar, { width: 100 })} className="w-9 h-9 rounded-full object-cover" alt="" />
                             : <User className="w-4 h-4 text-primary-600" />}
                         </div>
                         <div>

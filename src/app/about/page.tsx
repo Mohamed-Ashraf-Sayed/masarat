@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
@@ -210,7 +211,7 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img
-                src="/images/hero.png"
+                src={ikUrl('/images/hero.png', { width: 1200 })}
                 alt="Our Story"
                 className="rounded-3xl shadow-2xl"
               />
@@ -373,7 +374,7 @@ export default function AboutPage() {
           </blockquote>
           <div className="flex items-center justify-center gap-4">
             <img
-              src="/images/trainer.jpg"
+              src={ikUrl('/images/trainer.jpg', { width: 100 })}
               alt="Dr. Reda Gad"
               className="w-14 h-14 rounded-full object-cover"
             />

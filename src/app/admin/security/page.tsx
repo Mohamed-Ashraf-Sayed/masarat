@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   LayoutDashboard,
@@ -348,7 +349,7 @@ export default function SecurityPage() {
               </button>
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
                 <img
-                  src={user?.avatar || 'https://via.placeholder.com/40'}
+                  src={ikUrl(user?.avatar || 'https://via.placeholder.com/40', { width: 100 })}
                   alt={user?.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />

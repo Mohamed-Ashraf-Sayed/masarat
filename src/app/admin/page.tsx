@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   LayoutDashboard,
@@ -337,7 +338,7 @@ export default function AdminDashboard() {
               <NotificationDropdown />
               <div className="flex items-center gap-2 ps-2 ms-2 border-s border-gray-200">
                 <img
-                  src={user?.avatar || 'https://via.placeholder.com/40'}
+                  src={ikUrl(user?.avatar || 'https://via.placeholder.com/40', { width: 100 })}
                   alt={user?.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -446,7 +447,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                           {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
+                            <img src={ikUrl(user.avatar, { width: 100 })} alt={user.name} className="w-10 h-10 rounded-full" />
                           ) : (
                             <span className="text-primary-600 font-semibold">
                               {user.name?.charAt(0)}
@@ -568,7 +569,7 @@ export default function AdminDashboard() {
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <img
-                              src={course.thumbnail || 'https://via.placeholder.com/64x48'}
+                              src={ikUrl(course.thumbnail || 'https://via.placeholder.com/64x48', { width: 200 })}
                               alt={course.title[language]}
                               className="w-16 h-12 object-cover rounded-lg"
                             />

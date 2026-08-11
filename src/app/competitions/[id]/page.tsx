@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ikUrl } from '@/lib/imagekit';
 import { Trophy, Users, Calendar, CheckCircle, ArrowLeft, Award, FileText } from 'lucide-react';
 
 interface Competition {
@@ -86,7 +87,7 @@ export default function CompetitionDetailPage() {
       <Navbar variant="solid" />
 
       <div className="relative h-64 bg-gradient-to-br from-yellow-500 to-orange-600">
-        {competition.image && <img src={competition.image} alt="" className="w-full h-full object-cover opacity-40" />}
+        {competition.image && <img src={ikUrl(competition.image, { width: 1200 })} alt="" className="w-full h-full object-cover opacity-40" />}
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-4xl mx-auto px-4 pb-8 w-full">
             <button onClick={() => router.back()} className="flex items-center gap-2 text-white/80 hover:text-white mb-4">

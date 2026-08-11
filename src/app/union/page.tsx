@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Building2, Building, Target, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 
 interface Initiative {
@@ -99,7 +100,7 @@ export default function UnionPage() {
               >
                 <div className="flex items-center gap-4">
                   {union.logo ? (
-                    <img src={union.logo} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                    <img src={ikUrl(union.logo, { width: 100 })} alt="" className="w-14 h-14 rounded-xl object-cover" />
                   ) : (
                     <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center">
                       <Building2 className="w-7 h-7 text-primary-600" />
@@ -129,7 +130,7 @@ export default function UnionPage() {
                             >
                               <div className="flex items-center gap-3">
                                 {entity.logo ? (
-                                  <img src={entity.logo} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                                  <img src={ikUrl(entity.logo, { width: 100 })} alt="" className="w-10 h-10 rounded-lg object-cover" />
                                 ) : (
                                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                     <Building className="w-5 h-5 text-blue-600" />

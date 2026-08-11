@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Play,
   Clock,
@@ -364,7 +365,7 @@ export default function CourseDetailPage() {
               {/* Instructor */}
               <div className="flex items-center gap-4">
                 <img
-                  src={course.instructor.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+                  src={ikUrl(course.instructor.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100', { width: 100 })}
                   alt={course.instructor.name}
                   className="w-12 h-12 rounded-full object-cover border-2 border-primary-400"
                 />
@@ -383,7 +384,7 @@ export default function CourseDetailPage() {
                 {/* Video Preview */}
                 <div className="relative aspect-video bg-gray-900">
                   <img
-                    src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'}
+                    src={ikUrl(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400', { width: 600 })}
                     alt={course.title[language]}
                     className="w-full h-full object-cover"
                   />
@@ -712,7 +713,7 @@ export default function CourseDetailPage() {
               {activeTab === 'instructor' && (
                 <div className="flex items-start gap-6">
                   <img
-                    src={course.instructor.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+                    src={ikUrl(course.instructor.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100', { width: 200 })}
                     alt={course.instructor.name}
                     className="w-24 h-24 rounded-2xl object-cover"
                   />
@@ -793,7 +794,7 @@ export default function CourseDetailPage() {
                         <div key={review.id} className="border-b border-gray-100 pb-6">
                           <div className="flex items-start gap-4">
                             <img
-                              src={review.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50'}
+                              src={ikUrl(review.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50', { width: 100 })}
                               alt={review.user.name}
                               className="w-12 h-12 rounded-full object-cover"
                             />

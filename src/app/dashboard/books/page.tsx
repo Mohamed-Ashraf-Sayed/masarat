@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   Download,
@@ -192,7 +193,7 @@ export default function UserBooksPage() {
                 >
                   {purchase.book.cover ? (
                     <img
-                      src={purchase.book.cover}
+                      src={ikUrl(purchase.book.cover, { width: 200 })}
                       alt={purchase.book.title[language]}
                       className="w-16 h-20 object-cover rounded-lg"
                     />
@@ -232,7 +233,7 @@ export default function UserBooksPage() {
               <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200">
                 {purchase.book.cover ? (
                   <img
-                    src={purchase.book.cover}
+                    src={ikUrl(purchase.book.cover, { width: 600 })}
                     alt={purchase.book.title[language]}
                     className="w-full h-full object-cover"
                   />

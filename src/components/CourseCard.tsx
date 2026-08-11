@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Clock, BookOpen, Users, Star, Play } from 'lucide-react';
 
 interface Course {
@@ -67,7 +68,7 @@ export default function CourseCard({ course }: CourseCardProps) {
         {/* Thumbnail */}
         <div className="relative overflow-hidden">
           <img
-            src={course.thumbnail || defaultThumbnail}
+            src={ikUrl(course.thumbnail || defaultThumbnail, { width: 600 })}
             alt={course.title[language]}
             className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {
@@ -135,7 +136,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           {/* Instructor */}
           <div className="flex items-center gap-3 mb-4">
             <img
-              src={course.instructor?.avatar || defaultAvatar}
+              src={ikUrl(course.instructor?.avatar || defaultAvatar, { width: 100 })}
               alt={course.instructor?.name || 'Instructor'}
               className="w-8 h-8 rounded-full object-cover"
               onError={(e) => {

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   ArrowLeft,
   Upload,
@@ -181,7 +182,7 @@ export default function NewCoursePage() {
             <div className="flex items-start gap-4">
               {thumbnailPreview || formData.thumbnail ? (
                 <img
-                  src={thumbnailPreview || formData.thumbnail}
+                  src={ikUrl(thumbnailPreview || formData.thumbnail, { width: 200 })}
                   alt="Thumbnail preview"
                   className="w-48 h-32 object-cover rounded-xl"
                 />

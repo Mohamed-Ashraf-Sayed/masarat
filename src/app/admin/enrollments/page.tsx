@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Users,
   Search,
@@ -269,7 +270,7 @@ export default function AdminEnrollmentsPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                           {enrollment.user.avatar ? (
-                            <img src={enrollment.user.avatar} alt={enrollment.user.name} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={ikUrl(enrollment.user.avatar, { width: 100 })} alt={enrollment.user.name} className="w-10 h-10 rounded-full object-cover" />
                           ) : (
                             <span className="text-primary-600 font-semibold">
                               {enrollment.user.name.charAt(0).toUpperCase()}
@@ -286,7 +287,7 @@ export default function AdminEnrollmentsPage() {
                       <div className="flex items-center gap-3">
                         {enrollment.course.thumbnail ? (
                           <img
-                            src={enrollment.course.thumbnail}
+                            src={ikUrl(enrollment.course.thumbnail, { width: 100 })}
                             alt={enrollment.course.title[language]}
                             className="w-12 h-8 rounded object-cover"
                           />

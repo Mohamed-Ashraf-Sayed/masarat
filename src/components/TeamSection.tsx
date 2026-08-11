@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Loader2 } from 'lucide-react';
 
 interface TeamMember {
@@ -73,7 +74,7 @@ export default function TeamSection() {
                 {/* Image */}
                 <div className="relative h-72 overflow-hidden bg-gradient-to-b from-gray-100 to-gray-200">
                   <img
-                    src={member.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nameEn)}&size=300&background=4485b5&color=fff&font-size=0.35`}
+                    src={ikUrl(member.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nameEn)}&size=300&background=4485b5&color=fff&font-size=0.35`, { width: 600 })}
                     alt={language === 'ar' ? member.nameAr : member.nameEn}
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {

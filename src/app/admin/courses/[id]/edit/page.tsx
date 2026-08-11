@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
@@ -574,7 +575,7 @@ export default function EditCoursePage() {
               {formData.thumbnail ? (
                 <div className="relative inline-block">
                   <img
-                    src={formData.thumbnail}
+                    src={ikUrl(formData.thumbnail, { width: 600 })}
                     alt="Preview"
                     className="w-64 h-40 object-cover rounded-xl border border-gray-200"
                   />

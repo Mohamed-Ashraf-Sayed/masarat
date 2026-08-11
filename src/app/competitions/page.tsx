@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Trophy, Users, Calendar, Search } from 'lucide-react';
 
 interface Competition {
@@ -101,7 +102,7 @@ export default function CompetitionsPage() {
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
                     <div className="relative h-48 bg-gradient-to-br from-yellow-100 to-orange-200 flex-shrink-0">
                       {comp.image ? (
-                        <img src={comp.image} alt="" className="w-full h-full object-cover" />
+                        <img src={ikUrl(comp.image, { width: 600 })} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><Trophy className="w-16 h-16 text-yellow-500" /></div>
                       )}

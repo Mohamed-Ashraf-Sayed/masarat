@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   Clock,
@@ -203,7 +204,7 @@ export default function DashboardPage() {
                   className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4"
                 >
                   <img
-                    src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200'}
+                    src={ikUrl(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200', { width: 200 })}
                     alt={course.title[language]}
                     className="w-32 h-24 object-cover rounded-xl flex-shrink-0"
                   />

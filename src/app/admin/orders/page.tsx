@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   ShoppingCart,
   ArrowLeft,
@@ -615,7 +616,7 @@ export default function OrdersPage() {
                         className="block"
                       >
                         <img
-                          src={selectedPayment.receiptUrl}
+                          src={ikUrl(selectedPayment.receiptUrl, { width: 1200 })}
                           alt="Transfer Receipt"
                           className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                         />

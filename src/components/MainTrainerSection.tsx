@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 
 function useCountUp(end: number, duration: number = 2000, startCounting: boolean = false) {
   const [count, setCount] = useState(0);
@@ -144,7 +145,7 @@ export default function MainTrainerSection() {
               <div className="relative">
                 <div className="w-64 h-80 md:w-72 md:h-96 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-b from-gray-100 to-gray-200">
                   <img
-                    src="/images/trainer.jpg"
+                    src={ikUrl('/images/trainer.jpg', { width: 600 })}
                     alt={language === 'ar' ? 'د. رضا جاد محمد طه كرامه' : 'Dr. Reda Gad Mohamed Taha Karama'}
                     className="w-full h-full object-cover object-top"
                   />

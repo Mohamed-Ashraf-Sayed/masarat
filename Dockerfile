@@ -20,6 +20,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
 
+# NEXT_PUBLIC_* لازم تبقى موجودة وقت الـ build عشان تتحقن في الـ client bundle
+ARG NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+ENV NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=$NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+
 RUN npm run build
 
 FROM base AS runner

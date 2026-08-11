@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -325,7 +326,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-6 mb-8">
                 <div className="relative">
                   <img
-                    src={avatarPreview || user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+                    src={avatarPreview || ikUrl(user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100', { width: 200 })}
                     alt={user?.name}
                     className="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
                   />

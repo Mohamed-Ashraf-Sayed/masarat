@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Award, CheckCircle2, Shield, BadgeCheck } from 'lucide-react';
 
 export default function AccreditationsSection() {
@@ -132,7 +133,7 @@ export default function AccreditationsSection() {
               {/* Logo */}
               <div className="w-full h-40 rounded-xl overflow-hidden mb-4 flex items-center justify-center bg-white p-2">
                 <img
-                  src={accreditation.logo}
+                  src={ikUrl(accreditation.logo, { width: 600 })}
                   alt={accreditation.name[language]}
                   className="max-w-full max-h-full object-contain"
                 />

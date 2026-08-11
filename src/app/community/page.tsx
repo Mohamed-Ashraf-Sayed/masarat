@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import Link from 'next/link';
 import {
   MessageSquare,
@@ -257,7 +258,7 @@ export default function CommunityPage() {
                             <div className="flex items-start gap-4">
                               {thread.author.avatar ? (
                                 <img
-                                  src={thread.author.avatar}
+                                  src={ikUrl(thread.author.avatar, { width: 100 })}
                                   alt={thread.author.name}
                                   className="w-10 h-10 rounded-full object-cover"
                                 />

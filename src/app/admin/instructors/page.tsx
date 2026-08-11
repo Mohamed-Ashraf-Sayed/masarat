@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Users,
   Search,
@@ -288,7 +289,7 @@ export default function AdminInstructorsPage() {
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
                     {instructor.avatar ? (
                       <img
-                        src={instructor.avatar}
+                        src={ikUrl(instructor.avatar, { width: 200 })}
                         alt={instructor.name}
                         className="w-full h-full object-cover"
                       />
@@ -469,7 +470,7 @@ export default function AdminInstructorsPage() {
                 </label>
                 {formData.avatar && (
                   <div className="mb-3 relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 mx-auto">
-                    <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    <img src={ikUrl(formData.avatar, { width: 200 })} alt="Avatar" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, avatar: '' }))}

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
@@ -387,7 +388,7 @@ export default function BookDetailPage() {
                   <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200">
                     {book.cover ? (
                       <img
-                        src={book.cover}
+                        src={ikUrl(book.cover, { width: 600 })}
                         alt={book.title[language]}
                         className="w-full h-full object-cover"
                       />
@@ -582,7 +583,7 @@ export default function BookDetailPage() {
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
               {book.cover ? (
                 <img
-                  src={book.cover}
+                  src={ikUrl(book.cover, { width: 200 })}
                   alt={book.title[language]}
                   className="w-16 h-20 object-cover rounded-lg"
                 />

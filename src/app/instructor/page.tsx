@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   BookOpen,
   Users,
@@ -254,7 +255,7 @@ export default function InstructorDashboardPage() {
                 >
                   <div className="flex gap-4">
                     <img
-                      src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200'}
+                      src={ikUrl(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200', { width: 200 })}
                       alt={course.title[language]}
                       className="w-32 h-24 object-cover rounded-xl flex-shrink-0"
                     />
@@ -354,7 +355,7 @@ export default function InstructorDashboardPage() {
                     className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors"
                   >
                     <img
-                      src={enrollment.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40'}
+                      src={ikUrl(enrollment.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40', { width: 100 })}
                       alt={enrollment.user.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -396,7 +397,7 @@ export default function InstructorDashboardPage() {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <img
-                        src={review.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40'}
+                        src={ikUrl(review.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40', { width: 100 })}
                         alt={review.user.name}
                         className="w-8 h-8 rounded-full object-cover"
                       />

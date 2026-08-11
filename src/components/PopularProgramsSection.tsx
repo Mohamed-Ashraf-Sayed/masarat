@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function PopularProgramsSection() {
@@ -74,7 +75,7 @@ export default function PopularProgramsSection() {
               {/* Image Container */}
               <div className="bg-white p-4 flex items-center justify-center min-h-[200px]">
                 <img
-                  src={program.image}
+                  src={ikUrl(program.image, { width: 600 })}
                   alt={program.title}
                   className="max-w-full max-h-[180px] object-contain group-hover:scale-105 transition-transform duration-500"
                 />

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Users,
   Search,
@@ -348,7 +349,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                           {u.avatar ? (
-                            <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={ikUrl(u.avatar, { width: 100 })} alt={u.name} className="w-10 h-10 rounded-full object-cover" />
                           ) : (
                             <span className="text-primary-600 font-semibold">
                               {u.name.charAt(0).toUpperCase()}

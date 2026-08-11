@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   FileQuestion,
   CheckCircle,
@@ -353,7 +354,7 @@ export default function AdminQuizResultsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={attempt.user.avatar || 'https://via.placeholder.com/40'}
+                          src={ikUrl(attempt.user.avatar || 'https://via.placeholder.com/40', { width: 100 })}
                           alt={attempt.user.name}
                           className="w-10 h-10 rounded-full object-cover"
                         />

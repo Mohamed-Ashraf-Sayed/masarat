@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Users,
   Plus,
@@ -313,7 +314,7 @@ export default function AdminTeamPage() {
                 {/* Avatar */}
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                   {member.image ? (
-                    <img src={member.image} alt={member.nameAr} className="w-full h-full object-cover" />
+                    <img src={ikUrl(member.image, { width: 200 })} alt={member.nameAr} className="w-full h-full object-cover" />
                   ) : (
                     <Users className="w-8 h-8 text-gray-400" />
                   )}
@@ -406,7 +407,7 @@ export default function AdminTeamPage() {
                 <div className="flex items-center gap-4">
                   <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                     {formData.image ? (
-                      <img src={formData.image} alt="" className="w-full h-full object-cover" />
+                      <img src={ikUrl(formData.image, { width: 200 })} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <ImageIcon className="w-8 h-8 text-gray-400" />
                     )}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
@@ -293,7 +294,7 @@ function BookCard({
         <div className="relative aspect-[3/4] bg-gradient-to-br from-blue-50 via-gray-50 to-gray-100 overflow-hidden">
           {book.cover ? (
             <img
-              src={book.cover}
+              src={ikUrl(book.cover, { width: 600 })}
               alt={book.title[language]}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             />

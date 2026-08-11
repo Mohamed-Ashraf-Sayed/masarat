@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import { Trophy, Calendar, Users } from 'lucide-react';
 
 interface CompetitionParticipation {
@@ -73,7 +74,7 @@ export default function DashboardCompetitionsPage() {
                 <div key={p.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="h-36 bg-gradient-to-br from-yellow-100 to-orange-200 relative">
                     {p.competition.image ? (
-                      <img src={p.competition.image} alt="" className="w-full h-full object-cover" />
+                      <img src={ikUrl(p.competition.image, { width: 600 })} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Trophy className="w-12 h-12 text-yellow-500" />

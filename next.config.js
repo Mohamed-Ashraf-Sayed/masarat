@@ -48,9 +48,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.image2url.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io', // ImageKit CDN
+      },
     ],
-    // لتجنب مشاكل الصور على Hostinger
-    unoptimized: process.env.NODE_ENV === 'production',
+    // لو ImageKit متظبط: كل صور next/image بتتحوّل لروابط CDN عن طريق الـ custom loader
+    // لو مش متظبط: نرجع للسلوك القديم (unoptimized على production لتجنب مشاكل Hostinger)
+    ...(process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+      ? { loader: 'custom', loaderFile: './src/lib/imagekit.js' }
+      : { unoptimized: process.env.NODE_ENV === 'production' }),
     // كاش صور الـ optimizer (بيشتغل في التطوير / لو الـ optimization اتفعّل)
     minimumCacheTTL: 86400,
   },

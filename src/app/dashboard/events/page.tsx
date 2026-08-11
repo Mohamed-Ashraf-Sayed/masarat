@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import { Calendar, MapPin, Clock, XCircle } from 'lucide-react';
 
 interface EventRegistration {
@@ -79,7 +80,7 @@ export default function DashboardEventsPage() {
                 <div key={reg.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="h-36 bg-gradient-to-br from-blue-100 to-blue-200 relative">
                     {reg.event.image ? (
-                      <img src={reg.event.image} alt="" className="w-full h-full object-cover" />
+                      <img src={ikUrl(reg.event.image, { width: 600 })} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Calendar className="w-12 h-12 text-blue-400" />

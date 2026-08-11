@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ikUrl } from '@/lib/imagekit';
 import { Calendar, MapPin, Users, ArrowRight, Clock } from 'lucide-react';
 
 interface Event {
@@ -69,7 +70,7 @@ export default function UpcomingEventsSection() {
                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all hover:-translate-y-1 h-full flex flex-col">
                   <div className="relative h-44 bg-gradient-to-br from-blue-100 to-blue-200 flex-shrink-0">
                     {event.image ? (
-                      <img src={event.image} alt="" className="w-full h-full object-cover" />
+                      <img src={ikUrl(event.image, { width: 600 })} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Calendar className="w-14 h-14 text-blue-400" />

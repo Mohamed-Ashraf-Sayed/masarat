@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Trophy,
   Medal,
@@ -162,7 +163,7 @@ export default function LeaderboardPage() {
                   <div className="relative mb-3">
                     {leaderboard[1].avatar ? (
                       <img
-                        src={leaderboard[1].avatar}
+                        src={ikUrl(leaderboard[1].avatar, { width: 100 })}
                         alt={leaderboard[1].name}
                         className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-gray-300"
                       />
@@ -186,7 +187,7 @@ export default function LeaderboardPage() {
                   <div className="relative mb-3">
                     {leaderboard[0].avatar ? (
                       <img
-                        src={leaderboard[0].avatar}
+                        src={ikUrl(leaderboard[0].avatar, { width: 100 })}
                         alt={leaderboard[0].name}
                         className="w-24 h-24 rounded-full object-cover mx-auto border-4 border-yellow-400"
                       />
@@ -209,7 +210,7 @@ export default function LeaderboardPage() {
                   <div className="relative mb-3">
                     {leaderboard[2].avatar ? (
                       <img
-                        src={leaderboard[2].avatar}
+                        src={ikUrl(leaderboard[2].avatar, { width: 100 })}
                         alt={leaderboard[2].name}
                         className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-amber-500"
                       />
@@ -253,7 +254,7 @@ export default function LeaderboardPage() {
 
                     {entry.avatar ? (
                       <img
-                        src={entry.avatar}
+                        src={ikUrl(entry.avatar, { width: 100 })}
                         alt={entry.name}
                         className="w-12 h-12 rounded-full object-cover"
                       />
@@ -305,7 +306,7 @@ export default function LeaderboardPage() {
                   </div>
                   {userRank.avatar ? (
                     <img
-                      src={userRank.avatar}
+                      src={ikUrl(userRank.avatar, { width: 100 })}
                       alt={userRank.name}
                       className="w-12 h-12 rounded-full object-cover"
                     />

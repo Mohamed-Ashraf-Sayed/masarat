@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
@@ -383,7 +384,7 @@ export default function AdminBooksPage() {
               <div className="relative aspect-[3/4] bg-gray-100">
                 {book.cover ? (
                   <img
-                    src={book.cover}
+                    src={ikUrl(book.cover, { width: 600 })}
                     alt={book.title[language]}
                     className="w-full h-full object-cover"
                   />
@@ -618,7 +619,7 @@ export default function AdminBooksPage() {
                   >
                     {formData.cover ? (
                       <>
-                        <img src={formData.cover} alt="cover" className="w-full h-full object-cover" />
+                        <img src={ikUrl(formData.cover, { width: 200 })} alt="cover" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                           <span className="text-white text-xs font-medium flex items-center gap-1">
                             <Upload className="w-4 h-4" />

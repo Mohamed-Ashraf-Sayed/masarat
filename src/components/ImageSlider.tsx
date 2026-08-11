@@ -41,6 +41,7 @@ export default function ImageSlider() {
               src={slide.src}
               alt={slide.alt}
               fill
+              sizes="100vw"
               className="object-contain"
               priority={index === 0}
             />

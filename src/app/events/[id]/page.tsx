@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ikUrl } from '@/lib/imagekit';
 import { Calendar, MapPin, Users, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 
 interface Event {
@@ -105,7 +106,7 @@ export default function EventDetailPage() {
       <Navbar variant="solid" />
 
       <div className="relative h-64 md:h-80 bg-gradient-to-br from-blue-600 to-blue-800">
-        {event.image && <img src={event.image} alt="" className="w-full h-full object-cover opacity-50" />}
+        {event.image && <img src={ikUrl(event.image, { width: 1200 })} alt="" className="w-full h-full object-cover opacity-50" />}
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-4xl mx-auto px-4 pb-8 w-full">
             <button onClick={() => router.back()} className="flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors">
@@ -214,7 +215,7 @@ export default function EventDetailPage() {
               <h3 className="font-semibold text-gray-700 mb-3">{ar ? 'المنظم' : 'Organizer'}</h3>
               <div className="flex items-center gap-3">
                 {event.organizer.avatar ? (
-                  <img src={event.organizer.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  <img src={ikUrl(event.organizer.avatar, { width: 100 })} alt="" className="w-10 h-10 rounded-full object-cover" />
                 ) : (
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
                     {event.organizer.name[0]}

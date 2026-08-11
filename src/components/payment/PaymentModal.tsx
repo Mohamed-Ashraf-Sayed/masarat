@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { ikUrl } from '@/lib/imagekit';
 import PayPalButton from './PayPalButton';
 import {
   X,
@@ -166,7 +167,7 @@ export default function PaymentModal({
               <div className="flex gap-4 p-4 bg-gray-50 rounded-xl mb-6">
                 {course.thumbnail && (
                   <img
-                    src={course.thumbnail}
+                    src={ikUrl(course.thumbnail, { width: 200 })}
                     alt={language === 'ar' ? course.titleAr : course.titleEn}
                     className="w-24 h-16 object-cover rounded-lg"
                   />

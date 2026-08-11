@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Play, Clock, BookOpen, Award, Search, Loader2 } from 'lucide-react';
@@ -164,7 +165,7 @@ export default function MyCoursesPage() {
             >
               <div className="flex gap-4 p-4">
                 <img
-                  src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200'}
+                  src={ikUrl(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200', { width: 200 })}
                   alt={course.title[language]}
                   className="w-32 h-24 object-cover rounded-xl flex-shrink-0"
                 />

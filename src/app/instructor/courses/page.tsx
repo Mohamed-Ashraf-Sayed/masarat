@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { ikUrl } from '@/lib/imagekit';
 import {
   Plus, Search, Eye, Edit, Trash2, BarChart3, BookOpen,
   Users, Star, Clock, Loader2, CheckCircle, XCircle,
@@ -176,7 +177,7 @@ export default function InstructorCoursesPage() {
               <div key={course.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group">
                 <div className="relative">
                   <img
-                    src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400'}
+                    src={ikUrl(course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400', { width: 600 })}
                     alt={course.title[language]}
                     className="w-full h-48 object-cover"
                   />
