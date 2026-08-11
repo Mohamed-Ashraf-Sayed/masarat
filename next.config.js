@@ -51,6 +51,8 @@ const nextConfig = {
     ],
     // لتجنب مشاكل الصور على Hostinger
     unoptimized: process.env.NODE_ENV === 'production',
+    // كاش صور الـ optimizer (بيشتغل في التطوير / لو الـ optimization اتفعّل)
+    minimumCacheTTL: 86400,
   },
 
   // إعدادات الإنتاج
@@ -119,6 +121,26 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With' },
           { key: 'Access-Control-Max-Age', value: '86400' },
+        ],
+      },
+      // Cache layer للصور الثابتة (slider, logos, ...) — أسماؤها ثابتة فالكاش يوم + أسبوع stale
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
+      // الملفات المرفوعة أسماؤها فريدة (timestamp) فآمن نكيّشها سنة كاملة
+      {
+        source: '/uploads/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/fonts/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ];
