@@ -150,6 +150,13 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
+      // إيصالات الدفع بيانات شخصية — آخر قاعدة عشان تكسب على قواعد الكاش اللي فوق
+      {
+        source: '/uploads/:folder(receipts|book-receipts)/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store' },
+        ],
+      },
     ];
   },
 };

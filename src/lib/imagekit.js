@@ -9,6 +9,10 @@ export function ikUrl(src, { width, quality } = {}) {
     return src;
   }
   if (src.startsWith('/_next/') || src.startsWith('/api/')) return src;
+  // إيصالات الدفع فيها بيانات شخصية — متعديش على CDN خارجي أبداً
+  if (src.startsWith('/uploads/receipts/') || src.startsWith('/uploads/book-receipts/')) {
+    return src;
+  }
 
   const tr = ['f-auto', `q-${quality || 80}`];
   if (width) tr.push(`w-${Math.round(width)}`);
