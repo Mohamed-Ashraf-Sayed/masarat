@@ -76,7 +76,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = await register(name, email, password, role);
+    const result = await register(name, email, password, role, agreeToTerms);
     if (result.success) {
       router.push('/dashboard');
     } else {

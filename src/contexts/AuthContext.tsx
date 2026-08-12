@@ -24,7 +24,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string, twoFactorCode?: string) => Promise<LoginResult>;
-  register: (name: string, email: string, password: string, role?: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password: string, role?: string, tosAccepted?: boolean) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 }
@@ -142,7 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     name: string,
     email: string,
     password: string,
-    role: string = 'STUDENT'
+    role: string = 'STUDENT',
+    tosAccepted: boolean = false
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
 
@@ -152,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, role, tosAccepted }),
       });
 
       const data = await response.json();
