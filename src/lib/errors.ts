@@ -32,6 +32,8 @@ export function errorResponse(
       success: false,
       error_code: options.error_code,
       message: options.message,
+      // كل استهلاك الـ frontend للأخطاء بيقرا result.error — سيبناها متزامنة مع message
+      error: options.message,
       ...(options.details !== undefined && { details: options.details }),
       timestamp: new Date().toISOString(),
     },

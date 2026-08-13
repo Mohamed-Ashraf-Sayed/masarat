@@ -195,8 +195,11 @@ export default function CourseDetailPage() {
       const result = await response.json();
       if (result.success) {
         router.push(`/courses/${id}/learn`);
+      } else if (result.error_code === 'ALREADY_ENROLLED') {
+        // مسجل بالفعل — روحه للدرس بدل ما نوريه رسالة خطأ
+        router.push(`/courses/${id}/learn`);
       } else {
-        alert(result.error || 'Failed to enroll');
+        alert(result.error || result.message || 'Failed to enroll');
       }
     } catch (error) {
       console.error('Error enrolling:', error);

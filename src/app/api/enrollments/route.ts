@@ -186,15 +186,16 @@ export async function POST(request: NextRequest) {
 
     if (enrollment === 'ALREADY_ENROLLED') return alreadyEnrolled();
 
-    // ── Notifications (non-blocking) ─────────────────────────────────────────
-    const enrolledUser = await prisma.user.findUnique({
-      where: { id: tokenData.userId },
-      select: { name: true },
-    });
-    notifyEnrollment(tokenData.userId, enrollment.course.titleEn);
-    if (course.instructorId) {
-      notifyInstructorNewStudent(course.instructorId, enrolledUser?.name ?? '', enrollment.course.titleEn);
-    }
+    // ── Notifications (best-effort — never fail the enrollment because of these) ──
+    prisma.user
+      .findUnique({ where: { id: tokenData.userId }, select: { name: true } })
+      .then((enrolledUser) => {
+        notifyEnrollment(tokenData.userId, enrollment.course.titleEn);
+        if (course.instructorId) {
+          notifyInstructorNewStudent(course.instructorId, enrolledUser?.name ?? '', enrollment.course.titleEn);
+        }
+      })
+      .catch((err) => console.error('Enrollment notification failed (non-fatal):', err));
 
     return NextResponse.json(
       {
