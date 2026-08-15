@@ -24,6 +24,7 @@ import {
   Download,
 } from 'lucide-react';
 import ProtectedVideoPlayer from '@/components/ProtectedVideoPlayer';
+import YouTubeLessonPlayer from '@/components/YouTubeLessonPlayer';
 
 interface Lesson {
   id: string;
@@ -213,7 +214,7 @@ export default function LearnPage() {
 
       const result = await response.json();
       if (result.success) {
-        setCompletedLessons(prev => [...prev, lessonId]);
+        setCompletedLessons(prev => (prev.includes(lessonId) ? prev : [...prev, lessonId]));
       }
     } catch (error) {
       console.error('Error marking lesson complete:', error);
@@ -478,12 +479,11 @@ export default function LearnPage() {
             currentLesson.videoUrl ? (
               // Check if it's a YouTube video
               currentLesson.videoUrl.includes('youtube.com') || currentLesson.videoUrl.includes('youtu.be') ? (
-                <iframe
+                // IFrame API بدل iframe صامت — عشان الدرس يتسجل مكتمل تلقائياً عند انتهاء الفيديو
+                <YouTubeLessonPlayer
                   key={currentLesson.id}
-                  src={`https://www.youtube.com/embed/${getYouTubeId(currentLesson.videoUrl)}?rel=0`}
-                  className="w-full h-full max-h-[70vh] aspect-video"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+                  videoId={getYouTubeId(currentLesson.videoUrl)}
+                  onEnded={() => handleLessonComplete(currentLesson.id)}
                 />
               ) : currentLesson.videoUrl.includes('vimeo.com') ? (
                 // Vimeo video
