@@ -198,6 +198,9 @@ export default function CourseDetailPage() {
       } else if (result.error_code === 'ALREADY_ENROLLED') {
         // مسجل بالفعل — روحه للدرس بدل ما نوريه رسالة خطأ
         router.push(`/courses/${id}/learn`);
+      } else if (response.status === 401) {
+        // جلسة منتهية — رجّعه لتسجيل الدخول بدل رسالة Unauthorized محيّرة
+        router.push(`/login?redirect=/courses/${id}`);
       } else {
         alert(result.error || result.message || 'Failed to enroll');
       }

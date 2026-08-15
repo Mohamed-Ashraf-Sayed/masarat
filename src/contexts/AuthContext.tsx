@@ -37,6 +37,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
+  // التوكن منتهي الصلاحية؟ (JWT صالح 7 أيام — بعدها كل الـ APIs بترفضه)
+  const isTokenExpired = (jwt: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
+    } catch {
+      return true; // توكن تالف = منتهي
+    }
+  };
+
   // تحميل بيانات المستخدم من localStorage عند بدء التطبيق
   useEffect(() => {
     setMounted(true);
@@ -50,10 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Loading auth from localStorage:', { savedUser: !!savedUser, savedToken: !!savedToken });
 
         if (savedUser && savedToken) {
-          const parsedUser = JSON.parse(savedUser);
-          setUser(parsedUser);
-          setToken(savedToken);
-          console.log('User loaded:', parsedUser.email, parsedUser.role);
+          if (isTokenExpired(savedToken)) {
+            // جلسة منتهية: امسحها بدل واجهة "داخل" وكل الـ APIs بترد Unauthorized
+            console.log('Session token expired — clearing stale auth state');
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+          } else {
+            const parsedUser = JSON.parse(savedUser);
+            setUser(parsedUser);
+            setToken(savedToken);
+            console.log('User loaded:', parsedUser.email, parsedUser.role);
+          }
         }
       } catch (error) {
         console.error('Error loading auth data:', error);
