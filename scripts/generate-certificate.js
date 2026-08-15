@@ -34,8 +34,13 @@ function hasArabic(text) {
 }
 
 function processArabicText(text) {
-  const reshaped = ArabicReshaper.convertArabic(text);
-  return reshaped.split(' ').reverse().join(' ');
+  // NBSP بيخلي السطر كله run واحد وfontkit بيتكفل بالتشكيل واتجاه العربي.
+  // لكن قلبه للسطر بيشمل اللاتيني/الأرقام/الأقواس المدمجة — فبنعكسهم مسبقاً
+  // عشان يطلعوا صح بعد القلب النهائي.
+  return text
+    .replace(/[0-9A-Za-z]+/g, (run) => run.split('').reverse().join(''))
+    .replace(/[()]/g, (ch) => (ch === '(' ? ')' : '('))
+    .replace(/ /g, '\u00A0');
 }
 
 function setupDoc() {
@@ -104,7 +109,7 @@ function generateStandard(data) {
     .text(displayName, 50, nameY, { align: 'center', width: w - 100 });
 
   // Certificate number
-  const certNumY = nameY + (nameSize === 40 ? 60 : 50);
+  const certNumY = nameY + (nameSize === 40 ? 60 : 50) + (nameIsArabic ? 14 : 0); // خط Amiri نازل أعمق
   doc.font('Helvetica').fontSize(14).fillColor('#333333')
     .text(`certificate #${data.certNumber}`, 0, certNumY, { align: 'center' });
 
@@ -113,14 +118,17 @@ function generateStandard(data) {
   doc.font('Helvetica').fontSize(12).fillColor('#c2185b')
     .text('Has been recognized for completing the course of study', 0, recogY, { align: 'center' });
 
-  // Course name
+  // Course name — العناوين العربية لازم خط Amiri + reshaping زي اسم الطالب بالظبط
   const courseY = recogY + 28;
+  const courseIsArabic = hasArabic(data.courseEn);
+  const displayCourse = courseIsArabic ? processArabicText(data.courseEn) : data.courseEn;
+  const courseFont = courseIsArabic ? 'AmiriBold' : 'Helvetica-BoldOblique';
   const courseSize = data.courseEn.length > 55 ? 18 : data.courseEn.length > 40 ? 22 : 26;
-  doc.font('Helvetica-BoldOblique').fontSize(courseSize).fillColor('#1a1a2e')
-    .text(data.courseEn, 60, courseY, { align: 'center', width: w - 120 });
+  doc.font(courseFont).fontSize(courseSize).fillColor('#1a1a2e')
+    .text(displayCourse, 60, courseY, { align: 'center', width: w - 120 });
 
   // Dates & hours
-  const courseH = doc.heightOfString(data.courseEn, { width: w - 120, font: 'Helvetica-BoldOblique', fontSize: courseSize });
+  const courseH = doc.heightOfString(displayCourse, { width: w - 120 });
   const datesY = courseY + courseH + 15;
 
   let dateText = data.startDate ? `Start ${data.startDate}, completed ${data.completedDate}` : `Completed ${data.completedDate}`;
@@ -202,7 +210,7 @@ function generateCEU(data) {
     .text(displayName, 50, nameY, { align: 'center', width: w - 100 });
 
   // ---- Certification Number ----
-  const numY = nameY + (nameSize === 36 ? 50 : 40);
+  const numY = nameY + (nameSize === 36 ? 50 : 40) + (nameIsArabic ? 14 : 0); // خط Amiri نازل أعمق
   doc.font('Helvetica').fontSize(12).fillColor('#333333')
     .text(`Certification Number# ${data.certNumber}`, 0, numY, { align: 'center' });
 
@@ -211,14 +219,17 @@ function generateCEU(data) {
   doc.font('Helvetica').fontSize(11).fillColor('#555555')
     .text('for participation in online synchronous webinar entitled :', 0, partY, { align: 'center' });
 
-  // ---- Course name ----
+  // ---- Course name ---- (العناوين العربية: Amiri + معالجة bidi)
   const courseY = partY + 25;
+  const courseIsArabic = hasArabic(data.courseEn);
+  const displayCourse = courseIsArabic ? processArabicText(data.courseEn) : data.courseEn;
+  const courseFont = courseIsArabic ? 'AmiriBold' : 'Helvetica-BoldOblique';
   const courseSize = data.courseEn.length > 60 ? 16 : data.courseEn.length > 40 ? 20 : 24;
-  doc.font('Helvetica-BoldOblique').fontSize(courseSize).fillColor('#c2185b')
-    .text(data.courseEn, 80, courseY, { align: 'center', width: w - 160 });
+  doc.font(courseFont).fontSize(courseSize).fillColor('#c2185b')
+    .text(displayCourse, 80, courseY, { align: 'center', width: w - 160 });
 
   // ---- CEU info + breakdown (same row) ----
-  const courseH = doc.heightOfString(data.courseEn, { width: w - 160, font: 'Helvetica-BoldOblique', fontSize: courseSize });
+  const courseH = doc.heightOfString(displayCourse, { width: w - 160 });
   const ceuY = courseY + courseH + 10;
 
   // Left side: "Has earned X CEU(s)."
@@ -324,7 +335,7 @@ function generateIBAOCEU(data) {
     .text(displayName, 50, nameY, { align: 'center', width: w - 100 });
 
   // ---- Certification Number ----
-  const numY = nameY + (nameSize === 36 ? 50 : 40);
+  const numY = nameY + (nameSize === 36 ? 50 : 40) + (nameIsArabic ? 14 : 0); // خط Amiri نازل أعمق
   doc.font('Helvetica').fontSize(12).fillColor('#333333')
     .text(`Certification Number# ${data.certNumber}`, 0, numY, { align: 'center' });
 
@@ -333,14 +344,17 @@ function generateIBAOCEU(data) {
   doc.font('Helvetica').fontSize(11).fillColor('#555555')
     .text('for participation in online synchronous webinar entitled :', 0, partY, { align: 'center' });
 
-  // ---- Course name ----
+  // ---- Course name ---- (العناوين العربية: Amiri + معالجة bidi)
   const courseY = partY + 25;
+  const courseIsArabic = hasArabic(data.courseEn);
+  const displayCourse = courseIsArabic ? processArabicText(data.courseEn) : data.courseEn;
+  const courseFont = courseIsArabic ? 'AmiriBold' : 'Helvetica-BoldOblique';
   const courseSize = data.courseEn.length > 60 ? 16 : data.courseEn.length > 40 ? 20 : 24;
-  doc.font('Helvetica-BoldOblique').fontSize(courseSize).fillColor('#c2185b')
-    .text(data.courseEn, 80, courseY, { align: 'center', width: w - 160 });
+  doc.font(courseFont).fontSize(courseSize).fillColor('#c2185b')
+    .text(displayCourse, 80, courseY, { align: 'center', width: w - 160 });
 
   // ---- CEU info + breakdown ----
-  const courseH = doc.heightOfString(data.courseEn, { width: w - 160, font: 'Helvetica-BoldOblique', fontSize: courseSize });
+  const courseH = doc.heightOfString(displayCourse, { width: w - 160 });
   const ceuY = courseY + courseH + 10;
 
   const ceuCount = data.ceuCount || 0;
