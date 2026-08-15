@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
-import { notifyCourseCompletion, notifyCertificate } from '@/lib/notifications';
+import { notifyCourseCompletion } from '@/lib/notifications';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -125,23 +125,7 @@ export async function POST(
       updateData.status = 'COMPLETED';
       updateData.completedAt = new Date();
 
-      // إنشاء شهادة إذا لم تكن موجودة (Section 14.5: immutable — only create once)
-      const existingCertificate = await prisma.certificate.findFirst({
-        where: { userId: tokenData.userId, courseId },
-      });
-
-      if (!existingCertificate) {
-        const uniqueId = `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        await prisma.certificate.create({
-          data: {
-            userId: tokenData.userId,
-            courseId,
-            certificateId: uniqueId,
-          },
-        });
-        notifyCertificate(tokenData.userId, enrollment.course.titleEn);
-      }
-
+      // الشهادات بتتصدر يدوياً من الأدمن بس (/admin/certificates) — مفيش إصدار تلقائي
       notifyCourseCompletion(tokenData.userId, enrollment.course.titleEn);
     }
 
