@@ -112,12 +112,13 @@ function checkSuspiciousURL(pathname: string): { suspicious: boolean; threatPoin
     { pattern: /phpmyadmin/i, points: 20 }, // phpMyAdmin attacks
     { pattern: /\.env/, points: 30 }, // Environment file access
     { pattern: /\.git/, points: 25 }, // Git access
-    { pattern: /shell|cmd|exec/i, points: 35 }, // Shell commands
-    { pattern: /union.*select/i, points: 50 }, // SQL injection
-    { pattern: /select.*from/i, points: 40 }, // SQL injection
-    { pattern: /insert.*into/i, points: 45 }, // SQL injection
-    { pattern: /delete.*from/i, points: 45 }, // SQL injection
-    { pattern: /drop.*table/i, points: 50 }, // SQL injection
+    // كلمات كاملة فقط — الـ IDs العشوائية (cuid) ممكن تحتوي cmd/exec بالصدفة وتتحظر بالغلط
+    { pattern: /(?<![a-z0-9])(shell|cmd|exec)(?![a-z0-9])/i, points: 35 }, // Shell commands
+    { pattern: /\bunion\b.*\bselect\b/i, points: 50 }, // SQL injection
+    { pattern: /\bselect\b.*\bfrom\b/i, points: 40 }, // SQL injection
+    { pattern: /\binsert\b.*\binto\b/i, points: 45 }, // SQL injection
+    { pattern: /\bdelete\b.*\bfrom\b/i, points: 45 }, // SQL injection
+    { pattern: /\bdrop\b.*\btable\b/i, points: 50 }, // SQL injection
     { pattern: /\$\{.*\}/, points: 30 }, // Template injection
     { pattern: /\{\{.*\}\}/, points: 25 }, // Template injection
   ];
