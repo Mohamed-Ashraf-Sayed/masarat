@@ -18,6 +18,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
+  Award,
 } from 'lucide-react';
 
 interface Enrollment {
@@ -261,6 +262,9 @@ export default function AdminEnrollmentsPage() {
                   <th className="text-start p-4 text-sm font-medium text-gray-500">
                     {language === 'ar' ? 'تاريخ التسجيل' : 'Enrolled'}
                   </th>
+                  <th className="text-start p-4 text-sm font-medium text-gray-500">
+                    {language === 'ar' ? 'إجراءات' : 'Actions'}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -331,6 +335,17 @@ export default function AdminEnrollmentsPage() {
                         <Calendar className="w-4 h-4" />
                         {new Date(enrollment.enrolledAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US')}
                       </div>
+                    </td>
+                    <td className="p-4">
+                      {(enrollment.status === 'COMPLETED' || enrollment.progress === 100) && (
+                        <Link
+                          href={`/admin/certificates?userId=${enrollment.user.id}&courseId=${enrollment.course.id}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm font-medium hover:bg-amber-100 transition-colors"
+                        >
+                          <Award className="w-4 h-4" />
+                          {language === 'ar' ? 'إصدار شهادة' : 'Issue Certificate'}
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))}

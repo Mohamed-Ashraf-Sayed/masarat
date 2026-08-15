@@ -90,6 +90,17 @@ export default function AdminCertificatesPage() {
       return;
     }
     fetchCertificates();
+
+    // جايين من صفحة التسجيلات بزرار "إصدار شهادة"؟ افتح النافذة جاهزة على الطالب والدورة
+    const params = new URLSearchParams(window.location.search);
+    const prefillUserId = params.get('userId');
+    const prefillCourseId = params.get('courseId');
+    if (prefillUserId && prefillCourseId) {
+      openIssueModal();
+      setSelectedUserId(prefillUserId);
+      setSelectedCourseId(prefillCourseId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, router, authLoading]);
 
   const fetchCertificates = async () => {
