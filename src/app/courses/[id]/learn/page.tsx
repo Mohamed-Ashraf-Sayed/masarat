@@ -129,22 +129,14 @@ export default function LearnPage() {
 
         setCourse(courseResult.data);
 
-        // افتح على أول درس مش مكتمل — عشان الـ refresh يرجّع الطالب لمكانه مش لأول الكورس
-        if (courseResult.data.lessons.length > 0) {
-          const firstIncomplete = courseResult.data.lessons.find(
-            (l: Lesson) => !doneLessons.includes(l.id)
-          );
-          setCurrentLesson(firstIncomplete || courseResult.data.lessons[courseResult.data.lessons.length - 1]);
-        }
-
-        // جلب اختبارات الدروس
+        // جلب اختبارات الدروس (قبل اختيار الدرس — عشان نحترم أقفال الاختبارات)
+        const quizMap: Record<string, LessonQuiz> = {};
         if (token) {
           const quizzesRes = await fetch(`/api/courses/${id}/quizzes`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const quizzesResult = await quizzesRes.json();
           if (quizzesResult.success) {
-            const quizMap: Record<string, LessonQuiz> = {};
             quizzesResult.data.forEach((quiz: { lesson?: { id: string }; id: string; titleAr: string; titleEn: string; questionsCount: number; passingScore: number; timeLimit: number | null; hasPassed: boolean; bestScore: number | null; canAttempt: boolean }) => {
               if (quiz.lesson) {
                 quizMap[quiz.lesson.id] = {
@@ -161,6 +153,20 @@ export default function LearnPage() {
               }
             });
             setLessonQuizzes(quizMap);
+          }
+        }
+
+        // افتح على أول درس مش مكتمل — ولو مقفول باختبار، افتح الدرس اللي قبله (اللي اختباره ناقص)
+        const lessons: Lesson[] = courseResult.data.lessons;
+        if (lessons.length > 0) {
+          const idx = lessons.findIndex((l: Lesson) => !doneLessons.includes(l.id));
+          if (idx === -1) {
+            setCurrentLesson(lessons[lessons.length - 1]);
+          } else {
+            const target = lessons[idx];
+            const prevQuiz = idx > 0 ? quizMap[lessons[idx - 1].id] : undefined;
+            const isQuizLocked = idx > 0 && !!target.requireQuizPass && !!prevQuiz && !prevQuiz.hasPassed;
+            setCurrentLesson(isQuizLocked ? lessons[idx - 1] : target);
           }
         }
       } catch (error) {
@@ -266,6 +272,19 @@ export default function LearnPage() {
     const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
 
     if (newIndex >= 0 && newIndex < course.lessons.length) {
+      // زرار "التالي" لازم يحترم قفل الاختبار زي القائمة الجانبية بالظبط
+      if (direction === 'next') {
+        const target = course.lessons[newIndex];
+        const prevQuiz = lessonQuizzes[course.lessons[newIndex - 1].id];
+        if (target.requireQuizPass && prevQuiz && !prevQuiz.hasPassed) {
+          alert(
+            language === 'ar'
+              ? `الدرس التالي مقفول — لازم تجتاز اختبار "${prevQuiz.titleAr}" الأول (النجاح من ${prevQuiz.passingScore}%)`
+              : `Next lesson is locked — pass the quiz "${prevQuiz.titleEn}" first (${prevQuiz.passingScore}% to pass)`
+          );
+          return;
+        }
+      }
       setCurrentLesson(course.lessons[newIndex]);
     }
   };
