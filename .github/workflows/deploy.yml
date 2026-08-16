@@ -22,3 +22,5 @@ jobs:
             docker compose build
             docker compose up -d --no-deps --force-recreate app
             docker image prune -f
+            # كاش الـ builds بيتراكم بالجيجات مع كل deploy — نظّفه مع الإبقاء على 8GB للسرعة
+            docker builder prune -f --keep-storage 8GB
