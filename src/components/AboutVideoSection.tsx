@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { ikUrl } from '@/lib/imagekit';
 
 export default function AboutVideoSection() {
   const { language } = useLanguage();
@@ -78,6 +79,10 @@ export default function AboutVideoSection() {
                 ref={videoRef}
                 className="w-full h-auto"
                 src="/videos/intro.mp4"
+                // preload=none: الفيديو (17MB) مبيتحملش غير لما حد يدوس تشغيل فعلاً —
+                // كان بيتسحب مع كل زيارة للرئيسية وبياكل معظم باندويدث السيرفر
+                preload="none"
+                poster={ikUrl('/videos/intro-poster.jpg', { width: 640 })}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={() => setIsPlaying(false)}

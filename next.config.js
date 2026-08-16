@@ -142,9 +142,9 @@ const nextConfig = {
           { key: 'Access-Control-Max-Age', value: '86400' },
         ],
       },
-      // Cache layer للصور الثابتة (slider, logos, ...) — أسماؤها ثابتة فالكاش يوم + أسبوع stale
+      // Cache layer للصور والفيديوهات الثابتة — أسماؤها ثابتة فالكاش يوم + أسبوع stale
       {
-        source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico)',
+        source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico|mp4|webm|mov)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
