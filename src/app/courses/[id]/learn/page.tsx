@@ -69,6 +69,7 @@ interface CourseData {
     avatar: string | null;
   };
   enrollment?: {
+    id?: string;
     progress: number;
     status: string;
   };
@@ -199,7 +200,12 @@ export default function LearnPage() {
     fetchResources();
   }, [currentLesson, id, token]);
 
+  // الأدمن بيشوف الكورس بتسجيل وهمي للمعاينة — مفيش تقدم حقيقي يتسجل
+  const isAdminPreview = course?.enrollment?.id === 'admin-preview';
+
   const handleLessonComplete = async (lessonId: string) => {
+    if (isAdminPreview) return; // وضع معاينة — تجاهل بصمت (بدل alert مزعج عند نهاية كل فيديو)
+
     if (!token) {
       // مفيش جلسة — وجّهه لتسجيل الدخول بدل الفشل الصامت
       router.push(`/login?redirect=/courses/${id}/learn`);
@@ -720,7 +726,11 @@ export default function LearnPage() {
                   </div>
                 </div>
 
-                {!completedLessons.includes(currentLesson.id) && (
+                {isAdminPreview ? (
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 rounded-lg text-gray-300 text-sm">
+                    {language === 'ar' ? 'وضع معاينة الأدمن' : 'Admin preview mode'}
+                  </span>
+                ) : !completedLessons.includes(currentLesson.id) ? (
                   <button
                     onClick={() => handleLessonComplete(currentLesson.id)}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded-lg text-white hover:bg-green-700 transition-colors"
@@ -728,7 +738,7 @@ export default function LearnPage() {
                     <CheckCircle className="w-5 h-5" />
                     <span>{language === 'ar' ? 'تحديد كمكتمل' : 'Mark Complete'}</span>
                   </button>
-                )}
+                ) : null}
 
                 {completedLessons.includes(currentLesson.id) && (
                   <span className="flex items-center gap-2 text-green-400">
