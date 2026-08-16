@@ -200,7 +200,11 @@ export default function LearnPage() {
   }, [currentLesson, id, token]);
 
   const handleLessonComplete = async (lessonId: string) => {
-    if (!token) return;
+    if (!token) {
+      // مفيش جلسة — وجّهه لتسجيل الدخول بدل الفشل الصامت
+      router.push(`/login?redirect=/courses/${id}/learn`);
+      return;
+    }
 
     try {
       const response = await fetch(`/api/enrollments/${id}/progress`, {
@@ -215,9 +219,19 @@ export default function LearnPage() {
       const result = await response.json();
       if (result.success) {
         setCompletedLessons(prev => (prev.includes(lessonId) ? prev : [...prev, lessonId]));
+      } else if (response.status === 401) {
+        // جلسة منتهية
+        router.push(`/login?redirect=/courses/${id}/learn`);
+      } else {
+        alert(
+          result.error ||
+            result.message ||
+            (language === 'ar' ? 'تعذر تحديد الدرس كمكتمل' : 'Failed to mark lesson complete')
+        );
       }
     } catch (error) {
       console.error('Error marking lesson complete:', error);
+      alert(language === 'ar' ? 'مشكلة في الاتصال — حاول تاني' : 'Connection problem — try again');
     }
   };
 
