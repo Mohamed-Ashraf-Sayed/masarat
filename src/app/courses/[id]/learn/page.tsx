@@ -113,6 +113,7 @@ export default function LearnPage() {
         }
 
         // جلب بيانات التسجيل والتقدم
+        let doneLessons: string[] = [];
         if (token) {
           const enrollmentRes = await fetch(`/api/enrollments/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -121,15 +122,19 @@ export default function LearnPage() {
 
           if (enrollmentResult.success) {
             courseResult.data.enrollment = enrollmentResult.data;
-            setCompletedLessons(enrollmentResult.data.completedLessons || []);
+            doneLessons = enrollmentResult.data.completedLessons || [];
+            setCompletedLessons(doneLessons);
           }
         }
 
         setCourse(courseResult.data);
 
-        // تحديد الدرس الحالي
+        // افتح على أول درس مش مكتمل — عشان الـ refresh يرجّع الطالب لمكانه مش لأول الكورس
         if (courseResult.data.lessons.length > 0) {
-          setCurrentLesson(courseResult.data.lessons[0]);
+          const firstIncomplete = courseResult.data.lessons.find(
+            (l: Lesson) => !doneLessons.includes(l.id)
+          );
+          setCurrentLesson(firstIncomplete || courseResult.data.lessons[courseResult.data.lessons.length - 1]);
         }
 
         // جلب اختبارات الدروس
@@ -225,6 +230,19 @@ export default function LearnPage() {
       const result = await response.json();
       if (result.success) {
         setCompletedLessons(prev => (prev.includes(lessonId) ? prev : [...prev, lessonId]));
+
+        // الانتقال التلقائي للدرس التالي — إلا لو مقفول باختبار لسه متعداش
+        if (course) {
+          const idx = course.lessons.findIndex(l => l.id === lessonId);
+          const next = idx >= 0 ? course.lessons[idx + 1] : undefined;
+          if (next) {
+            const currentQuiz = lessonQuizzes[lessonId];
+            const nextIsQuizLocked = !!next.requireQuizPass && !!currentQuiz && !currentQuiz.hasPassed;
+            if (!nextIsQuizLocked) {
+              setCurrentLesson(next);
+            }
+          }
+        }
       } else if (response.status === 401) {
         // جلسة منتهية
         router.push(`/login?redirect=/courses/${id}/learn`);
